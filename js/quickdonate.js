@@ -13,7 +13,8 @@
   ]);
 
     quickDonation.controller('QuickDonationCtrl', function($scope) {
+      //manually binds Parsley--Validation Library to this form.
       $('#quickDonationForm').parsley();
-      $scope.formInfo = {};
+      $scope.formInfo = {}; //property is set to bind input value
     });
 })(angular, CRM.$, CRM._);

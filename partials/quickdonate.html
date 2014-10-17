@@ -1,7 +1,7 @@
 <!--
 Controller: DonationAngCtrl
 -->
-<form name="quickDonationForm" id="quickDonationForm" ng-app="quickdonate" ng-controller="QuickDonationCtrl" novalidate>
+<form name="quickDonationForm" id="quickDonationForm" novalidate>
   <div class="crm-block crm-form-block crmCaseType">
     <!--Price field Block-->
     <fieldset class="priceset-group">
@@ -9,7 +9,7 @@ Controller: DonationAngCtrl
     </fieldset>
     <!--User Information-->
     <fieldset class="user-info-group">
-      <h3>Enter your information:</h3>     
+      <legend>Enter your information:</legend>
       <div class="form-group">
         <strong>Full Name</strong>
         <input type="text" class="form-control" ng-model="formInfo.user" data-parsley-trigger="keyup" placeholder="Firstname Lastname" required />
@@ -28,11 +28,11 @@ Controller: DonationAngCtrl
       </div>
       <div class="form-group">
         <strong>Country</strong>
-        <input type="text" class="form-control" ng-model="formInfo.country" id="country" placeholder="Enter country">
+        <input type="text" class="form-control" ng-model="formInfo.country" id="country">
       </div>
       <div class="form-group">
         <strong>State</strong>
-        <input type="text" class="form-control" ng-model="formInfo.state" id="state" placeholder="Enter state">
+        <input type="text" class="form-control" ng-model="formInfo.state" id="state">
       </div>
   </div>
   </fieldset>
