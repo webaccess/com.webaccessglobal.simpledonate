@@ -11,4 +11,9 @@
       });
     }
   ]);
+
+    quickDonation.controller('QuickDonationCtrl', function($scope) {
+      $('#quickDonationForm').parsley();
+      $scope.formInfo = {};
+    });
 })(angular, CRM.$, CRM._);

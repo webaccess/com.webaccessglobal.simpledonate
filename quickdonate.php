@@ -93,6 +93,5 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @param $angularModule
  */
 function quickdonate_civicrm_angularModules(&$angularModule) {
-  $angularModule['quickdonate'] = array('ext' => 'com.webaccessglobal.quickdonate', 'js' => array('js/quickdonate.js'));
+  $angularModule['quickdonate'] = array('ext' => 'com.webaccessglobal.quickdonate', 'js' => array('js/quickdonate.js', 'js/parsley.min.js', 'js/jquery.ziptastic.js', 'js/bootstrap.min.js'), 'css' => array('css/quickdonate.css', 'css/bootstrap.min.css'));
 }
-
