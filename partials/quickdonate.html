@@ -2,43 +2,90 @@
 Controller: DonationAngCtrl
 -->
 <form name="quickDonationForm" id="quickDonationForm" novalidate>
-  <div class="crm-block crm-form-block crmCaseType">
-    <!--Price field Block-->
-    <fieldset class="priceset-group">
+  <div class="crm-block crm-form-block crmDonationForm">
 
+    <!--Price field Block-->
+    <fieldset class="priceset-group section" ng-show="selectedSection(1)">
+      <legend>Choose an amount to donate:</legend>
+      <div ng-hide="hidePriceVal">Total Contribution: {{message}}</div>
+      <div>
+        <ul class="priceSet">
+          <li class="pull-left pricelist" ng-click="amountSelected(price.amount)" ng-mouseover="amounthover(price.amount)" ng-repeat="price in priceListInfo">
+            <input ng-model="formInfo.donateAmount" type="radio" name="donate-amount" data-parsley-multiple="donate-amount" value="{{price.amount}}"/>{{price.amount}}
+          </li>
+          <li class="pull-left pricelist">
+            <input ng-model="formInfo.otherAmount" class="form-control" type="text" placeholder="Other amt" />
+          </li>
+        </ul>
+      </div>
     </fieldset>
+
     <!--User Information-->
-    <fieldset class="user-info-group">
+    <fieldset class="user-info-group section" ng-show="selectedSection(2)">
       <legend>Enter your information:</legend>
-      <div class="form-group">
-        <strong>Full Name</strong>
+      <div class="form-group field-container">
+        <label>Full Name</label>
         <input type="text" class="form-control" ng-model="formInfo.user" data-parsley-trigger="keyup" placeholder="Firstname Lastname" required />
       </div>
-      <div class="form-group">
-        <strong>E-mail</strong>
+      <div class="form-group field-container">
+        <label>E-mail</label>
         <input type="email" class="form-control" ng-model="formInfo.email" data-parsley-trigger="keyup" placeholder="your@email.com" required />
       </div>
-      <div class="form-group">
-        <strong>Address</strong>
+      <div class="form-group field-container">
+        <label>Address</label>
         <input type="text" class="form-control" ng-model="formInfo.address" data-parsley-trigger="keyup" placeholder="123 Main St, Apt 2" required />
       </div>
-      <div class="form-group">
-        <strong>ZIP</strong>
+      <div class="form-group field-container">
+        <label>ZIP</label>
         <input data-parsley-type="number" data-parsley-minlength="5" class="form-control" data-parsley-trigger="keyup" ng-model="formInfo.zip" placeholder="15201" required />
       </div>
-      <div class="form-group">
-        <strong>Country</strong>
+      <div class="form-group field-container">
+        <label>Country</label>
         <input type="text" class="form-control" ng-model="formInfo.country" id="country">
       </div>
-      <div class="form-group">
-        <strong>State</strong>
+      <div class="form-group field-container">
+        <label>State</label>
         <input type="text" class="form-control" ng-model="formInfo.state" id="state">
       </div>
-  </div>
-  </fieldset>
-  <!--Credit Card Information-->
-  <fieldset class="credit-card-group">
+    </fieldset>
 
-  </fieldset>
+    <!--Credit Card Information-->
+    <fieldset class="form-group credit-card-group section" ng-show="selectedSection(3)">
+      <legend>Credit Card Information</legend>
+
+      <div class="form-control payment-block">
+        <div class="form-control crm-section credit_card_type-section">
+          <div class="crm-credit_card_type-icons">
+            <a class="crm-credit_card_type-icon-visa" title="Visa" ng-show='"visa"==selectedRow'><span>Visa</span></a>
+            <a class="crm-credit_card_type-icon-mastercard" title="MasterCard" ng-show='"mastercard"==selectedRow'><span>MasterCard</span></a>
+            <a class="crm-credit_card_type-icon-amex" title="Amex" ng-show='"amex"==selectedRow'><span>Amex</span></a>
+            <a class="crm-credit_card_type-icon-discover" title="Discover" ng-show='"discover"==selectedRow'><span>Discover</span></a>
+            <a class="crm-credit_card_type-icon-cvv2-icon cvv2-icon" title="CVV" ng-show='"cvv2"==selectedRow'><span>CVV</span></a>
+          </div>
+        </div>
+        <div class="form-group single-input-block" ng-class="{ 'has-error' : quickDonationForm.cardNumber.$invalid && !quickDonationForm.cardNumber.$pristine }">
+          <label>Card Number</label>
+          <input type="text" name="cardNumber" class="form-control cardNumber" ng-model="cardNumber"data-encrypted-name="cardNumber" required data-credit-card-type data-ng-pattern="/^[0-9 ]+$/" data-ng-minlength="15" maxlength="19" autocomplete="off" />
+        </div>
+        <div class="form-group single-input-block" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine " ng-class="{ 'has-error' : quickDonationForm.cardExpiry.$invalid && !quickDonationForm.cardExpiry.$pristine }">
+          <label>Expiration Date </label>
+          <input placeholder="MM/YY" pattern="[0-9]*" type="text" ng-model="cardExpiry" class="form-control" id="card-expiration" name="cardExpiry" required data-credit-card-expiry >
+        </div>
+        <div class="form-group single-input-block" ng-class="{'has-error':quickDonationForm.securityCode.$invalid && !quickDonationForm.securityCode.$pristine}" ng-show="quickDonationForm.cardExpiry.$valid && !quickDonationForm.cardExpiry.$pristine ">
+          <label>Security Code </label>
+          <input type="text" name="securityCode" class="form-control" ng-model="securityCode" required data-ng-pattern="/^[0-9]+$/" data-ng-minlength="3" maxlength="4" autocomplete="off" ng-click="selectedCardType('cvv2')">
+        </div>
+        <div class="form-group single-input-block" ng-class="{'has-error' :quickDonationForm.zipCode.$invalid && !quickDonationForm.zipCode.$pristine}" ng-show="quickDonationForm.securityCode.$valid && !quickDonationForm.securityCode.$pristine ">
+          <label>ZIP Code</label>
+          <input type="text" name="zip" class="form-control" ng-model="zipCode" required data-ng-pattern="/^[0-9]+$/" data-ng-minlength="5" autocomplete="off" >
+        </div>
+      </div>
+    </fieldset>
+
+    <button class="donate-sub" ng-click="sectionShow()" ng-hide="section === 3">Next Step</button>
+    <!-- SUBMIT BUTTON -->
+    <button class="donate-submit-btn" ng-click="saveData()" ng-disabled="quickDonationForm.$invalid" disabled="{{scope.isDisabled}}" loading-text="Saving..." enable-button="quickDonationForm.$pristine" ng-show="selectedSection(3)" submit-button > Complete Donation</button>
+
+  </div>
 </form>
 

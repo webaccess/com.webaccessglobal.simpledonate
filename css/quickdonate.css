@@ -1,6 +1,89 @@
 .ng-dirty.ng-valid {
-  border color: green;
+    border color: green;
 }
 .ng-dirty.ng-invalid {
-  border color: red;
+    border color: red;
+}
+
+ul.priceSet{
+    display: table;
+}
+
+li.pricelist{
+    float: left;
+    margin-bottom: 1em;
+    padding-bottom: 0;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: 0;
+    position: relative;
+    width: 50%;
+    list-style: none;
+}
+
+.user-info-group > .field-container:nth-of-type(2n+1) {
+    clear: left;
+}
+
+.user-info-group .field-container input{
+    margin: 0.5em 0 0.5em 0;
+}
+
+.user-info-group > .field-container {
+    float: left;
+    width: 50%;
+    padding: 0 2em 0 2em;
+}
+
+.user-info-group {
+    padding: 0.5em;
+}
+
+.credit-card-group {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    -o-perspective: 1000;
+    perspective: 1000;
+    border: 1px solid #bbbbbb !important;
+    overflow: hidden;
+    padding: 0 0.5em;
+    margin-bottom: 0.2em;
+    position: relative;
+}
+
+.credit-card-group label {
+    display: none !important;
+}
+
+.credit_card_type-section {
+    float: left;
+    width: auto;
+    border-style: none !Important;
+}
+
+.single-input-block{
+    float: left;
+}
+
+.payment-block {
+    width: 80%;
+    height: 70px;
+    text-align: center;
+}
+
+.single-input-block input{
+    float: left;
+    background: transparent;
+    border: none !important;
+    box-shadow: none;
+    outline: 0;
+    padding: 1em 0;
+}
+
+button {
+    padding: 1em;
 }

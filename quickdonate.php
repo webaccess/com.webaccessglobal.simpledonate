@@ -93,5 +93,36 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * @param $angularModule
  */
 function quickdonate_civicrm_angularModules(&$angularModule) {
-  $angularModule['quickdonate'] = array('ext' => 'com.webaccessglobal.quickdonate', 'js' => array('js/quickdonate.js', 'js/parsley.min.js', 'js/jquery.ziptastic.js', 'js/bootstrap.min.js'), 'css' => array('css/quickdonate.css', 'css/bootstrap.min.css'));
+  $settings = civicrm_api3('Setting', 'get', array(
+    'sequential' => 1,
+    'return' => "quick_donation_page",
+  ));
+  $donatePageID = NULL;
+  if(!empty($settings['values'])) {
+    $donatePageID = $settings['values'][0]['quick_donation_page'];
+    $extends = CRM_Core_Component::getComponentID('CiviContribute');
+    $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
+  }
+  CRM_Core_Resources::singleton()->addSetting(array(
+    'quickdonate' => array(
+      'donatePageID' => $donatePageID,
+      'priceSetID' => $priceSetID,
+    ),
+  ));
+  $angularModule['quickdonate'] = array(
+    'ext' => 'com.webaccessglobal.quickdonate',
+    'js' => array(
+      'js/quickdonate.js',
+      'js/parsley.min.js',
+      'js/jquery.ziptastic.js',
+      'js/bootstrap.min.js',
+      'js/libs/modernizr.js',
+      'js/libs/jquery.inputmask.js',
+      'js/libs/jquery.inputmaskDate.extensions.js'
+    ),
+    'css' => array(
+      'css/quickdonate.css',
+      'css/bootstrap.min.css'
+    )
+  );
 }

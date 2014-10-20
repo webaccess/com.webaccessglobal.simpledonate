@@ -47,7 +47,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
    */
   public function buildQuickForm() {
     CRM_Utils_System::setTitle(ts('Settings - Enable Quick Donation Form'));
-    $quickDonationPage = CRM_Contribute_BAO_ContributionPage::buildOptions('financial_type_id');
+    $quickDonationPage = CRM_Contribute_PseudoConstant::contributionPage();
     $this->addElement('select', 'quickDonation', ts('Donation Form'), $quickDonationPage);
 
     parent::buildQuickForm();
