@@ -4,3 +4,10 @@
 .ng-dirty.ng-invalid {
   border color: red;
 }
+
+.parsley-errors-list.filled {
+  color: #b94a48;
+  font-size: 1em;
+  padding: 0.2em;
+  list-style: none;
+}
