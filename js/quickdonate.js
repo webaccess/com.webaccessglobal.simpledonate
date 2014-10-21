@@ -221,7 +221,7 @@
     var directive = {
       require: 'ngModel',
       link: function($scope, elm, attrs, ctrl){
-        var duration = 500;
+        var duration = 100;
         var elements = {
           country: $('#country'),
           state: $('#state'),
@@ -237,7 +237,7 @@
         });
       },
     };
-  return directive;
+    return directive;
   });
 
 })(angular, CRM.$, CRM._);
