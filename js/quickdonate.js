@@ -216,4 +216,28 @@
       }
     };
   });
+
+  quickDonation.directive('zipCodeInfo', function() {
+    var directive = {
+      require: 'ngModel',
+      link: function($scope, elm, attrs, ctrl){
+        var duration = 100;
+        var elements = {
+          country: $('#country'),
+          state: $('#state'),
+          city: $('#city')
+        }
+        elements.state.parent().hide();
+        elements.city.parent().hide();
+        elm.ziptastic().on('zipChange', function(evt, country, state, state_short, city, zip) {
+          // State
+          elements.state.val(state).parent().show(duration);
+          // City
+          elements.city.val(city).parent().show(duration);
+        });
+      },
+    };
+    return directive;
+  });
+
 })(angular, CRM.$, CRM._);
