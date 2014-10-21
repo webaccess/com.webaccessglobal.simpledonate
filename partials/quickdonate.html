@@ -25,27 +25,27 @@ Controller: DonationAngCtrl
       <legend>Enter your information:</legend>
       <div class="form-group field-container">
         <label>Full Name</label>
-        <input type="text" class="form-control" ng-model="formInfo.user" data-parsley-trigger="keyup" placeholder="Firstname Lastname" required />
+        <input type="text" class="form-control" ng-model="formInfo.user" data-parsley-validation-threshold="0" data-parsley-pattern="\ " pattern="\ " data-parsley-trigger="keyup" placeholder="Firstname Lastname" required />
       </div>
       <div class="form-group field-container">
         <label>E-mail</label>
-        <input type="email" class="form-control" ng-model="formInfo.email" data-parsley-trigger="keyup" placeholder="your@email.com" required />
+        <input type="email" class="form-control" ng-model="formInfo.email" data-parsley-validation-threshold="0" data-parsley-trigger="keyup" placeholder="your@email.com" required />
       </div>
       <div class="form-group field-container">
         <label>Address</label>
-        <input type="text" class="form-control" ng-model="formInfo.address" data-parsley-trigger="keyup" placeholder="123 Main St, Apt 2" required />
+        <input type="text" class="form-control" ng-model="formInfo.address" data-parsley-validation-threshold="0" data-parsley-trigger="keyup" placeholder="123 Main St, Apt 2" required />
       </div>
       <div class="form-group field-container">
         <label>ZIP</label>
-        <input data-parsley-type="number" data-parsley-minlength="5" class="form-control" data-parsley-trigger="keyup" ng-model="formInfo.zip" placeholder="15201" required />
+        <input zip-code-info  data-parsley-type="number" data-parsley-validation-threshold="0" data-parsley-minlength="5" class="form-control" data-parsley-trigger="keyup" ng-model="formInfo.zip" placeholder="15201" required />
       </div>
       <div class="form-group field-container">
-        <label>Country</label>
-        <input type="text" class="form-control" ng-model="formInfo.country" id="country">
+        <label>City</label>
+        <input type="text" class="form-control" ng-model="formInfo.city" data-parsley-validation-threshold="0" data-parsley-trigger="focusin focusout" id="city" placeholder="Pittsburgh" required />
       </div>
       <div class="form-group field-container">
         <label>State</label>
-        <input type="text" class="form-control" ng-model="formInfo.state" id="state">
+        <input type="text" class="form-control" ng-model="formInfo.state" data-parsley-validation-threshold="0" data-parsley-trigger="focusin focusout" id="state" placeholder="PA" required />
       </div>
     </fieldset>
 
