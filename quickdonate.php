@@ -102,13 +102,47 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     $donatePageID = $settings['values'][0]['quick_donation_page'];
     $extends = CRM_Core_Component::getComponentID('CiviContribute');
     $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
+
+    $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
+    $otherAmount = FALSE;
+    foreach($priceField['values'] as $key => $value) {
+      if ($value['name'] == 'other_amount') {
+        $otherAmount = TRUE;
+      }
+      else {
+        $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name","price_field_id"=> $value['id']));
+        $priceList = $priceFieldVal['values'];
+      }
+    }
+    $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
+      'id' => $donatePageID,
+    ));
+
+    $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
+
+    $donateConfig = $donatePage;
+    if (is_array($donatePage['payment_processor'])) {
+      $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], 'test');
+    }
+    else {
+      $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], 'test');
+      $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
+    }
   }
+
   CRM_Core_Resources::singleton()->addSetting(array(
     'quickdonate' => array(
       'donatePageID' => $donatePageID,
       'priceSetID' => $priceSetID,
+      'currency' => $currencySymbol,
+      'config' => $donateConfig,
+      'paymentProcessor' => $paymentProcessors,
+      'priceList' => $priceList,
+      'otherAmount' => $otherAmount
     ),
   ));
+  CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
+
   $angularModule['quickdonate'] = array(
     'ext' => 'com.webaccessglobal.quickdonate',
     'js' => array(
@@ -122,7 +156,7 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     ),
     'css' => array(
       'css/quickdonate.css',
-      'css/bootstrap.min.css'
     )
   );
+
 }

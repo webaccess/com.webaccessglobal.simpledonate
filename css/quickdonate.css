@@ -5,27 +5,11 @@
     border color: red;
 }
 
-ul.priceSet{
-    display: table;
-}
-
-li.pricelist{
-    float: left;
-    margin-bottom: 1em;
-    padding-bottom: 0;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    padding-top: 0;
-    position: relative;
-    width: 50%;
-    list-style: none;
-}
-
 .user-info-group > .field-container:nth-of-type(2n+1) {
     clear: left;
 }
 
-.user-info-group .field-container input{
+.user-info-group .field-container input {
     margin: 0.5em 0 0.5em 0;
 }
 
@@ -39,23 +23,30 @@ li.pricelist{
     padding: 0.5em;
 }
 
-.credit-card-group {
-    -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
-    -o-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    -moz-perspective: 1000;
-    -o-perspective: 1000;
-    perspective: 1000;
+.payment-processor-block ul.paymentProcessor {
+    list-style: none !important;
+    display: flex;
+    padding: 0px;
+    margin: 0px;
+}
+
+ul.paymentProcessor li {
+    float: left !important;
+    padding: 5px 0 10px 35px;
+}
+
+.payment-processor-group {
     border: 1px solid #bbbbbb !important;
     overflow: hidden;
     padding: 0 0.5em;
     margin-bottom: 0.2em;
     position: relative;
+    width: 100%;
+    height:64px;
+    background: white;
 }
 
-.credit-card-group label {
+.single-input-block label {
     display: none !important;
 }
 
@@ -64,20 +55,20 @@ li.pricelist{
     width: auto;
     border-style: none !Important;
 }
-
+.credit_card_type-section a {
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 6px;
+    margin-top: 15px;
+}
 .single-input-block{
     float: left;
-}
-
-.payment-block {
-    width: 80%;
-    height: 70px;
-    text-align: center;
+    width: 22%;
 }
 
 .single-input-block input{
     float: left;
-    background: transparent;
+    //background: transparent;
     border: none !important;
     box-shadow: none;
     outline: 0;
@@ -86,6 +77,18 @@ li.pricelist{
 
 button {
     padding: 1em;
+    padding: 0.8em;
+    padding-left: 1.8em;
+    padding-right: 1.8em;
+    background: #3b7840;
+    font-weight: bold !important;
+    color: #fff !important;
+    border-radius : 8px;
+    font-size: 1.3em !important;
+}
+
+button:hover {
+    background: #e9bd1d;
 }
 
 .parsley-errors-list.filled {
@@ -93,4 +96,76 @@ button {
     font-size: 1em;
     padding: 0.2em;
     list-style: none;
+}
+
+.priceSet input[type=radio] {
+    display: none;
+}
+
+ul.priceSet {
+    display: table;
+    list-style: none !important;
+}
+
+ul.priceSet li{
+    display: flex;
+    margin-right: 2px;
+}
+.priceSet input[type=text] {
+    border :1px solid #3b7840;
+    width: 100%;
+    border-radius : 8px;
+    font-size: 1.0em;
+}
+
+.priceSet label {
+    font-size: 1.4em;
+    background: #3b7840;
+    font-weight: normal;
+    color: #fff;
+    padding-left: 2.0em;
+    padding-right: 2.0em;
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    text-align: center;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.priceSet label:hover {
+    background: #1B8A39;
+}
+
+.priceSet li .active {
+    background: #e9bd1d;
+    color: #171303;
+    text-shadow: none;
+}
+
+.priceSetMessage {
+    font-weight: bold;
+    margin-left: 30px;
+    font-size: 1.1em;
+}
+.form-step {
+    font-weight: bold;
+    background: #ddd;
+    color: gray;
+    padding: 0.4em 0.5em;
+    line-height: 1;
+    border-radius: 15px;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+}
+
+.form-head, .form-head span.message{
+    font-size: 1.4em !important;
+    font-weight: bold !important;
+}
+
+.icon {
+    background-image: url("../i/icons/jquery-ui-52534D.png");
+    background-position: 485px 243px;
 }
