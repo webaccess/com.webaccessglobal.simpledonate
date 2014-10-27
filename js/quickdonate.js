@@ -46,31 +46,21 @@
     $('#quickDonationForm').parsley();
     $scope.formInfo = {}; //property is set to bind input value
 
-    $scope.amountActive = function(price) {
-      return $scope.amount === price;
-    }
-
     $scope.hidePriceVal = true;
     $scope.amountSelected = function(price) {
       $scope.amount = price;
     }
 
-    $scope.amounthover = function(price) {
-      $scope.message = price;
-      $scope.hidePriceVal = false;
-      return $scope.message;
-    }
-
-    $scope.amountInput = function() {
-	  $scope.message = $scope.formInfo.otherAmount;
-	  $scope.hidePriceVal = false;
-	  return $scope.message;
-	}
-
-	$scope.amountActive = function(price) {
+    $scope.amountActive = function(price) {
      return $scope.amount === price;
     }
 
+    $scope.amounthover = function(price) {
+      $scope.formInfo.donateAmount = price;
+      $scope.hidePriceVal = false;
+      return $scope.message;
+    }
+      $scope.selectedRow = null;
     $scope.selectedCardType = function(row) {
       $scope.selectedRow = row;
     };
@@ -79,8 +69,26 @@
       $scope.section = $scope.section + 1;
     };
 
+    ccDefinitions = {
+      'visa': /^4/,
+      'mc': /^5[1-5]/,
+      'amex': /^3(4|7)/,
+      'disc': /^6011/
+    };
+
     $scope.selectedSection = function(sectionNo) {
       return sectionNo <= $scope.section ;
+    };
+
+    $scope.getCreditCardType = function(number){
+      var ccType;
+      $.each(ccDefinitions, function (i, v) {
+        if (v.test(number)) {
+          ccType = i;
+          return false;
+        }
+      });
+      return ccType;
     };
 
     $scope.createContribution = function (contactId,params) {
@@ -88,7 +96,7 @@
       var resultParams =$scope.donationConfig;//<?php echo json_encode($contributionPage);?>;
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount || 1;
       $scope.contributionparams = {
-        "credit_card_number":$scope.formInfo.cardNumber,
+        "credit_card_number":$scope.formInfo.cardNumberValue,
         "cvv2":$scope.formInfo.securityCode,
         "credit_card_type":"Visa",
         "billing_first_name":params.first_name,
@@ -173,7 +181,7 @@
     $scope.saveData = function() {
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
       CRM.api3('Contact', 'get', {
-          "email": $scope.formInfo.email,
+        "email": $scope.formInfo.email,
         "contact_type":"Individual"
       }).success(function(data, status, headers, config) {
         var counter = 0, resultParams = {};
@@ -235,12 +243,24 @@
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
-        $(elm).inputmask({mask: "m/q", placeholder: " "});
-        elm.bind('keyup', function() {
-          if (scope.quickDonationForm.cardExpiry.$valid && elm.val().length==5) {
-            $('#securityCode').focus();
-	  }
-        });
+        expirationComplete = function() {
+          elm.addClass("full")
+            .unbind("keydown blur")
+            .bind("keydown", function (e) {
+              if (e.keyCode === 8 && $(this).val() === "") {
+                $(this).removeClass("full");
+                  if (window.navigator.standalone || !Modernizr.touch) {
+                    $("#cardNumber").focus();
+                  }
+                }
+            });
+          if (window.navigator.standalone || !Modernizr.touch) {
+            setTimeout(function () {
+              $("#securityCode").focus();
+            }, 220);
+          }
+        }
+	$(elm).inputmask({mask: "m/q", clearIncomplete: true, oncomplete: expirationComplete});
       }
     }
     return directive
@@ -249,8 +269,8 @@
   quickDonation.directive('securityCode', function(){
     var directive = {
       require: 'ngModel',
-      link: function(scope, elm, attrs, ctrl){
-        elm.bind('keyup', function(){
+      link: function(scope, elm, attrs, ctrl) {
+        elm.bind('keyup', function() {
           if (scope.quickDonationForm.securityCode.$valid) {
             $('#zip').focus();
 	  }
@@ -264,33 +284,77 @@
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
-        scope.cardNumberValue = null;
-        $(elm).inputmask({ mask: "9999 9999 9999 9999", placeholder: " "});
+        scope.formInfo.cardNumberValue = null;
+        $(elm).inputmask({mask: "9999 9999 9999 9999", placeholder: "1234 5678 9012 3456"});
+        creditCardComplete = function() {
+          // We need to get the credit card field and the unmasked value of the field.
+          scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
+          ccType = scope.getCreditCardType(uvalue);
+          // Let's make sure the card is valid
+          if (ccType === undefined) {
+            $(elm).parents().addClass("invalid shake");
+            return;
+          }
+          // Replace the value with the last four numbers of the card.
+	  if ((ccType === "amex" && uvalue.length === 15) || (ccType !== "amex" && uvalue.length === 16)) {
+            $("#card-expiration").focus();
+            elm.val(uvalue.substr(uvalue.length - 4, uvalue.length));
+          }
+          // Once this function is fired, we need to add a "transitioning" class to credit
+          // card element so that we can take advantage of our CSS animations.
+          elm.addClass("transitioning-out");
+          // We have to set a timeout so that we give our animations time to finish. We have to
+	  // blur the element as well to fix a bug where our credit card field was losing its
+	  // value prematurely.
+	  setTimeout(function () {
+            elm.removeClass("transitioning-out");
+            elm.addClass("full");
+	  }, scope.animationWait);
+	  // After the credit card field is initially filled out, bind a click event
+	  // that will allow us to edit the number again if we want to. We also bind
+	  // a focus event (for mobile) and a keydown event in case of shift + tab
+	  elm.unbind("blur focus click keydown keypress")
+            .bind("focus click keydown keypress", function (e) {
+              if (e.type === "focus" || e.type === "click" || (e.shiftKey && e.keyCode === 9)) {
+                beginCreditCard(elm);
+              }
+            });
+          if (window.navigator.standalone || !Modernizr.touch) {
+            // Focus on the credit card expiration input.
+            elm.val(scope.formInfo.cardNumberValue);
+            $("#card-expiration").focus();
+            elm.val(uvalue.substr(uvalue.length - 4, uvalue.length));
+          }
+	};
+	beginCreditCard= function(elm) {
+          elm.val(scope.formInfo.cardNumberValue);
+          // Wait for the animation to complete and then remove our classes.
 
-        elm.bind('keyup', function(){
-	  if (scope.quickDonationForm.cardNumber.$valid) {
-            if (scope.type) {
-              $('#card-expiration').focus();
-            }
-	  }
-        });
-        elm.bind('blur', function(){
-	  var val = elm.val();
-	  scope.cardNumberValue = val;
-	  elm.val(val.substr(val.length - 4));
-	});
-        elm.bind('click', function(){
-	    elm.val(scope.cardNumberValue);
-	});
+          elm.unbind("keypress blur")
+            .bind("keypress blur", function (e) {
+              // Is it the enter key?
+              if (e.keyCode === 13 || e.type === "blur") {
+                uvalue = elm.inputmask("unmaskedvalue");
+                ccType = scope.getCreditCardType(uvalue);
+                // Make sure the number length is valid
+                if ((ccType === "amex" && uvalue.length === 15) || (ccType !== "amex" && uvalue.length === 16)) {
+		    creditCardComplete();
+                  //$('#card-expiration').focus();
+                }
+              }
+            })
+            .unbind("focus click keydown");
+	};
+	cardNo = elm.val();
+	ccType = scope.getCreditCardType(cardNo);
 
+	if (ccType === "amex") {
+          elm.inputmask({ mask: "9999 999999 99999", placeholder: " ", oncomplete: creditCardComplete });
+        } else {
+          elm.inputmask({ mask: "9999 9999 9999 9999", placeholder: " ", oncomplete: creditCardComplete });
+	}
         ctrl.$parsers.unshift(function(value){
-          scope.type =
-            (/^5[1-5]/.test(value)) ? "mastercard"
-            : (/^4/.test(value)) ? "visa"
-            : (/^3[4|7]/.test(value)) ? 'amex'
-            : (/^6011|65|64[4-9]|622(1(2[6-9]|[3-9]\d)|[2-8]\d{2}|9([01]\d|2[0-5]))/.test(value)) ? 'discover'
-            : undefined
-            ctrl.$setValidity('invalid',!!scope.type);
+          scope.type = scope.getCreditCardType(value);
           if (value) {
             scope.selectedCardType(scope.type);
 	  }
@@ -336,6 +400,21 @@
           // City
           elements.city.val(city).parent().show(duration);
         });
+      },
+    };
+    return directive;
+  });
+
+  quickDonation.directive('radioLabel', function() {
+    var directive = {
+      link: function($scope, elm, attrs, ctrl){
+        elm.bind('click', function(){
+	    $scope.formInfo.donateAmount = null;
+	    elm.parent().find('input').attr('checked', true);
+          $scope.hidePriceVal = false;
+	    $scope.formInfo.otherAmount = null;
+	  $scope.formInfo.donateAmount = elm.parent().find('input').val();
+	});
       },
     };
     return directive;
