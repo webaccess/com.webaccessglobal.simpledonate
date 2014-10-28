@@ -87,14 +87,17 @@ ul.paymentProcessor li {
     width: auto;
     border-style: none !Important;
 }
+
 .credit_card_type-section a {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 6px;
     margin-top: 15px;
 }
+
 .single-input-block{
     float: left;
+    margin-top: 0.5em;
     width: 22%;
 }
 
@@ -254,7 +257,7 @@ ul.priceSet li{
 }
 
 button:hover .next-icons {
-    background-image: url("../../../../i/icons/jquery-ui-3E3E3E.png") !important;
+    //background-image: url("../../../../i/icons/jquery-ui-3E3E3E.png") !important;
     background-position: 485px 243px;
 }
 
@@ -286,4 +289,64 @@ button:hover .next-icons {
     background-color: #3b7840 !important;
     background-image: none !important;
 }
+
+.shake {
+  -webkit-animation-iteration-count: 1;
+  -moz-animation-iteration-count: 1;
+  -o-animation-iteration-count: 1;
+  animation-iteration-count: 1;
+  -webkit-animation-duration: .4s;
+  -moz-animation-duration: .4s;
+  -o-animation-duration: .4s;
+  animation-duration: .4s;
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: shake;
+  -moz-animation-name: shake;
+  -o-animation-name: shake;
+  animation-name: shake; }
+
+/* ======================================
+ * ANIMATIONS
+ * ======================================
+ */
+@-webkit-keyframes shake {
+  0%, 100% {
+    -webkit-transform: translateX(0); }
+
+  30%, 60% {
+    -webkit-transform: translateX(-10px); }
+
+  40%, 80% {
+    -webkit-transform: translateX(10px); } }
+@-moz-keyframes shake {
+  0%, 100% {
+    -moz-transform: translateX(0); }
+
+  30%, 60% {
+    -moz-transform: translateX(-10px); }
+
+  40%, 80% {
+    -moz-transform: translateX(10px); } }
+@-o-keyframes shake {
+  0%, 100% {
+    -o-transform: translateX(0); }
+
+  30%, 60% {
+    -o-transform: translateX(-10px); }
+
+  40%, 80% {
+    -o-transform: translateX(10px); } }
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0); }
+
+  30%, 60% {
+    transform: translateX(-10px); }
+
+  40%, 80% {
+    transform: translateX(10px); } }
+
 
