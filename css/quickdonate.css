@@ -1,8 +1,41 @@
+.quickDonationForm {
+    background: none !important;
+    border-top: 1px solid #3b7840 !important;
+}
+
 .ng-dirty.ng-valid {
     border color: green;
 }
 .ng-dirty.ng-invalid {
     border color: red;
+}
+
+.parsley-success {
+    border-color: #089e00 !important;
+}
+
+.parsley-error {
+    border-color: #b94a48 !important;
+}
+
+fieldset.priceset-group {
+    border: none !important;
+}
+fieldset.priceset-group {
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    max-height: 50em !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    text-align: left !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.5s;
+    transition-property: max-height;
+    transition-timing-function: ease-out;
 }
 
 .user-info-group > .field-container:nth-of-type(2n+1) {
@@ -54,14 +87,17 @@ ul.paymentProcessor li {
     width: auto;
     border-style: none !Important;
 }
+
 .credit_card_type-section a {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 6px;
     margin-top: 15px;
 }
+
 .single-input-block{
     float: left;
+    margin-top: 0.5em;
     width: 22%;
 }
 
@@ -75,16 +111,14 @@ ul.paymentProcessor li {
 }
 
 button {
-    padding: 1em;
-    padding: 0.8em;
-    padding-left: 1.5em;
-    padding-right: 1.8em;
+    padding: 1em 1.5em 1em;
     background: #3b7840;
     font-weight: bold !important;
     color: #fff !important;
     border-radius : 8px;
     font-size: 1.3em !important;
     margin-left: 3px !important;
+    margin-top: 1em !important;
 }
 
 button:hover {
@@ -126,13 +160,6 @@ ul.priceSet li{
     font-size: 1.15em;
 }
 
-.priceSet input[type=text] {
-    border :1px solid #3b7840;
-    width: 100%;
-    border-radius : 8px;
-    font-size: 1.3em;
-}
-
 .priceSet label {
     font-size: 1.4em;
     background: #3b7840;
@@ -147,8 +174,41 @@ ul.priceSet li{
     width: 100%;
 }
 
+.other-amount {
+    position: relative;
+}
+
+.other-amount .currency-input-addon {
+    color: #3B7840;
+    font-size: 1.4em;
+    left: 0;
+    padding-left: 0.3em;
+    padding-right: 2.0em;
+    padding-top: 1em;
+    padding-bottom: 0.8em;
+    //padding-bottom: 0.48em;
+    //padding-left: 0.2em;
+    //padding-right: 0;
+    //padding-top: 0.48em;
+    position: absolute;
+    top: 0;
+}
+
+.other-amount input[type=text] {
+    border : 2px solid #3b7840 !important;
+    border-radius : 8px !important;
+    font-size: 1.4em !important;
+    color: #3B7840 !important;
+    font-size: 1.4em !important;
+    line-height: 1 !important;
+    padding-bottom: 0.55em !important;
+    padding-left: 1.2em !important;
+    padding-right: 0.55em !important;
+    padding-top: 0.55em !important;
+}
+
 .priceSet label:hover {
-    background: #1B8A39;
+    background: #47844C;
 }
 
 .priceSet li .active {
@@ -176,9 +236,15 @@ ul.priceSet li{
     text-align: center;
 }
 
-.form-head, .form-head span.message{
+.form-head, .form-head span.message {
     font-size: 1.4em !important;
     font-weight: bold !important;
+}
+
+.donate-step-legend {
+    display: block;
+    margin-bottom: 1em;
+    width: 100%;
 }
 
 .container {
@@ -186,9 +252,101 @@ ul.priceSet li{
 }
 
 .next-icons {
+    //background-image: url("../../../../i/icons/jquery-ui-FFFFFF.png") !important;
+    background-position: 485px 243px;
+}
+
+button:hover .next-icons {
+    //background-image: url("../../../../i/icons/jquery-ui-3E3E3E.png") !important;
     background-position: 485px 243px;
 }
 
 .payment-processor-type label {
     font-size: 1.3em;
+    vertical-align: middle;
 }
+
+.payment-processor-type label:hover {
+    color: #339933;
+}
+
+::-moz-placeholder {
+    color: #bbb !important;
+}
+
+::-webkit-input-placeholder {
+    color: #bbb !important;
+}
+
+.breadcrumb {
+    border-bottom: 1px solid #eee !important;
+    list-style: none outside none !important;
+    margin-bottom: 20px !important;
+    padding: 8px 15px !important;
+}
+
+#header {
+    background-color: #3b7840 !important;
+    background-image: none !important;
+}
+
+.shake {
+  -webkit-animation-iteration-count: 1;
+  -moz-animation-iteration-count: 1;
+  -o-animation-iteration-count: 1;
+  animation-iteration-count: 1;
+  -webkit-animation-duration: .4s;
+  -moz-animation-duration: .4s;
+  -o-animation-duration: .4s;
+  animation-duration: .4s;
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: shake;
+  -moz-animation-name: shake;
+  -o-animation-name: shake;
+  animation-name: shake; }
+
+/* ======================================
+ * ANIMATIONS
+ * ======================================
+ */
+@-webkit-keyframes shake {
+  0%, 100% {
+    -webkit-transform: translateX(0); }
+
+  30%, 60% {
+    -webkit-transform: translateX(-10px); }
+
+  40%, 80% {
+    -webkit-transform: translateX(10px); } }
+@-moz-keyframes shake {
+  0%, 100% {
+    -moz-transform: translateX(0); }
+
+  30%, 60% {
+    -moz-transform: translateX(-10px); }
+
+  40%, 80% {
+    -moz-transform: translateX(10px); } }
+@-o-keyframes shake {
+  0%, 100% {
+    -o-transform: translateX(0); }
+
+  30%, 60% {
+    -o-transform: translateX(-10px); }
+
+  40%, 80% {
+    -o-transform: translateX(10px); } }
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0); }
+
+  30%, 60% {
+    transform: translateX(-10px); }
+
+  40%, 80% {
+    transform: translateX(10px); } }
+
+
