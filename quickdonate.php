@@ -89,17 +89,47 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _quickdonate_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+function quickdonate_civicrm_pageRun(&$page) {
+  $pageName = $page->getVar('_name');
+  if ($pageName == 'CRM_Core_Page_Angular') {
+    quickdonate_getQuickDonateSetting();
+  }
+}
+
+/**
+ * get tab options from DB using setting-get api
+ */
+function quickdonate_getQuickDonateSetting() {
+  $domainID = CRM_Core_Config::domainID();
+  $settings = civicrm_api3('Setting', 'get', array(
+    'domain_id' => $domainID,
+    'return' => "quick_donation_page",
+  ));
+  $donatePageID = NULL;
+  if (CRM_Utils_Array::value('is_error', $settings, FALSE)) {
+    if (CRM_Core_Permission::check('administer CiviCRM')) {
+      CRM_Core_Session::setStatus('Donation form configuration is not done!', ts('Notice'), 'warning');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/quick/donation/configuration'),'reset=1');
+    }
+    else {
+      CRM_Core_Error::debug_var('setting-get result for quick_donation_page', $settings);
+      CRM_Core_Error::fatal(ts('Donation page is not configures. Please contact site administrator.'));
+    }
+  }
+  else {
+    $donatePageID = $settings['values'][$domainID]['quick_donation_page'];
+  }
+  return $donatePageID;
+}
+
 /**
  * @param $angularModule
  */
 function quickdonate_civicrm_angularModules(&$angularModule) {
-  $settings = civicrm_api3('Setting', 'get', array(
-    'sequential' => 1,
-    'return' => "quick_donation_page",
-  ));
-  $donatePageID = NULL;
-  if(!empty($settings['values'])) {
-    $donatePageID = $settings['values'][0]['quick_donation_page'];
+  $session = CRM_Core_Session::singleton();
+  $contactID = $session->get('userID');
+
+  if ($donatePageID = quickdonate_getQuickDonateSetting()) {
     $extends = CRM_Core_Component::getComponentID('CiviContribute');
     $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
 
@@ -128,17 +158,23 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], 'test');
       $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
     }
+    $config = CRM_Core_Config::singleton();
+    $defaultContactCountry = $config->defaultContactCountry;
+    $stateProvince = array_flip(CRM_Core_PseudoConstant::stateProvinceForCountry($defaultContactCountry));
   }
 
   CRM_Core_Resources::singleton()->addSetting(array(
     'quickdonate' => array(
       'donatePageID' => $donatePageID,
       'priceSetID' => $priceSetID,
+      'sessionContact' => $contactID,
       'currency' => $currencySymbol,
       'config' => $donateConfig,
       'paymentProcessor' => $paymentProcessors,
       'priceList' => $priceList,
-      'otherAmount' => $otherAmount
+      'otherAmount' => $otherAmount,
+      'country' => $defaultContactCountry,
+      'allStates' => $stateProvince
     ),
   ));
   CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
@@ -156,7 +192,8 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     ),
     'css' => array(
       'css/quickdonate.css',
+      'css/paymentInfo.css',
     )
   );
-
 }
+

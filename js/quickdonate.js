@@ -2,10 +2,13 @@
 
   var resourceUrl = CRM.resourceUrls['com.webaccessglobal.quickdonate'];
   var quickDonation = angular.module('quickdonate', ['ngRoute']);
-
   quickDonation.config(['$routeProvider',
     function($routeProvider) {
       $routeProvider.when('/donation', {
+        templateUrl: resourceUrl + '/partials/quickdonate.html',
+        controller: 'QuickDonationCtrl'
+      });
+      $routeProvider.when('/quick/donation', {
         templateUrl: resourceUrl + '/partials/quickdonate.html',
         controller: 'QuickDonationCtrl'
       });
@@ -40,14 +43,35 @@
     $scope.donationConfig = CRM.quickdonate.config;
     $scope.priceListInfo = CRM.quickdonate.priceList;
     $scope.otherAmount = CRM.quickdonate.otherAmount;
-
     $scope.section = 1;
     //manually binds Parsley--Validation Library to this form.
-    $('#quickDonationForm').parsley();
+    $('#quickDonationForm').parsley({
+    excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
+});
+
+    //get session
+    formFactory.getUser(CRM.quickdonate.sessionContact).then(function(resultParams) {
+      $scope.formInfo.email = resultParams.email;
+      $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
+      $scope.formInfo.address = resultParams.street_address;
+      if (resultParams.postal_code) {
+        $scope.formInfo.zip = resultParams.postal_code;
+        $scope.formInfo.city = resultParams.city;
+        $scope.formInfo.state = $.map(CRM.quickdonate.allStates, function(obj, index) {
+          if(obj == resultParams.state_province_id) {
+            return index;
+          }
+        });
+        $('#state').parent().show();
+        $('#city').parent().show();
+      }
+    });
+
     $scope.formInfo = {}; //property is set to bind input value
 
     $scope.hidePriceVal = true;
     $scope.amountSelected = function(price) {
+      $scope.hidePriceVal = false;
       $scope.amount = price;
     }
 
@@ -70,10 +94,10 @@
     };
 
     ccDefinitions = {
-      'visa': /^4/,
-      'mc': /^5[1-5]/,
-      'amex': /^3(4|7)/,
-      'disc': /^6011/
+      'Visa': /^4/,
+      'MasterCard': /^5[1-5]/,
+      'Amex': /^3(4|7)/,
+      'Discover': /^6011/
     };
 
     $scope.selectedSection = function(sectionNo) {
@@ -96,45 +120,46 @@
       var resultParams =$scope.donationConfig;//<?php echo json_encode($contributionPage);?>;
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount || 1;
       $scope.contributionparams = {
-        "credit_card_number":$scope.formInfo.cardNumberValue,
-        "cvv2":$scope.formInfo.securityCode,
-        "credit_card_type":"Visa",
-        "billing_first_name":params.first_name,
-        "first_name":params.first_name,
-        "billing_middle_name":params.middle_name,
-        "middle_name":params.middle_name,
-        "billing_last_name":params.last_name,
-        "last_name":params.last_name,
-        "billing_street_address-5":params.street_address,
-        "street_address":params.street_address,
-        "billing_city-5":params.city,
-        "city":params.city,
-        "billing_country_id-5":params.country_id,
-        "country_id":params.country_id,
-        "billing_state_province_id-5":params.state_province_id,
-        "state_province_id":params.state_province_id,
-        "billing_postal_code-5":params.postal_code,
-        "postal_code":params.postal_code,
-        //"year":$scope.year,
-        //"month":$scope.month,
-        "email":params.email,
-        "contribution_page_id":resultParams.id,
-        "payment_processor_id":$scope.formInfo.payment_processor,
-        "is_test":1,
-        "total_amount":$scope.amount,
-        "financial_type_id":resultParams.financial_type_id,
-        "currencyID":resultParams.currency,
-        "currency":resultParams.currency,
-        "skipLineItem":0,
-        "skipRecentView":1,
-        "contact_id":contactId,
-        "address_id":params.address_id,
-        "source":"Online Contribution: Help Support CiviCRM!",
+        "credit_card_number": $scope.cardNumberValue,
+        "cvv2": $scope.formInfo.securityCode,
+        "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue),
+        "billing_first_name": params.first_name,
+        "first_name": params.first_name,
+        "billing_middle_name": params.middle_name,
+        "middle_name": params.middle_name,
+        "billing_last_name": params.last_name,
+        "last_name": params.last_name,
+        "billing_street_address-5": params.street_address,
+        "street_address": params.street_address,
+        "billing_city-5": params.city,
+        "city": params.city,
+        "billing_country_id-5": params.country_id,
+        "country_id": params.country_id,
+        "billing_state_province_id-5": params.state_province_id,
+        "state_province_id": params.state_province_id,
+        "billing_postal_code-5": params.postal_code,
+        "postal_code": params.postal_code,
+        "year": "20"+$scope.year,
+        "month": $scope.month,
+        "email": params.email,
+        "contribution_page_id": resultParams.id,
+        "payment_processor_id": $scope.formInfo.payment_processor,
+        "is_test": 1,
+        "total_amount": $scope.amount,
+        "financial_type_id": resultParams.financial_type_id,
+        "currencyID": resultParams.currency,
+        "currency": resultParams.currency,
+        "skipLineItem": 0,
+        "skipRecentView": 1,
+        "contact_id": contactId,
+        "address_id": params.address_id,
+        "source": "Online Contribution: " + resultParams.title,
       };
 
       CRM.api3('Contribution', 'transact', $scope.contributionparams ).success(function(data, status, headers, config) {
           if (data.is_error == 0) {
-	      alert('ok');
+	      CRM.alert('Donation has been submitted successfully!!', 'alert');
+              //window.location = 'civicrm/quick/#/donation';
           }
           else {
             cj('.error').html(data.error_message);
@@ -145,11 +170,12 @@
       CRM.api3('Address', 'create', {
         'contact_id': "null",
         'location_type_id': 5,
+	'country_id' : CRM.quickdonate.$defaultContactCountry,
         'street_address': $scope.formInfo.address,
         'city': $scope.formInfo.city,
-        //'state_province_id': $scope.formInfo.state.key,
+        'state_province_id': $scope.state,
         'postal_code': $scope.formInfo.zip,
-        'name': $scope.user,
+        'name': $scope.formInfo.user,
         'is_billing': 1,
         'is_primary': 0,
         'api.Address.update':{'id':addressID, 'contact_id': $scope.contact_id, 'is_billing':1,'street_address':$scope.formInfo.address,'city':$scope.formInfo.city,'postal_code':$scope.formInfo.zip},
@@ -159,18 +185,20 @@
       });
     }
     $scope.newUserContri = function(contactId) {
-      primaryValue = [0,1];contactID = ['null',contactId];
+      primaryValue = [0,1];
+      contactID = ['null',contactId];
       cj.each( primaryValue, function( key, value ) {
         CRM.api3('Address', 'create', {
-           'contact_id':contactID[key] ,
-           'location_type_id':5,
-           'street_address':$scope.formInfo.address,
-           'city':$scope.formInfo.city,
-           //'state_province_id':$scope.formInfo.state.key,
-           'postal_code':$scope.formInfo.postalCode,
-           'name':$scope.formInfo.user,
-           'is_billing':1,
-           'is_primary':primaryValue[key]
+           'contact_id': contactID[key] ,
+           'location_type_id': 5,
+	   'country_id' : CRM.quickdonate.$defaultContactCountry,
+           'street_address': $scope.formInfo.address,
+           'city': $scope.formInfo.city,
+           'state_province_id': $scope.state,
+           'postal_code': $scope.formInfo.zip,
+           'name': $scope.formInfo.user,
+           'is_billing': 1,
+           'is_primary': primaryValue[key]
         });
       });
       formFactory.getUser(contactId).then(function(resultParams) {
@@ -180,6 +208,14 @@
 
     $scope.saveData = function() {
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
+      $scope.state = CRM.quickdonate.allStates[$scope.formInfo.state];
+      $scope.country = CRM.quickdonate.country;
+      $scope.names = $scope.formInfo.user.split(' ');
+      $scope.expiry = $scope.formInfo.cardExpiry.split('/');
+      $scope.month = $scope.expiry[0];
+      $scope.year = $scope.expiry[1];
+      $scope.ccType = true;
+
       CRM.api3('Contact', 'get', {
         "email": $scope.formInfo.email,
         "contact_type":"Individual"
@@ -201,6 +237,8 @@
         else{
           CRM.api3('Contact', 'create', {
            "email":$scope.formInfo.email,
+           "first_name": $scope.names[0],
+           "last_name": $scope.names[1],
 	   "contact_type":"Individual"
           }).success(function(data, status, headers, config) {
              $scope.newUserContri(data.id);
@@ -209,6 +247,7 @@
         $scope.quickDonationForm.$setPristine();
       });
     };
+
     $scope.creditType = false;
     $scope.directDebitType = false;
     $scope.hiddenProcessor = false;
@@ -260,7 +299,7 @@
             }, 220);
           }
         }
-	$(elm).inputmask({mask: "m/q", clearIncomplete: true, oncomplete: expirationComplete});
+	$(elm).inputmask({mask: "m/q", placeholder:"MM/YY", clearIncomplete: true, oncomplete: expirationComplete});
       }
     }
     return directive
@@ -272,7 +311,7 @@
       link: function(scope, elm, attrs, ctrl) {
         elm.bind('keyup', function() {
           if (scope.quickDonationForm.securityCode.$valid) {
-            $('#zip').focus();
+            $('#zipCode').focus();
 	  }
         });
       }
@@ -288,11 +327,14 @@
         $(elm).inputmask({mask: "9999 9999 9999 9999", placeholder: "1234 5678 9012 3456"});
         creditCardComplete = function() {
           // We need to get the credit card field and the unmasked value of the field.
-          scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
+          scope.cardNumberValue = scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
           ccType = scope.getCreditCardType(uvalue);
           // Let's make sure the card is valid
           if (ccType === undefined) {
-            $(elm).parents().addClass("invalid shake");
+            $(elm).addClass("ng-invalid shake");
+            scope.formInfo.cardNumberValue = null;
+            scope.ccType = false;
+            $(elm).focus();
             return;
           }
           // Replace the value with the last four numbers of the card.
@@ -394,11 +436,14 @@
         }
         elements.state.parent().hide();
         elements.city.parent().hide();
+
         elm.ziptastic().on('zipChange', function(evt, country, state, state_short, city, zip) {
           // State
-          elements.state.val(state).parent().show(duration);
+          $('#state').val(state).parent().show(duration);
+          $scope.formInfo.state = state;
           // City
-          elements.city.val(city).parent().show(duration);
+          $('#city').val(city).parent().show(duration);
+          $scope.formInfo.city = city;
         });
       },
     };
