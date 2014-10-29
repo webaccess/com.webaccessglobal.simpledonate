@@ -8,10 +8,6 @@
         templateUrl: resourceUrl + '/partials/quickdonate.html',
         controller: 'QuickDonationCtrl'
       });
-      $routeProvider.when('/quick/donation', {
-        templateUrl: resourceUrl + '/partials/quickdonate.html',
-        controller: 'QuickDonationCtrl'
-      });
     }
   ]);
 
@@ -43,7 +39,9 @@
     $scope.donationConfig = CRM.quickdonate.config;
     $scope.priceListInfo = CRM.quickdonate.priceList;
     $scope.otherAmount = CRM.quickdonate.otherAmount;
+    $scope.test = CRM.quickdonate.isTest;
     $scope.section = 1;
+
     //manually binds Parsley--Validation Library to this form.
     $('#quickDonationForm').parsley({
     excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
@@ -144,7 +142,7 @@
         "email": params.email,
         "contribution_page_id": resultParams.id,
         "payment_processor_id": $scope.formInfo.payment_processor,
-        "is_test": 1,
+        "is_test": $scope.test,
         "total_amount": $scope.amount,
         "financial_type_id": resultParams.financial_type_id,
         "currencyID": resultParams.currency,
