@@ -12,20 +12,22 @@
   ]);
 
   quickDonation.factory('formFactory', function($q) {
-    return{
-      getUser:function(contactID){
+    return {
+      getUser:function(contactID) {
         var deferred = $q.defer();
-        CRM.api3('Contact', 'get', {
-          "sequential": 1,
-          "id": contactID
-        }).done(function(data) {
-          cj.each( data.values, function( key, value ) {
-            resultParams = value;
+	if (contactID) {
+          CRM.api3('Contact', 'get', {
+            "sequential": 1,
+            "id": contactID
+          }).done(function(data) {
+            cj.each( data.values, function( key, value ) {
+              resultParams = value;
+            });
+            deferred.resolve(resultParams);
+          }).error(function(data, status, headers, config) {
+            deferred.reject("there was an error");
           });
-          deferred.resolve(resultParams);
-        }).error(function(data, status, headers, config){
-          deferred.reject("there was an error");
-        });
+	}
 	return deferred.promise;
       },
     };
@@ -187,16 +189,16 @@
       contactID = ['null',contactId];
       cj.each( primaryValue, function( key, value ) {
         CRM.api3('Address', 'create', {
-           'contact_id': contactID[key] ,
-           'location_type_id': 5,
-	   'country_id' : CRM.quickdonate.$defaultContactCountry,
-           'street_address': $scope.formInfo.address,
-           'city': $scope.formInfo.city,
-           'state_province_id': $scope.state,
-           'postal_code': $scope.formInfo.zip,
-           'name': $scope.formInfo.user,
-           'is_billing': 1,
-           'is_primary': primaryValue[key]
+          'contact_id': contactID[key] ,
+          'location_type_id': 5,
+	  'country_id' : CRM.quickdonate.$defaultContactCountry,
+          'street_address': $scope.formInfo.address,
+          'city': $scope.formInfo.city,
+          'state_province_id': $scope.state,
+          'postal_code': $scope.formInfo.zip,
+          'name': $scope.formInfo.user,
+          'is_billing': 1,
+          'is_primary': primaryValue[key]
         });
       });
       formFactory.getUser(contactId).then(function(resultParams) {
@@ -234,12 +236,12 @@
         }
         else{
           CRM.api3('Contact', 'create', {
-           "email":$scope.formInfo.email,
-           "first_name": $scope.names[0],
-           "last_name": $scope.names[1],
-	   "contact_type":"Individual"
+            "email":$scope.formInfo.email,
+            "first_name": $scope.names[0],
+            "last_name": $scope.names[1],
+	    "contact_type":"Individual"
           }).success(function(data, status, headers, config) {
-             $scope.newUserContri(data.id);
+            $scope.newUserContri(data.id);
           });
         }
         $scope.quickDonationForm.$setPristine();

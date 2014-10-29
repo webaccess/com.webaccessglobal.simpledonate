@@ -77,7 +77,7 @@ Controller: DonationAngCtrl
         </div>
         <div class="form-group single-input-block" ng-class="{ 'has-error' : quickDonationForm.cardNumber.$invalid && !quickDonationForm.cardNumber.$pristine && ccType}">
           <label>Card Number</label>
-          <input type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" data-ng-minlength="15" maxlength="18" placeholder="1234 5678 9012 3456" ng-focus="selectedCardType(type)" getCreditCardType/>
+          <input type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(type)" data-parsley-trigger="focusin focusout" getCreditCardType  placeholder="1234 5678 9012 3456"/>
         </div>
         <div class="form-group single-input-block" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine " ng-class="{ 'has-error' : quickDonationForm.cardExpiry.$invalid && !quickDonationForm.cardExpiry.$pristine }">
           <label>Expiration Date </label>
@@ -113,7 +113,12 @@ Controller: DonationAngCtrl
       <div class="payment-block hidden-block" ng-if="hiddenProcessor">
 	<input name="hidden_processor" type="hidden" value="1" />
       </div>
-      <div class="errorBlock"></div>
+      <div class="errorBlock">
+      <p ng-show="quickDonationForm.cardNumber.$error.required && !quickDonationForm.cardNumber.$pristine || quickDonationForm.cardNumber.$error.pattern" class="help-block">Please enter a valid Card Number.</p>
+      <p ng-show="quickDonationForm.securityCode.$error.required && !quickDonationForm.securityCode.$pristine || quickDonationForm.securityCode.$error.pattern" class="help-block">Please enter a valid CVV Number.</p>
+      <p ng-show="quickDonationForm.securityCode.$error.required && !quickDonationForm.securityCode.$pristine || quickDonationForm.securityCode.$error.pattern" class="help-block">Please enter a zip.</p>
+
+</div>
     </fieldset>
     <button type="button" class="donate-sub" ng-click="sectionShow()" ng-hide="section === 3">NEXT STEP<span class="icon next-icons"></span></button>
     <!-- SUBMIT BUTTON -->
