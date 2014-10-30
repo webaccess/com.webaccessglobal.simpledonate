@@ -8,28 +8,26 @@
         templateUrl: resourceUrl + '/partials/quickdonate.html',
         controller: 'QuickDonationCtrl'
       });
-      $routeProvider.when('/quick/donation', {
-        templateUrl: resourceUrl + '/partials/quickdonate.html',
-        controller: 'QuickDonationCtrl'
-      });
     }
   ]);
 
   quickDonation.factory('formFactory', function($q) {
-    return{
-      getUser:function(contactID){
+    return {
+      getUser:function(contactID) {
         var deferred = $q.defer();
-        CRM.api3('Contact', 'get', {
-          "sequential": 1,
-          "id": contactID
-        }).done(function(data) {
-          cj.each( data.values, function( key, value ) {
-            resultParams = value;
+	if (contactID) {
+          CRM.api3('Contact', 'get', {
+            "sequential": 1,
+            "id": contactID
+          }).done(function(data) {
+            cj.each( data.values, function( key, value ) {
+              resultParams = value;
+            });
+            deferred.resolve(resultParams);
+          }).error(function(data, status, headers, config) {
+            deferred.reject("there was an error");
           });
-          deferred.resolve(resultParams);
-        }).error(function(data, status, headers, config){
-          deferred.reject("there was an error");
-        });
+	}
 	return deferred.promise;
       },
     };
@@ -43,7 +41,9 @@
     $scope.donationConfig = CRM.quickdonate.config;
     $scope.priceListInfo = CRM.quickdonate.priceList;
     $scope.otherAmount = CRM.quickdonate.otherAmount;
+    $scope.test = CRM.quickdonate.isTest;
     $scope.section = 1;
+
     //manually binds Parsley--Validation Library to this form.
     $('#quickDonationForm').parsley({
     excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
@@ -144,7 +144,7 @@
         "email": params.email,
         "contribution_page_id": resultParams.id,
         "payment_processor_id": $scope.formInfo.payment_processor,
-        "is_test": 1,
+        "is_test": $scope.test,
         "total_amount": $scope.amount,
         "financial_type_id": resultParams.financial_type_id,
         "currencyID": resultParams.currency,
@@ -189,16 +189,16 @@
       contactID = ['null',contactId];
       cj.each( primaryValue, function( key, value ) {
         CRM.api3('Address', 'create', {
-           'contact_id': contactID[key] ,
-           'location_type_id': 5,
-	   'country_id' : CRM.quickdonate.$defaultContactCountry,
-           'street_address': $scope.formInfo.address,
-           'city': $scope.formInfo.city,
-           'state_province_id': $scope.state,
-           'postal_code': $scope.formInfo.zip,
-           'name': $scope.formInfo.user,
-           'is_billing': 1,
-           'is_primary': primaryValue[key]
+          'contact_id': contactID[key] ,
+          'location_type_id': 5,
+	  'country_id' : CRM.quickdonate.$defaultContactCountry,
+          'street_address': $scope.formInfo.address,
+          'city': $scope.formInfo.city,
+          'state_province_id': $scope.state,
+          'postal_code': $scope.formInfo.zip,
+          'name': $scope.formInfo.user,
+          'is_billing': 1,
+          'is_primary': primaryValue[key]
         });
       });
       formFactory.getUser(contactId).then(function(resultParams) {
@@ -236,12 +236,12 @@
         }
         else{
           CRM.api3('Contact', 'create', {
-           "email":$scope.formInfo.email,
-           "first_name": $scope.names[0],
-           "last_name": $scope.names[1],
-	   "contact_type":"Individual"
+            "email":$scope.formInfo.email,
+            "first_name": $scope.names[0],
+            "last_name": $scope.names[1],
+	    "contact_type":"Individual"
           }).success(function(data, status, headers, config) {
-             $scope.newUserContri(data.id);
+            $scope.newUserContri(data.id);
           });
         }
         $scope.quickDonationForm.$setPristine();

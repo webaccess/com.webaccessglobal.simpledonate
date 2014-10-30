@@ -106,7 +106,7 @@ function quickdonate_getQuickDonateSetting() {
     'return' => "quick_donation_page",
   ));
   $donatePageID = NULL;
-  if (CRM_Utils_Array::value('is_error', $settings, FALSE)) {
+  if (CRM_Utils_Array::value('is_error', $settings, FALSE) || empty($settings['values'][$domainID]['quick_donation_page'])) {
     if (CRM_Core_Permission::check('administer CiviCRM')) {
       CRM_Core_Session::setStatus('Donation form configuration is not done!', ts('Notice'), 'warning');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/quick/donation/configuration'),'reset=1');
@@ -151,11 +151,13 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
 
     $donateConfig = $donatePage;
+    $test = !empty($_GET['test']) ? 'test' : 'live';
+
     if (is_array($donatePage['payment_processor'])) {
-      $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], 'test');
+      $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], $test);
     }
     else {
-      $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], 'test');
+      $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], $test);
       $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
     }
     $config = CRM_Core_Config::singleton();
@@ -174,7 +176,8 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       'priceList' => $priceList,
       'otherAmount' => $otherAmount,
       'country' => $defaultContactCountry,
-      'allStates' => $stateProvince
+      'allStates' => $stateProvince,
+      'isTest' => ($test == 'test') ? 1 : 0
     ),
   ));
   CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
