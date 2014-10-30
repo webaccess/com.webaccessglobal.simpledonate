@@ -22,6 +22,57 @@ function quickdonate_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function quickdonate_civicrm_install() {
+  $civiContributeParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'CiviContribute', 'id', 'name');
+  $params = array(
+      'domain_id' => CRM_Core_Config::domainID(),
+      'label'     => 'Quick Donation Configuration',
+      'name'      => 'Quick Donation Configuration',
+      'url'       => 'civicrm/quick/donation/configuration',
+      'permission'=> 'access CiviContribute',
+      'parent_id' => $civiContributeParentId,
+      'has_separator' => 1,
+      'is_active' => 1,
+  );
+  CRM_Core_BAO_Navigation::add($params);
+
+  $contributionsParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'Contributions', 'id', 'name');
+  $donationNavigation = new CRM_Core_DAO_Navigation();
+  $params = array(
+    'domain_id' => CRM_Core_Config::domainID(),
+    'label'     => 'Quick Donation',
+    'name'      => 'Quick Donation',
+    'url'       => NULL,
+    'permission'=> 'access CiviContribute',
+    'parent_id' => $contributionsParentId,
+    'has_separator' => 1,
+    'is_active' => 1,
+    'weight' => 100,
+  );
+  $donationNavigation->copyValues($params);
+  $donationNavigation->save();
+
+  $donationMenuTree = array(
+    array(
+      'label' => ts('Test Donation'),
+      'name' => 'Test Donation',
+      'url'  => 'civicrm/quick?test=1#/donation',
+      'permission' => 'access CiviContribute',
+    ),
+    array(
+      'label' => ts('Live Donation'),
+      'name' => 'Live Donation',
+      'url'  => 'civicrm/quick/#/donation',
+      'permission' => 'access CiviContribute',
+    ),
+  );
+
+  foreach ($donationMenuTree as $key => $menuItems) {
+    $menuItems['is_active'] = 1;
+    $menuItems['parent_id'] =  $donationNavigation->id;
+    $menuItems['weight'] = $key;
+    CRM_Core_BAO_Navigation::add($menuItems);
+  }
+  CRM_Core_BAO_Navigation::resetNavigation();
   return _quickdonate_civix_civicrm_install();
 }
 
@@ -29,6 +80,9 @@ function quickdonate_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function quickdonate_civicrm_uninstall() {
+  $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donation','Quick Donation COnfiguration')";
+  CRM_Core_DAO::executeQuery($query);
+  CRM_Core_BAO_Navigation::resetNavigation();
   return _quickdonate_civix_civicrm_uninstall();
 }
 
@@ -36,6 +90,8 @@ function quickdonate_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function quickdonate_civicrm_enable() {
+  $sql = "UPDATE civicrm_navigation SET is_active=1 WHERE name IN ('Quick Donation Configuration', 'Quick Donation', 'Test Donation', 'Live Donation')";
+  CRM_Core_DAO::executeQuery($sql);
   return _quickdonate_civix_civicrm_enable();
 }
 
@@ -43,6 +99,8 @@ function quickdonate_civicrm_enable() {
  * Implementation of hook_civicrm_disable
  */
 function quickdonate_civicrm_disable() {
+  $sql = "UPDATE civicrm_navigation SET is_active=0 WHERE name IN ('Quick Donation Configuration', 'Quick Donation', 'Test Donation', 'Live Donation')";
+  CRM_Core_DAO::executeQuery($sql);
   return _quickdonate_civix_civicrm_disable();
 }
 
@@ -198,4 +256,3 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     )
   );
 }
-
