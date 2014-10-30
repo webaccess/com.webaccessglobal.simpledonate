@@ -140,17 +140,15 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
         $otherAmount = TRUE;
       }
       else {
-        $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name","price_field_id"=> $value['id']));
+        $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id']));
         $priceList = $priceFieldVal['values'];
       }
     }
-    $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
+    $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
       'id' => $donatePageID,
     ));
 
     $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
-
-    $donateConfig = $donatePage;
     $test = !empty($_GET['test']) ? 'test' : 'live';
 
     if (is_array($donatePage['payment_processor'])) {
@@ -177,7 +175,8 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       'otherAmount' => $otherAmount,
       'country' => $defaultContactCountry,
       'allStates' => $stateProvince,
-      'isTest' => ($test == 'test') ? 1 : 0
+      'isTest' => ($test == 'test') ? 1 : 0,
+      'invoiceID' => md5(uniqid(rand(), TRUE))
     ),
   ));
   CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
