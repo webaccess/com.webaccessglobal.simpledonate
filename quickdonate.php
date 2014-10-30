@@ -24,14 +24,14 @@ function quickdonate_civicrm_xmlMenu(&$files) {
 function quickdonate_civicrm_install() {
   $civiContributeParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'CiviContribute', 'id', 'name');
   $params = array(
-      'domain_id' => CRM_Core_Config::domainID(),
-      'label'     => 'Quick Donation Configuration',
-      'name'      => 'Quick Donation Configuration',
-      'url'       => 'civicrm/quick/donation/configuration',
-      'permission'=> 'access CiviContribute',
-      'parent_id' => $civiContributeParentId,
-      'has_separator' => 1,
-      'is_active' => 1,
+    'domain_id' => CRM_Core_Config::domainID(),
+    'label'     => 'Quick Donation Configuration',
+    'name'      => 'Quick Donation Configuration',
+    'url'       => 'civicrm/quick/donation/configuration',
+    'permission'=> 'access CiviContribute',
+    'parent_id' => $civiContributeParentId,
+    'has_separator' => 1,
+    'is_active' => 1,
   );
   CRM_Core_BAO_Navigation::add($params);
 
@@ -80,7 +80,7 @@ function quickdonate_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function quickdonate_civicrm_uninstall() {
-  $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donation','Quick Donation COnfiguration')";
+  $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donation','Quick Donation Configuration')";
   CRM_Core_DAO::executeQuery($query);
   CRM_Core_BAO_Navigation::resetNavigation();
   return _quickdonate_civix_civicrm_uninstall();
