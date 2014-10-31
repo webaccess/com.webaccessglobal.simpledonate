@@ -147,6 +147,21 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _quickdonate_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+/**
+ *  alterAPIPermissions() hook allows you to change the permissions checked when doing API 3 calls.
+ */
+function quickdonate_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions)
+{
+  if (($entity == "contact" && $action == "get") ||
+    ($entity == "contact" && $action == "create") ||
+    ($entity == "address" && $action == "create") ||
+    ($entity == "contribution" && $action == "create") ||
+    ($entity == "contribution" && $action == "transact") ||
+    ($entity == "ContributionRecur" && $action == "create")) {
+    $params['check_permissions'] = false;
+  }
+}
+
 function quickdonate_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
   if ($pageName == 'CRM_Core_Page_Angular') {
@@ -243,9 +258,9 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     'ext' => 'com.webaccessglobal.quickdonate',
     'js' => array(
       'js/quickdonate.js',
-      'js/parsley.min.js',
-      'js/jquery.ziptastic.js',
-      'js/bootstrap.min.js',
+      'js/libs/parsley.min.js',
+      'js/libs/jquery.ziptastic.js',
+      'js/libs/bootstrap.min.js',
       'js/libs/modernizr.js',
       'js/libs/jquery.inputmask.js',
       'js/libs/jquery.inputmaskDate.extensions.js'
