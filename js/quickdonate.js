@@ -8,6 +8,10 @@
         templateUrl: resourceUrl + '/partials/quickdonate.html',
         controller: 'QuickDonationCtrl'
       });
+      $routeProvider.when('/donation/:thanks', {
+        templateUrl: resourceUrl + '/partials/thankYou.html',
+        controller: 'QuickDonationCtrl'
+      });
     }
   ]);
 
@@ -30,12 +34,45 @@
 	}
 	return deferred.promise;
       },
-    };
+      createRecur: function(param, isRecur) {
+        var deferred = $q.defer();
+        resultParams = null;
+        if (isRecur) {
+          CRM.api3('ContributionRecur', 'create', param ).success(function(data) {
+            if (data.is_error == 0) {
+              $recurID = {"contribution_recur_id": data.id};
+              resultParams = $recurID;
+            }
+            else {
+              deferred.reject("there was an error");
+            }
+          });
+        }
+        deferred.resolve(resultParams);
+        return deferred.promise;
+      },
+      createContri: function(action, contributionparams) {
+         var deferred = $q.defer();
+         param = null;
+         CRM.api3('Contribution', action, contributionparams ).success(function(data, status, headers, config) {
+           if (data.is_error == 0) {
+             param = data;
+             deferred.resolve(param);
+           }
+           else {
+             deferred.reject("Error"+data.error_message);
+           }
+         });
+         return deferred.promise;
+       }
+     };
   });
 
-  quickDonation.controller('QuickDonationCtrl', function($scope, formFactory) {
+  quickDonation.controller('QuickDonationCtrl', function($scope, formFactory, $route, $location) {
     //set donaiton page ID
     $scope.donationID = CRM.quickdonate.donatePageID;
+    $scope.thanks = $route.current.params.thanks;
+
     $scope.currencySymbol = CRM.quickdonate.currency;
     $scope.paymentProcessor = CRM.quickdonate.paymentProcessor;
     $scope.donationConfig = CRM.quickdonate.config;
@@ -84,7 +121,7 @@
       $scope.hidePriceVal = false;
       return $scope.message;
     }
-      $scope.selectedRow = null;
+    $scope.selectedRow = null;
     $scope.selectedCardType = function(row) {
       $scope.selectedRow = row;
     };
@@ -119,10 +156,10 @@
       //get contribution page
       var resultParams =$scope.donationConfig;//<?php echo json_encode($contributionPage);?>;
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount || 1;
+      $scope.action = 'transact';
+      $scope.paymentParams = {};
+      $scope.recurID = {};
       $scope.contributionparams = {
-        "credit_card_number": $scope.cardNumberValue,
-        "cvv2": $scope.formInfo.securityCode,
-        "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue),
         "billing_first_name": params.first_name,
         "first_name": params.first_name,
         "billing_middle_name": params.middle_name,
@@ -145,6 +182,7 @@
         "contribution_page_id": resultParams.id,
         "payment_processor_id": $scope.formInfo.payment_processor,
         "is_test": $scope.test,
+        "is_pay_later": $scope.formInfo.is_pay_later,
         "total_amount": $scope.amount,
         "financial_type_id": resultParams.financial_type_id,
         "currencyID": resultParams.currency,
@@ -156,16 +194,45 @@
         "source": "Online Contribution: " + resultParams.title,
       };
 
-      CRM.api3('Contribution', 'transact', $scope.contributionparams ).success(function(data, status, headers, config) {
-          if (data.is_error == 0) {
-	      CRM.alert('Donation has been submitted successfully!!', 'alert');
-              //window.location = 'civicrm/quick/#/donation';
-          }
-          else {
-            cj('.error').html(data.error_message);
-          }
+      if ($scope.creditType) {
+        $scope.paymentParams = {
+          "credit_card_number": $scope.cardNumberValue,
+          "cvv2": $scope.formInfo.securityCode,
+          "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
+        };
+      }
+      if ($scope.formInfo.is_pay_later) {
+        $scope.paymentParams = {"contribution_status_id": 2};
+        scope.action = 'create';
+      }
+      if($scope.formInfo.payment_processor) {
+        $scope.payment_processor_id = $scope.formInfo.payment_processor;
+      }
+      $scope.recurParams = {
+        'contact_id': contactId,
+        "auto_renew": 1,
+        "frequency_unit": 'month',
+        "frequency_interval": 1,
+        "is_test": $scope.test,
+        "amount":$scope.amount,
+        "invoice_id": CRM.quickdonate.invoiceID,
+        "contribution_status_id":2,
+        "payment_processor_id": $scope.payment_processor_id,
+        "is_email_receipt": 1,
+        "trxn_id": CRM.quickdonate.invoiceID,
+        "financial_type_id": resultParams.financial_type_id,
+        "payment_instrument_id": 1
+      };
+
+      formFactory.createRecur($scope.recurParams, $scope.formInfo.recur).then(function(resultParams) {
+        $scope.thanks = 0;
+        $.extend($scope.contributionparams, $scope.paymentParams, resultParams);
+        formFactory.createContri($scope.action, $scope.contributionparams).then(function(param) {
+          $location.path('/donation/thanks');
         });
+      });
     }
+
     $scope.existUserContri = function(contactId,addressID) {
       CRM.api3('Address', 'create', {
         'contact_id': "null",
@@ -211,10 +278,13 @@
       $scope.state = CRM.quickdonate.allStates[$scope.formInfo.state];
       $scope.country = CRM.quickdonate.country;
       $scope.names = $scope.formInfo.user.split(' ');
-      $scope.expiry = $scope.formInfo.cardExpiry.split('/');
-      $scope.month = $scope.expiry[0];
-      $scope.year = $scope.expiry[1];
-      $scope.ccType = true;
+
+      if ($scope.creditType) {
+        $scope.expiry = $scope.formInfo.cardExpiry.split('/');
+        $scope.month = $scope.expiry[0];
+        $scope.year = $scope.expiry[1];
+        $scope.ccType = true;
+      }
 
       CRM.api3('Contact', 'get', {
         "email": $scope.formInfo.email,
@@ -253,7 +323,18 @@
     $scope.hiddenProcessor = false;
 
     $scope.setPaymentBlock = function(value) {
-	$billingmodeform = 1;//billing-mode-form = 1
+      $scope.creditType = false;
+      $scope.directDebitType = false;
+      $scope.hiddenProcessor = false;
+      $scope.payLater = false;
+
+      if (value == 'payLater') {
+        $scope.payLater = true;
+        $scope.formInfo.payment_processor = 0
+      }
+      else {
+        $scope.formInfo.is_pay_later = 0;
+        $billingmodeform = 1;//billing-mode-form = 1
 	//billing-mode-button = 2
 	//billing-mode-notify = 4
 	//payment-type-credit-card = 1
@@ -261,24 +342,19 @@
 	if($scope.paymentProcessor[value]['billing_mode'] & $billingmodeform /*billing_mode_form*/) {
 	  if($scope.paymentProcessor[value]['payment_type'] == 1) {
 	    $scope.creditType = true;
-	    $scope.directDebitType = false;
-	    $scope.hiddenProcessor = false;
 	  }
 	  else if($scope.paymentProcessor[value]['payment_type'] == 2) {
 	    $scope.directDebitType = true;
-	    $scope.creditType = false;
-	    $scope.hiddenProcessor = false;
 	  }
 	}
 	else {
 	  $scope.hiddenProcessor = true;
-	  $scope.creditType = false;
-	  $scope.directDebitType = false;
 	}
+      }
     }
   });
 
-  quickDonation.directive('creditCardExpiry', function(){
+  quickDonation.directive('creditCardExpiry', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
@@ -452,12 +528,12 @@
 
   quickDonation.directive('radioLabel', function() {
     var directive = {
-      link: function($scope, elm, attrs, ctrl){
-        elm.bind('click', function(){
-	    $scope.formInfo.donateAmount = null;
-	    elm.parent().find('input').attr('checked', true);
+      link: function($scope, elm, attrs, ctrl) {
+        elm.bind('click change', function(e) {
+          $scope.formInfo.donateAmount = null;
+          elm.parent().find('input').attr('checked', true);
           $scope.hidePriceVal = false;
-	    $scope.formInfo.otherAmount = null;
+          $scope.formInfo.otherAmount = null;
 	  $scope.formInfo.donateAmount = elm.parent().find('input').val();
 	});
       },

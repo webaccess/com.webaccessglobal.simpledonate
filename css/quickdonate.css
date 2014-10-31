@@ -43,6 +43,9 @@ fieldset.priceset-group {
     transition-timing-function: ease-out;
 }
 
+.recurLabel {
+    font-size: 1.3em;
+}
 .user-info-group > .field-container:nth-of-type(2n+1) {
     clear: left;
 }
@@ -273,6 +276,10 @@ button:hover .next-icons {
 }
 
 .payment-processor-type label:hover {
+    color: #339933;
+}
+
+.recurDonation label:hover {
     color: #339933;
 }
 
