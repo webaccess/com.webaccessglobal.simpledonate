@@ -16,15 +16,17 @@
   ]);
 
   quickDonation.factory('formFactory', function($q) {
+    var savedData = {}
     return {
       getUser:function(contactID) {
         var deferred = $q.defer();
+        var resultParams = null;
 	if (contactID) {
           CRM.api3('Contact', 'get', {
             "sequential": 1,
-            "id": contactID
-          }).done(function(data) {
-            cj.each( data.values, function( key, value ) {
+            "id": contactID,
+          }).success(function(data) {
+            $.each( data.values, function( key, value ) {
               resultParams = value;
             });
             deferred.resolve(resultParams);
@@ -51,6 +53,12 @@
         deferred.resolve(resultParams);
         return deferred.promise;
       },
+      setEmail: function(data) {
+        savedData = data;
+      },
+      getEmail: function(data) {
+        return savedData;
+      },
       createContri: function(action, contributionparams) {
          var deferred = $q.defer();
          param = null;
@@ -72,7 +80,6 @@
     //set donaiton page ID
     $scope.donationID = CRM.quickdonate.donatePageID;
     $scope.thanks = $route.current.params.thanks;
-
     $scope.currencySymbol = CRM.quickdonate.currency;
     $scope.paymentProcessor = CRM.quickdonate.paymentProcessor;
     $scope.donationConfig = CRM.quickdonate.config;
@@ -84,27 +91,29 @@
     //manually binds Parsley--Validation Library to this form.
     $('#quickDonationForm').parsley({
     excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
-});
+    });
+    $scope.formInfo = {}; //property is set to bind input value
+    $scope.formInfo.email = formFactory.getEmail();
 
     //get session
     formFactory.getUser(CRM.quickdonate.sessionContact).then(function(resultParams) {
-      $scope.formInfo.email = resultParams.email;
-      $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
-      $scope.formInfo.address = resultParams.street_address;
-      if (resultParams.postal_code) {
-        $scope.formInfo.zip = resultParams.postal_code;
-        $scope.formInfo.city = resultParams.city;
-        $scope.formInfo.state = $.map(CRM.quickdonate.allStates, function(obj, index) {
-          if(obj == resultParams.state_province_id) {
-            return index;
-          }
-        });
-        $('#state').parent().show();
-        $('#city').parent().show();
+      if (resultParams) {
+        $scope.formInfo.email = resultParams.email;
+        $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
+        $scope.formInfo.address = resultParams.street_address;
+        if (resultParams.postal_code) {
+          $scope.formInfo.zip = resultParams.postal_code;
+          $scope.formInfo.city = resultParams.city;
+          $scope.formInfo.state = $.map(CRM.quickdonate.allStates, function(obj, index) {
+            if(obj == resultParams.state_province_id) {
+              return index;
+            }
+          });
+          $('#state').parent().show();
+          $('#city').parent().show();
+        }
       }
     });
-
-    $scope.formInfo = {}; //property is set to bind input value
 
     $scope.hidePriceVal = true;
     $scope.amountSelected = function(price) {
@@ -121,6 +130,16 @@
       $scope.hidePriceVal = false;
       return $scope.message;
     }
+
+    $scope.amountDefault = function(price, isDefault) {
+      if (isDefault == 1 && !$scope.formInfo.donateAmount) {
+        $scope.amount = $scope.formInfo.donateAmount = price;
+        $scope.hidePriceVal = false;
+        return $scope.amountActive(price);
+      }
+      return false;
+    }
+
     $scope.selectedRow = null;
     $scope.selectedCardType = function(row) {
       $scope.selectedRow = row;
@@ -203,9 +222,9 @@
       }
       if ($scope.formInfo.is_pay_later) {
         $scope.paymentParams = {"contribution_status_id": 2};
-        scope.action = 'create';
+        $scope.action = 'create';
       }
-      if($scope.formInfo.payment_processor) {
+      if ($scope.formInfo.payment_processor) {
         $scope.payment_processor_id = $scope.formInfo.payment_processor;
       }
       $scope.recurParams = {
@@ -314,7 +333,9 @@
             $scope.newUserContri(data.id);
           });
         }
-        $scope.quickDonationForm.$setPristine();
+
+      formFactory.setEmail($scope.formInfo.email);
+        //$scope.quickDonationForm.$setPristine();
       });
     };
 
@@ -351,7 +372,17 @@
 	  $scope.hiddenProcessor = true;
 	}
       }
-    }
+    };
+
+    $scope.processorDefault= function(processorID, isDefault){
+      if (isDefault && !$scope.formInfo.payment_processor && !$scope.formInfo.is_pay_later) {
+	$scope.formInfo.payment_processor = processorID;
+        $scope.setPaymentBlock(processorID);
+        return true;
+      }
+      return false;
+    };
+
   });
 
   quickDonation.directive('creditCardExpiry', function() {
@@ -540,5 +571,4 @@
     };
     return directive;
   });
-
 })(angular, CRM.$, CRM._);
