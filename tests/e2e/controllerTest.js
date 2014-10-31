@@ -102,7 +102,7 @@ describe("Test Donation page", function () {
       expect(elementSubmit.getText()).toBe('Saving...');
       ptor.sleep(1000);
       expect(ptor.getCurrentUrl()).toContain('donation/thanks');
-      expect(ptor.findElement(protractor.By.css('p.ng-binding')).getText()).toContain(emailId);
+      expect(ptor.findElement(protractor.By.css('strong.ng-binding')).getText()).toContain(emailId);
       ptor.get(ptor.baseUrl+'user/logout');
     });
   }
@@ -115,10 +115,6 @@ describe("Test Donation page", function () {
     });
 
     //priceset section test case
-    it ("should not display total donation div ", function () {
-      expect(element(by.className('priceSetMessage')).isDisplayed()).toBe(false);
-    });
-
     it ("should display total donation div on hover of price", function() {
       ptor.actions().mouseMove(ptor.findElement(protractor.By.css('ul.priceSet li:nth-child(1)'))).perform();
       getSelectedAmt();
