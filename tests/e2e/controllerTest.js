@@ -25,6 +25,7 @@ describe("Test Donation page", function () {
     });
 
     it ("should save setting of quick configration page", function() {
+      ptor.sleep(1000);
       ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
       ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
       ptor.get(ptor.baseUrl+'user/logout');
@@ -100,7 +101,7 @@ describe("Test Donation page", function () {
       var elementSubmit = ptor.findElement(protractor.By.css('button.donate-submit-btn'));
       elementSubmit.click();
       expect(elementSubmit.getText()).toBe('Saving...');
-      ptor.sleep(1000);
+      ptor.sleep(2000);
       expect(ptor.getCurrentUrl()).toContain('donation/thanks');
       expect(ptor.findElement(protractor.By.css('strong.ng-binding')).getText()).toContain(emailId);
       ptor.get(ptor.baseUrl+'user/logout');
@@ -110,7 +111,7 @@ describe("Test Donation page", function () {
   function priceSetTest() {
     it ("should redirect to donation page", function() {
       ptor.get(ptor.baseUrl+'civicrm/quick?test=1#/donation');
-      ptor.sleep(500);
+      ptor.sleep(1000);
       expect(ptor.getCurrentUrl()).toContain('civicrm/quick?test=1#/donation');
     });
 
@@ -126,11 +127,15 @@ describe("Test Donation page", function () {
     });
 
     it ("enter value in other amount and display total donation div", function() {
-      var otheramt = ptor.findElement(protractor.By.model('formInfo.otherAmount'));
-      otheramt.click();
-      otheramt.sendKeys('6000');
-      expect(element(by.className('priceSetMessage')).isDisplayed()).toBe(true);
-      expect(element(by.className('priceSetMessage')).getText()).toContain('6000');
+      element.all(by.model('formInfo.otherAmount')).then(function(items) {
+        if (items.length == 1) {
+          var otheramt = ptor.findElement(protractor.By.model('formInfo.otherAmount'));
+          otheramt.click();
+          otheramt.sendKeys('6000');
+          expect(element(by.className('priceSetMessage')).isDisplayed()).toBe(true);
+          expect(element(by.className('priceSetMessage')).getText()).toContain('6000');
+        }
+      });
       ptor.findElement(protractor.By.css('button.donate-sub')).click();
     });
   }
