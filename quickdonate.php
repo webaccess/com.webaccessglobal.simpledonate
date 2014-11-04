@@ -207,6 +207,10 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
     $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
 
     $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
+    $isQuickConfig = civicrm_api3('PriceSet', 'getvalue', array(
+      'id' => $priceSetID,
+      'return' => "is_quick_config",
+    ));
     $otherAmount = FALSE;
     foreach($priceField['values'] as $key => $value) {
       if ($value['name'] == 'other_amount') {
@@ -215,6 +219,7 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       else {
         $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id']));
         $priceList = $priceFieldVal['values'];
+        $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
       }
     }
     $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
@@ -249,6 +254,8 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       'country' => $defaultContactCountry,
       'allStates' => $stateProvince,
       'isTest' => ($test == 'test') ? 1 : 0,
+      'htmlPriceList' => $htmlPriceList,
+      'isQuickConfig' => $isQuickConfig,
       'invoiceID' => md5(uniqid(rand(), TRUE))
     ),
   ));
