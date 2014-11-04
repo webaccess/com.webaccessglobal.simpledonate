@@ -46,6 +46,7 @@ fieldset.priceset-group {
 .recurLabel {
     font-size: 1.3em;
 }
+
 .user-info-group > .field-container:nth-of-type(2n+1) {
     clear: left;
 }
@@ -110,7 +111,6 @@ ul.paymentProcessor li {
 
 .single-input-block input {
     float: left;
-    //background: transparent;
     border: none !important;
     box-shadow: none;
     outline: 0;
@@ -146,7 +146,7 @@ button:hover {
     display: none;
 }
 
-ul.priceSet {
+ul.priceSet, ul.hpriceSet {
     display: table;
     list-style: none !important;
     padding: 0px !important;
@@ -160,6 +160,15 @@ ul.priceSet li{
     width: auto;
 }
 
+ul.hpriceSet li{
+    display: table-row !important;
+}
+
+ul.hpriceSet li span{
+    min-height: 64px !important;
+    margin-right: 10px !important;
+}
+
 .field-container input {
     border-radius : 8px !important;
 }
@@ -169,7 +178,7 @@ ul.priceSet li{
     font-size: 1.15em;
 }
 
-.priceSet label {
+.priceSet label, .hpriceSet label {
     font-size: 1.4em;
     background: #3b7840;
     font-weight: normal;
@@ -180,7 +189,8 @@ ul.priceSet li{
     padding-bottom: 0.8em;
     text-align: center;
     border-radius: 8px;
-    width: 100%;
+    cursor: pointer;
+    display: block;
 }
 
 .other-amount {
@@ -192,28 +202,48 @@ ul.priceSet li{
     font-size: 1.4em;
     left: 0;
     padding-left: 0.3em;
-    padding-right: 2.0em;
-    padding-top: 1em;
+    padding-top: 0.8em;
     padding-bottom: 0.8em;
-    //padding-bottom: 0.48em;
-    //padding-left: 0.2em;
-    //padding-right: 0;
-    //padding-top: 0.48em;
     position: absolute;
     top: 0;
 }
 
 .other-amount input[type=text] {
     border : 2px solid #3b7840 !important;
-    border-radius : 8px !important;
+    border-radius : 10px !important;
     font-size: 1.4em !important;
     color: #3B7840 !important;
     font-size: 1.4em !important;
-    line-height: 1 !important;
-    padding-bottom: 0.55em !important;
     padding-left: 1.2em !important;
-    padding-right: 0.55em !important;
-    padding-top: 0.55em !important;
+    width: 92px;
+}
+
+.html-select {
+    font-size: 1.4em !important;
+    background-color: #3b7840 !important;
+    font-weight: normal !important;
+    color: #fff !important;
+    padding-top: 0.6em !important;
+    padding-bottom: 0.6em !important;
+    text-align: center !important;
+    border : 2px solid #3b7840 !important;
+    border-radius : 10px !important;
+    width: 92px;
+}
+
+.html-inputs input[type=radio],
+.html-inputs input[type=checkbox] {
+    display: none !important;
+}
+
+.html-inputs label:hover {
+    background: #47844C !important;
+}
+
+.html-inputs li .active {
+    background: #e9bd1d !important;
+    color: #171303 !important;
+    text-shadow: none !important;
 }
 
 .priceSet label:hover {
@@ -261,13 +291,12 @@ ul.priceSet li{
 }
 
 .next-icons {
-    //background-image: url("../../../../i/icons/jquery-ui-FFFFFF.png") !important;
-    background-position: 485px 243px;
+    background-image: url("../icons/jquery-ui-FFFFFF.png") !important;
+    background-position: 227px 3px !important;
 }
 
 button:hover .next-icons {
-    //background-image: url("../../../../i/icons/jquery-ui-3E3E3E.png") !important;
-    background-position: 485px 243px;
+    background-image: url("../icons/jquery-ui-3E3E3E.gif") !important;
 }
 
 .payment-processor-type label {
@@ -276,11 +305,11 @@ button:hover .next-icons {
 }
 
 .payment-processor-type label:hover {
-    color: #339933;
+    color: #3b7840;
 }
 
 .recurDonation label:hover {
-    color: #339933;
+    color: #3b7840;
 }
 
 ::-moz-placeholder {
@@ -292,7 +321,7 @@ button:hover .next-icons {
 }
 
 .breadcrumb {
-background-color: transparent !important;
+    background-color: transparent !important;
     border-bottom: 1px solid #eee !important;
     list-style: none outside none !important;
     margin-bottom: 20px !important;

@@ -84,6 +84,8 @@
     $scope.paymentProcessor = CRM.quickdonate.paymentProcessor;
     $scope.donationConfig = CRM.quickdonate.config;
     $scope.priceListInfo = CRM.quickdonate.priceList;
+    $scope.htmlPriceList = CRM.quickdonate.htmlPriceList;
+    $scope.quickConfig = CRM.quickdonate.isQuickConfig;
     $scope.otherAmount = CRM.quickdonate.otherAmount;
     $scope.test = CRM.quickdonate.isTest;
     $scope.section = 1;
@@ -94,6 +96,7 @@
     });
     $scope.formInfo = {}; //property is set to bind input value
     $scope.formInfo.email = formFactory.getEmail();
+    $scope.formInfo.donateAmount = 0;
 
     //get session
     formFactory.getUser(CRM.quickdonate.sessionContact).then(function(resultParams) {
@@ -138,6 +141,41 @@
         return $scope.amountActive(price);
       }
       return false;
+    }
+
+    //HTML PRICE SETS
+    $scope.subtleAmount = 0;
+    $scope.selectedAmount = 0;
+    $scope.formInfo.selectDonateAmount = 0;
+    $scope.formInfo.checkbxDonateAmount = 0;
+    $scope.formInfo.textDonateAmount = 0;
+    $scope.formInfo.CheckBoxAmount = 0;
+
+    $scope.calcAmount = function(amnt) {
+      $scope.hidePriceVal = false;
+      $scope.amount = parseInt($scope.amount) + parseInt(amnt);
+    }
+    $scope.hamountEnter = function(price,type) {
+      $scope.subtleAmount = parseInt($scope.formInfo.donateAmount) + parseInt(price);
+      if (type === 'radio' && $scope.formInfo.radioDonateAmount) {
+        $scope.subtleAmount = parseInt($scope.formInfo.donateAmount) + parseInt(price) - parseInt($scope.formInfo.radioDonateAmount);
+      }
+      $scope.hidePriceVal = false;
+    }
+
+    $scope.hamountLeave = function(price,type) {
+      if ($scope.formInfo.donateAmount != $scope.subtleAmount) {
+        $scope.subtleAmount = parseInt($scope.subtleAmount) - parseInt(price);
+        $scope.hidePriceVal = false;
+      }
+    }
+
+    $scope.hamountClick = function(price, type, name) {
+      if (price && type=='radio') {
+        $scope.formInfo.radioDonateAmount = price;
+      }
+      $scope.subtleAmount = $scope.formInfo.donateAmount = $scope.amount = parseInt($scope.formInfo.CheckBoxAmount) + parseInt($scope.formInfo.selectDonateAmount) + parseInt($scope.formInfo.radioDonateAmount) + parseInt($scope.formInfo.textDonateAmount);
+      $scope.hidePriceVal = false;
     }
 
     $scope.selectedRow = null;
@@ -566,6 +604,44 @@
           $scope.hidePriceVal = false;
           $scope.formInfo.otherAmount = null;
 	  $scope.formInfo.donateAmount = elm.parent().find('input').val();
+	});
+      },
+    };
+    return directive;
+  });
+
+  quickDonation.directive('hradioLabel', function() {
+    var directive = {
+      link: function($scope, elm, attrs, ctrl) {
+        elm.bind('click', function(e) {
+          if (elm.parent().find('input:checked').length) {
+            $(this).parent().parent().parent().find('label').removeClass('active');
+            $(this).addClass('active');
+          }
+        });
+      },
+    };
+    return directive;
+  });
+
+  quickDonation.directive('checkbxLabel', function() {
+    var directive = {
+      link: function($scope, elm, attrs, ctrl) {
+        elm.bind('click', function(e) {
+          $scope.hidePriceVal = false;
+          if (!elm.parent().find('input:checked').length) {
+            elm.parent().find('input').attr('checked', true);
+            $(this).addClass('active');
+            $scope.formInfo.CheckBoxAmount = parseInt($scope.formInfo.CheckBoxAmount) + parseInt(elm.parent().find('input').val());
+            $scope.subtleAmount = $scope.formInfo.donateAmount = parseInt($scope.formInfo.donateAmount) + parseInt(elm.parent().find('input').val());
+          }
+          else if (elm.parent().find('input:checked').length) {
+            elm.parent().find('input').attr('checked', false);
+            elm.parent().find('input').trigger('click');
+            $(this).removeClass('active');
+            $scope.formInfo.CheckBoxAmount = parseInt($scope.formInfo.CheckBoxAmount) - parseInt(elm.parent().find('input').val());
+            $scope.subtleAmount = $scope.formInfo.donateAmount = parseInt($scope.formInfo.donateAmount) - parseInt(elm.parent().find('input').val());
+          }
 	});
       },
     };
