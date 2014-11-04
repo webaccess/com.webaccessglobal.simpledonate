@@ -172,7 +172,7 @@ describe("Test Donation page", function () {
     });
   }
 
-  function getSelectedAmt(index, amount) {
+  function getSelectedAmt(index) {
     element.all(by.repeater('price in priceListInfo')).then(function(prices) {
       var priceElement = prices[index].element(by.tagName('label')).getText();
       priceElement.then(function(slices) {
