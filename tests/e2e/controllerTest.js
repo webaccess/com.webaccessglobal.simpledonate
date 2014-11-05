@@ -15,9 +15,9 @@ describe("Test Donation page", function () {
       ptor.findElement(protractor.By.css('input#is_recur')).click();
       ptor.findElement(protractor.By.id('label_1')).sendKeys('TestAm1');
       ptor.findElement(protractor.By.id('value_1')).sendKeys('1000');
-      ptor.findElement(protractor.By.id('CIVICRM_QFID_2_6')).click();
       ptor.findElement(protractor.By.id('label_2')).sendKeys('TestAm2');
       ptor.findElement(protractor.By.id('value_2')).sendKeys('2000');
+      ptor.findElement(protractor.By.xpath('//table[@id="map-field-table"]/tbody/tr[3]/td[3]/input')).click();
       ptor.findElement(protractor.By.id('_qf_Amount_upload_done-bottom')).click();
     });
   });
@@ -131,7 +131,7 @@ describe("Test Donation page", function () {
   function priceSetTest() {
     it ("should redirect to donation page", function() {
       ptor.get(ptor.baseUrl+'civicrm/quick?test=1#/donation');
-      ptor.sleep(1000);
+      ptor.sleep(1500);
       expect(ptor.getCurrentUrl()).toContain('civicrm/quick?test=1#/donation');
     });
 
