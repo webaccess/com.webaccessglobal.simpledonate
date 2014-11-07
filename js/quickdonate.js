@@ -103,7 +103,7 @@
       if (resultParams) {
         $scope.formInfo.email = resultParams.email;
         $('#email').addClass('parsley-success');
-        if(resultParams.first_name) {
+        if (resultParams.first_name) {
           $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
           $('#user').addClass('parsley-success');
         }
@@ -607,7 +607,7 @@
   quickDonation.directive('zipCodeInfo', function() {
     var directive = {
       require: 'ngModel',
-        link: function($scope, elm, attrs, ctrl){
+      link: function($scope, elm, attrs, ctrl){
         var duration = 100;
         var elements = {
           country: $('#country'),

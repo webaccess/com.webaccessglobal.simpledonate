@@ -13,7 +13,7 @@ Controller: QuickDonationCtrl
             <input ng-model="formInfo.donateAmount" type="radio" name="donate-amount-{{price.name}}" id="donate-amount" data-parsley-multiple="donate-amount" ng-checked="{{price.is_default}}" value="{{price.amount}}" radio-icon/><label ng-class="{'active':amountActive(price.amount) || amountDefault(price.amount, price.is_default)}" radio-label>{{currencySymbol}} {{price.amount}}</label>
           </li>
           <li class="pull-left other-amount" ng-if="otherAmount">
-	        <span class="currency-input-addon">$</span>
+            <span class="currency-input-addon">$</span>
             <input ng-model="formInfo.otherAmount" class="form-control" type="text" placeholder="Other" ng-click="amountSelected()" ng-keyup="formInfo.donateAmount=formInfo.otherAmount"/>
           </li>
         </ul>
@@ -150,9 +150,9 @@ Controller: QuickDonationCtrl
 	</div>
 	<div class="errorBlock">
 	  <p id = "invalidNumber" ng-show="quickDonationForm.cardNumber.$error.minlength && !quickDonationForm.cardNumber.$pristine || quickDonationForm.cardNumber.$error.pattern || quickDonationForm.cardNumber.$error.required">Please enter valid Credit Card Number.</p>
-      <p ng-show="quickDonationForm.cardExpiry.$invalid && quickDonationForm.cardNumber.$valid || quickDonationForm.cardExpiry.$error.required && quickDonationForm.cardExpiry.$error.pattern" >Please enter your card's expiration month and year.</p>
-      <p ng-show="quickDonationForm.securityCode.$invalid && quickDonationForm.cardNumber.$valid && quickDonationForm.cardExpiry.$valid || quickDonationForm.securityCode.$error.required &&  quickDonationForm.securityCode.$error.pattern || quickDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
-      <p ng-show="quickDonationForm.zip.$invalid && quickDonationForm.securityCode.$valid || quickDonationForm.zip.$error.required && quickDonationForm.zip.$error.pattern || quickDonationForm.zip.$error.minlength">Please enter a zip.</p>
+	  <p ng-show="quickDonationForm.cardExpiry.$invalid && quickDonationForm.cardNumber.$valid || quickDonationForm.cardExpiry.$error.required && quickDonationForm.cardExpiry.$error.pattern" >Please enter your card's expiration month and year.</p>
+	  <p ng-show="quickDonationForm.securityCode.$invalid && quickDonationForm.cardNumber.$valid && quickDonationForm.cardExpiry.$valid || quickDonationForm.securityCode.$error.required &&  quickDonationForm.securityCode.$error.pattern || quickDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
+	  <p ng-show="quickDonationForm.zip.$invalid && quickDonationForm.securityCode.$valid || quickDonationForm.zip.$error.required && quickDonationForm.zip.$error.pattern || quickDonationForm.zip.$error.minlength">Please enter a zip.</p>
     </div>
       </div>
     </fieldset>
