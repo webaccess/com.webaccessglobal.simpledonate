@@ -102,10 +102,16 @@
     formFactory.getUser(CRM.quickdonate.sessionContact).then(function(resultParams) {
       if (resultParams) {
         $scope.formInfo.email = resultParams.email;
-        $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
+        $('#email').addClass('parsley-success');
+        if(resultParams.first_name) {
+          $scope.formInfo.user = resultParams.first_name +' '+ resultParams.last_name;
+          $('#user').addClass('parsley-success');
+        }
         $scope.formInfo.address = resultParams.street_address;
+        $('#address').addClass('parsley-success');
         if (resultParams.postal_code) {
           $scope.formInfo.zip = resultParams.postal_code;
+          $('#zip').addClass('parsley-success');
           $scope.formInfo.city = resultParams.city;
           $scope.formInfo.state = $.map(CRM.quickdonate.allStates, function(obj, index) {
             if(obj == resultParams.state_province_id) {
@@ -113,7 +119,9 @@
             }
           });
           $('#state').parent().show();
+          $('#state').addClass('parsley-success');
           $('#city').parent().show();
+          $('#city').addClass('parsley-success');
         }
       }
     });
@@ -181,6 +189,10 @@
     $scope.selectedRow = null;
     $scope.selectedCardType = function(row) {
       $scope.selectedRow = row;
+      if (row) {
+        $('.cardNumber').parent('div').parent('div').removeClass("ng-invalid shake");
+        $('#invalidNumber').removeClass('help-block');
+      }
     };
 
     $scope.sectionShow = function() {
@@ -450,6 +462,27 @@
     return directive
   });
 
+  quickDonation.directive('validCreditBlock', function() {
+    var directive = {
+      require: 'ngModel',
+      link: function(scope, elm, attrs, ctrl) {
+        elm.bind('keyup', function() {
+          //check if all field are valid
+          if (scope.quickDonationForm.zip.$valid && scope.quickDonationForm.securityCode.$valid && scope.quickDonationForm.cardExpiry.$valid) {
+            $(elm).parent('div').parent('div').removeClass("blockInValid");
+            $(elm).parent('div').parent('div').addClass("ng-valid blockIsValid");
+          }
+          else if ($(elm).parent('div').parent('div').hasClass('blockIsValid')) {
+            $(elm).parent('div').parent('div').removeClass("ng-valid blockIsValid");
+            $(elm).parent('div').parent('div').addClass("blockInValid");
+            $('.errorBlock').addClass("help-block");
+          }
+        });
+      }
+    }
+    return directive
+  });
+
   quickDonation.directive('securityCode', function(){
     var directive = {
       require: 'ngModel',
@@ -477,6 +510,8 @@
           // Let's make sure the card is valid
           if (ccType === undefined) {
             $(elm).addClass("ng-invalid shake");
+            $(elm).parent('div').parent('div').addClass("ng-invalid shake");
+            $('#invalidNumber').addClass("help-block");
             scope.formInfo.cardNumberValue = null;
             scope.ccType = false;
             $(elm).focus();
@@ -572,7 +607,7 @@
   quickDonation.directive('zipCodeInfo', function() {
     var directive = {
       require: 'ngModel',
-      link: function($scope, elm, attrs, ctrl){
+        link: function($scope, elm, attrs, ctrl){
         var duration = 100;
         var elements = {
           country: $('#country'),
@@ -586,8 +621,10 @@
           // State
           $('#state').val(state).parent().show(duration);
           $scope.formInfo.state = state;
+          $('#state').addClass('parsley-success')
           // City
           $('#city').val(city).parent().show(duration);
+          $('#city').addClass('parsley-success')
           $scope.formInfo.city = city;
         });
       },

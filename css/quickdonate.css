@@ -1,20 +1,38 @@
+#page-title {
+    color: #006699;
+}
+
+#content {
+    width: 720px;
+    margin: 0 auto;
+}
+
+#branding {
+    background: #006699 !important;
+    padding: 20px 225px 0 225px !important;
+}
+
+.breadcrumb a {
+    color: #fff !important;
+}
+
 .quickDonationForm {
     background: none !important;
-    border-top: 1px solid #3b7840 !important;
+    border-top: 1px solid #006699 !important;
 }
 
-.ng-dirty.ng-valid {
-    border color: #089e00 !important;
-}
-.ng-dirty.ng-invalid {
-    border color: #b94a48 !important;
+.ng-dirty .ng-valid:focus,
+.ng-dirty .ng-invalid:focus,
+.ng-pristine .ng-valid:focus,
+.ng-pristine .ng-invalid:focus {
+    box-shadow: none !important;
 }
 
-.parsley-success {
+.field-container input.parsley-success, .ng-scope .ng-valid {
     border-color: #089e00 !important;
 }
 
-.parsley-error {
+.field-container input.parsley-error, .ng-invalid .shake, .ng-scope .blockInValid {
     border-color: #b94a48 !important;
 }
 
@@ -52,17 +70,14 @@ fieldset.priceset-group {
 }
 
 .user-info-group > .field-container {
-    float: left;
-    margin-left: 5px;
-    margin-right: 0;
-    padding-right: 30px;
-    width: 46%;
+    padding-right: 45px;
+    padding-left: 15px;
 }
 
 .payment-processor-block ul.paymentProcessor {
     list-style: none !important;
     display: flex;
-    padding: 0px;
+    padding-bottom: 1.2em;
     margin: 0px;
 }
 
@@ -74,13 +89,18 @@ ul.paymentProcessor li {
     padding: 0 !important;
 }
 
+ul.paymentProcessor
+{
+    padding: 0 !important;
+}
+
 .payment-processor-group {
-    border: 1px solid #bbbbbb !important;
+    border: 1px solid #ddd !important;
     overflow: hidden;
     padding: 0 0.5em;
     margin-bottom: 0.2em;
     position: relative;
-    width: 100%;
+    width: 98% !important;
     height:64px;
     background: white;
     border-radius : 8px;
@@ -120,19 +140,25 @@ ul.paymentProcessor li {
 }
 
 button {
-    padding: 1em 1.5em 1em;
-    background: #3b7840;
+    padding: 0.8em 1.5em 0.8em;
+    background: #BADBEF;
     font-weight: bold !important;
-    color: #fff !important;
+    color: #171303 !important;
     border-radius : 8px;
     font-size: 1.3em !important;
+    min-width: 170px;
     margin-left: 3px !important;
-    margin-top: 1em !important;
+    margin-top: 2em !important;
+    border: 0 none;
+    border-bottom: 2px solid #91a4ad;
+    margin-left: 15px !important;
+    outline: none;
 }
 
 button:hover {
-    background: #e9bd1d;
-    color: #171303 !important;
+    background: #006699;
+    color: #fff !important;
+    border-bottom: 2px solid #006699;
 }
 
 .parsley-errors-list.filled {
@@ -140,6 +166,7 @@ button:hover {
     font-size: 1em;
     padding: 0.2em;
     list-style: none;
+    margin-left: initial;
 }
 
 .priceSet input[type=radio] {
@@ -150,7 +177,7 @@ ul.priceSet, ul.hpriceSet {
     display: table;
     list-style: none !important;
     padding: 0px !important;
-    margin-left: 6px !important;
+    margin-left: 15px !important;
     width: 100%;
 }
 
@@ -171,6 +198,8 @@ ul.hpriceSet li span{
 
 .field-container input {
     border-radius : 8px !important;
+    border: 1px solid #ddd !important;
+    margin-top: 5px;
 }
 
 .field-container label {
@@ -178,19 +207,24 @@ ul.hpriceSet li span{
     font-size: 1.15em;
 }
 
+.form-control {
+    padding: 6px !important;
+}
+
 .priceSet label, .hpriceSet label {
     font-size: 1.4em;
-    background: #3b7840;
+    background: #006699;
     font-weight: normal;
     color: #fff;
     padding-left: 2.0em;
     padding-right: 2.0em;
     padding-top: 0.8em;
-    padding-bottom: 0.8em;
+    padding-bottom: 1.0em;
     text-align: center;
     border-radius: 8px;
     cursor: pointer;
     display: block;
+    width: 150px;
 }
 
 .other-amount {
@@ -198,7 +232,7 @@ ul.hpriceSet li span{
 }
 
 .other-amount .currency-input-addon {
-    color: #3B7840;
+    color: #006699;
     font-size: 1.4em;
     left: 0;
     padding-left: 0.3em;
@@ -209,13 +243,15 @@ ul.hpriceSet li span{
 }
 
 .other-amount input[type=text] {
-    border : 2px solid #3b7840 !important;
+    border : 2px solid #006699 !important;
     border-radius : 10px !important;
     font-size: 1.4em !important;
-    color: #3B7840 !important;
+    color: #006699 !important;
     font-size: 1.4em !important;
     padding-left: 1.2em !important;
-    width: 92px;
+    width: 120px;
+    padding-top: 5px !important;
+    padding-bottom: 8px !important;
 }
 
 .html-select {
@@ -247,31 +283,28 @@ ul.hpriceSet li span{
 }
 
 .priceSet label:hover {
-    background: #47844C;
+    background: #0077b3;
 }
 
 .priceSet li .active {
-    background: #e9bd1d;
+    background: #66cc66;
     color: #171303;
     text-shadow: none;
 }
 
 .priceSetMessage {
     font-weight: bold;
-    margin-left: 5px;
     font-size: 1.1em;
+    padding-bottom: 1.2em;
 }
 
 .form-step {
-    font-weight: bold;
     background: #ddd;
-    color: gray;
-    padding: 0.4em 0.5em;
-    line-height: 1;
+    color: #808080;
+    padding: 5px;
     border-radius: 15px;
     display: inline-block;
     width: 30px;
-    height: 30px;
     text-align: center;
 }
 
@@ -291,21 +324,21 @@ ul.hpriceSet li span{
 }
 
 .next-icons {
-    background-image: url("../icons/jquery-ui-FFFFFF.png") !important;
+    background-image: url("../icons/jquery-ui-3E3E3E.gif") !important;
     background-position: 227px 3px !important;
 }
 
 button:hover .next-icons {
-    background-image: url("../icons/jquery-ui-3E3E3E.gif") !important;
+    background-image: url("../icons/jquery-ui-FFFFFF.png") !important;
 }
 
 .payment-processor-type label {
-    font-size: 1.3em;
+    font-size: 1.2em;
     vertical-align: middle;
 }
 
 .payment-processor-type label:hover {
-    color: #3b7840;
+    color: #006699;
 }
 
 .recurDonation label:hover {
@@ -329,8 +362,8 @@ button:hover .next-icons {
 }
 
 #header {
-    background-color: #3b7840 !important;
-    background-image: none !important;
+    background-color: #006699 !important;
+    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%);
 }
 
 .shake {
@@ -392,4 +425,42 @@ button:hover .next-icons {
   40%, 80% {
     transform: translateX(10px); } }
 
+/* SmartPhones (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+.other-amount {
+    bottom: 15px;
+}
+.other-amount input[type=text] {
+    padding-top: 7px !important;
+    padding-bottom: 8px !important;
+}
+.other-amount .currency-input-addon {
+    padding-top: 1.0em;
+}
+ul.priceSet li{
+    height: 64px;
+}
+#branding {
+    padding: 20px 115px 0 115px !important;
+}
+}
 
+/* iPads (portrait and landscape) ----------- */
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
+.other-amount {
+    bottom: 16px;
+}
+.other-amount input[type=text] {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+.other-amount .currency-input-addon {
+    padding-top: 1.0em;
+}
+ul.priceSet li {
+    height: 64px;
+}
+#branding {
+    padding: 20px 115px 0 115px !important;
+}
+}

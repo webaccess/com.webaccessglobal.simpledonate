@@ -1,19 +1,19 @@
 <!--
 Controller: QuickDonationCtrl
 -->
-<form class="row" name="quickDonationForm" id="quickDonationForm" role="form" novalidate>
+<form class="row" name="quickDonationForm" id="quickDonationForm" class="row" role="form" novalidate>
   <div class="crm-block crm-form-block quickDonationForm">
     <!--Price field Block-->
-    <fieldset class="priceset-group form-section" ng-show="selectedSection(1)">
-      <h4 class="form-head donate-step-legend"><span class="form-step">1</span> Choose an amount to donate:</h4>
+    <fieldset class="priceset-group form-section col-sm-12" ng-show="selectedSection(1)">
+      <h4 class="form-head donate-step-legend col-sm-12"><span class="form-step">1</span> Choose an amount to donate:</h4>
       <div ng-if="quickConfig">
-        <div class="priceSetMessage" ng-hide="hidePriceVal">Donation amount: {{currencySymbol}} <span ng-bind="formInfo.donateAmount"></span></div>
-        <ul class="priceSet">
+        <div class="priceSetMessage col-sm-12" ng-hide="hidePriceVal">Donation amount: {{currencySymbol}} <span ng-bind="formInfo.donateAmount"></span></div>
+        <ul class="priceSet col-sm-12">
           <li class="pull-left" ng-mouseover="amounthover(price.amount)" ng-repeat="price in priceListInfo" ng-click="amountSelected(price.amount)">
             <input ng-model="formInfo.donateAmount" type="radio" name="donate-amount-{{price.name}}" id="donate-amount" data-parsley-multiple="donate-amount" ng-checked="{{price.is_default}}" value="{{price.amount}}" radio-icon/><label ng-class="{'active':amountActive(price.amount) || amountDefault(price.amount, price.is_default)}" radio-label>{{currencySymbol}} {{price.amount}}</label>
           </li>
           <li class="pull-left other-amount" ng-if="otherAmount">
-	    <span class="currency-input-addon">$</span>
+	        <span class="currency-input-addon">$</span>
             <input ng-model="formInfo.otherAmount" class="form-control" type="text" placeholder="Other" ng-click="amountSelected()" ng-keyup="formInfo.donateAmount=formInfo.otherAmount"/>
           </li>
         </ul>
@@ -52,29 +52,29 @@ Controller: QuickDonationCtrl
     </fieldset>
 
     <!--User Information-->
-    <fieldset class="user-info-group form-section" ng-show="selectedSection(2)">
-      <h4 class="form-head donate-step-legend"><span class="form-step">2</span> Enter your information:</h4>
-      <div class="form-group field-container">
+    <fieldset class="user-info-group form-section col-sm-12" ng-show="selectedSection(2)">
+      <h4 class="form-head donate-step-legend col-sm-12"><span class="form-step">2</span> Enter your information:</h4>
+      <div class="form-group field-container col-sm-6">
         <label>Full Name</label>
-        <input type="text" class="form-control" ng-model="formInfo.user" data-parsley-pattern="\ " pattern="\ " data-parsley-trigger="focusout blur" name="user" placeholder="Firstname Lastname" required />
+        <input type="text" id="user" class="form-control" ng-model="formInfo.user" data-parsley-pattern="\ " pattern="\ " data-parsley-trigger="focusout blur" name="user" placeholder="Firstname Lastname" required />
       </div>
-      <div class="form-group field-container">
+      <div class="form-group field-container col-sm-6">
         <label>E-mail</label>
-        <input type="email" class="form-control" ng-model="formInfo.email" data-parsley-trigger="focusout" placeholder="your@email.com" name="email" required />
+        <input type="email" id="email" class="form-control" ng-model="formInfo.email" data-parsley-trigger="focusout" placeholder="your@email.com" name="email" required />
       </div>
-      <div class="form-group field-container">
+      <div class="form-group field-container col-sm-6">
         <label>Address</label>
-        <input type="text" class="form-control" ng-model="formInfo.address" data-parsley-trigger="focusout" placeholder="123 Main St, Apt 2" name="address" required />
+        <input type="text" id="address" class="form-control" ng-model="formInfo.address" data-parsley-trigger="focusout" placeholder="123 Main St, Apt 2" name="address" required />
       </div>
-      <div class="form-group field-container">
+      <div class="form-group field-container col-sm-6">
         <label>ZIP</label>
         <input zip-code-info  data-parsley-type="number" data-parsley-minlength="5" class="form-control" data-parsley-trigger="focusout" ng-model="formInfo.zip" placeholder="15201" id="zip" name="zip" required />
       </div>
-      <div class="form-group field-container">
+      <div class="form-group field-container col-sm-6">
         <label>City</label>
         <input type="text" class="form-control" ng-model="formInfo.city" data-parsley-trigger="focusin focusout" id="city" placeholder="Pittsburgh" name="city" required/>
       </div>
-      <div class="form-group field-container">
+      <div class="form-group field-container col-sm-6">
         <label>State</label>
         <input type="text" class="form-control" ng-model="formInfo.state" data-parsley-trigger="focusin focusout" id="state" placeholder="PA" name="state" required/>
       </div>
@@ -86,7 +86,7 @@ Controller: QuickDonationCtrl
       <h4 class="form-head donate-step-legend col-sm-12"><span class="form-step">3</span> Credit Card Information</h4>
 
       <div class="form-group payment-processor-block col-sm-12">
-        <ul class="paymentProcessor">
+        <ul class="paymentProcessor col-sm-12">
           <li class="payment-processor-type" ng-repeat="type in paymentProcessor">
             <input class="form-radio" id="{{type.name}}" ng-model="formInfo.payment_processor" type="radio" name="{{type.payment_processor}}" data-parsley-multiple="payment-processor" value="{{type.id}}" ng-change="setPaymentBlock({{type.id}})" ng-checked="{{type.is_default}}" ng-class="{active:processorDefault(type.id,type.is_default)}"/>
             <label for="{{type.name}}" class="control-label">{{type.name}}</label>
@@ -98,66 +98,66 @@ Controller: QuickDonationCtrl
 	</ul>
       </div>
 
-      <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
-        <div class="crm-section credit_card_type-section">
-          <div class="crm-credit_card_type-icons">
-            <a class="crm-credit_card_type-icon-no" ng-hide="selectedRow" title="Undefined"><span></span></a>
-            <a class="crm-credit_card_type-icon-visa" title="Visa" ng-show='"Visa"==selectedRow'><span>Visa</span></a>
-            <a class="crm-credit_card_type-icon-mastercard" title="MasterCard" ng-show='"MasterCard"==selectedRow'><span>MasterCard</span></a>
-            <a class="crm-credit_card_type-icon-amex" title="Amex" ng-show='"Amex"==selectedRow'><span>Amex</span></a>
-            <a class="crm-credit_card_type-icon-discover" title="Discover" ng-show='"Discover"==selectedRow'><span>Discover</span></a>
-            <a class="crm-credit_card_type-icon-cvv2-icon cvv2-icon" title="CVV" ng-show='"cvv2"==selectedRow'><span>CVV</span></a>
+      <div class="col-sm-12">
+	<div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
+          <div class="crm-section credit_card_type-section col-sm-1">
+            <div class="crm-credit_card_type-icons">
+              <a class="crm-credit_card_type-icon-no" ng-hide="selectedRow" title="Undefined"><span></span></a>
+              <a class="crm-credit_card_type-icon-visa" title="Visa" ng-show='"Visa"==selectedRow'><span>Visa</span></a>
+              <a class="crm-credit_card_type-icon-mastercard" title="MasterCard" ng-show='"MasterCard"==selectedRow'><span>MasterCard</span></a>
+              <a class="crm-credit_card_type-icon-amex" title="Amex" ng-show='"Amex"==selectedRow'><span>Amex</span></a>
+              <a class="crm-credit_card_type-icon-discover" title="Discover" ng-show='"Discover"==selectedRow'><span>Discover</span></a>
+              <a class="crm-credit_card_type-icon-cvv2-icon cvv2-icon" title="CVV" ng-show='"cvv2"==selectedRow'><span>CVV</span></a>
+            </div>
           </div>
-        </div>
-        <div class="form-group single-input-block" ng-class="{ 'has-error' : quickDonationForm.cardNumber.$invalid && !quickDonationForm.cardNumber.$pristine && ccType}">
-          <label>Card Number</label>
-          <input type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(type)" data-parsley-trigger="focusin focusout" getCreditCardType  placeholder="1234 5678 9012 3456"/>
-        </div>
-        <div class="form-group single-input-block" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine " ng-class="{ 'has-error' : quickDonationForm.cardExpiry.$invalid && !quickDonationForm.cardExpiry.$pristine }">
-          <label>Expiration Date </label>
-          <input placeholder="MM/YY" data-ng-pattern="/^[0-9]*/" type="text" ng-model="formInfo.cardExpiry" class="form-control" data-ng-minlength="5" id="card-expiration" name="cardExpiry" required data-credit-card-expiry data-parsley-errors-container=".errorBlock">
-        </div>
-        <div class="form-group single-input-block" ng-class="{'has-error':quickDonationForm.securityCode.$invalid && !quickDonationForm.securityCode.$pristine}" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine ">
-          <label>Security Code </label>
-          <input type="text" name="securityCode"  id="securityCode" class="form-control" ng-model="formInfo.securityCode" required data-ng-pattern="/^[0-9]+$/" data-ng-minlength="3" maxlength="3" autocomplete="off" ng-focus="selectedCardType('cvv2')" data-parsley-errors-container=".errorBlock" placeholder="CVV" data-security-code>
-        </div>
-        <div class="form-group single-input-block" ng-class="{'has-error' :quickDonationForm.zipCode.$invalid && !quickDonationForm.zipCode.$pristine}" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine ">
-          <label>ZIP Code</label>
-          <input type="text" name="zip" id="zipCode" class="form-control" ng-model="formInfo.zipCode" required data-ng-pattern="/^[0-9]+$/" data-ng-length="4" autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(type)" placeholder="ZIP" />
-        </div>
+          <div class="form-group single-input-block col-sm-4" ng-class="{ 'has-error' : quickDonationForm.cardNumber.$invalid && !quickDonationForm.cardNumber.$pristine && ccType}">
+            <label>Card Number</label>
+            <input ng-minlength="18" ng-change= "selectedCardTypeLimit(type)" type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(type)" data-parsley-trigger="focusin focusout" getCreditCardType  placeholder="1234 5678 9012 3456"/>
+          </div>
+          <div class="form-group single-input-block col-sm-2" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine " ng-class="{ 'has-error' : quickDonationForm.cardExpiry.$invalid && !quickDonationForm.cardExpiry.$pristine }">
+            <label>Expiration Date </label>
+            <input valid-credit-block data-ng-minlength="5" placeholder="MM/YY" data-ng-pattern="/^[0-9]*/" type="text" ng-model="formInfo.cardExpiry" class="form-control" id="card-expiration" name="cardExpiry" required data-credit-card-expiry data-parsley-errors-container=".errorBlock">
+          </div>
+          <div class="form-group single-input-block col-sm-2" ng-class="{'has-error':quickDonationForm.securityCode.$invalid && !quickDonationForm.securityCode.$pristine}" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine ">
+            <label>Security Code </label>
+            <input valid-credit-block type="text" name="securityCode"  id="securityCode" class="form-control" ng-model="formInfo.securityCode" required data-ng-pattern="/^[0-9]+$/" data-ng-minlength="3" maxlength="3" autocomplete="off" ng-focus="selectedCardType('cvv2')" data-parsley-errors-container=".errorBlock" placeholder="CVV" data-security-code>
+          </div>
+          <div class="form-group single-input-block col-sm-3" ng-class="{'has-error' :quickDonationForm.zipCode.$invalid && !quickDonationForm.zipCode.$pristine}" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine ">
+            <label>ZIP Code</label>
+            <input valid-credit-block ng-minlength="5" type="text" name="zip" id="zipCode" class="form-control" ng-model="formInfo.zipCode" required data-ng-pattern="/^[0-9]+$/" data-ng-length="4" autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(type)" placeholder="ZIP" />
+          </div>
+	</div>
+	<div class="payment-block direct-debit-fields-block" ng-if="directDebitType">
+          <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.accountHolder.$invalid && !quickDonationForm.cardNumber.$pristine }" >
+            <label>Account Holder</label>
+            <input type="text" name="accountHolder" class="form-control accountHolder" ng-model="formInfo.accountHolder" data-encrypted-name="accountHolder" required maxlength="34" autocomplete="on" data-parsley-errors-container=".errorBlock" />
+          </div>
+          <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankAccountNumber.$invalid && !quickDonationForm.bankAccountNumber.$pristine }">
+            <label>Bank Account Number</label>
+            <input type="text" name="bankAccountNumber" class="form-control bankAccountNumber" ng-model="formInfo.bankAccountNumber" data-encrypted-name="bankAccountNumber" required data-ng-pattern="/^[0-9]+$/" maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock" />
+          </div>
+          <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankID.$invalid && !quickDonationForm.bankID.$pristine }">
+            <label>Bank Identificaiton Number</label>
+            <input type="text" name="bankID" class="form-control bankID" ng-model="formInfo.bankID" data-encrypted-name="bankID" required data-ng-pattern="/^[0-9]+$/" axlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
+          </div>
+          <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankName.$invalid && !quickDonationForm.bankName.$pristine }">
+            <label>Bank Name</label>
+            <input type="text" name="bankName" class="form-control bankName" ng-model="formInfo.bankName" data-encrypted-name="bankName" required maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
+          </div>
+	</div>
+	<div class="payment-block hidden-block" ng-if="hiddenProcessor">
+	  <input name="hidden_processor" type="hidden" value="1" />
+	</div>
+	<div class="errorBlock">
+	  <p id = "invalidNumber" ng-show="quickDonationForm.cardNumber.$error.minlength && !quickDonationForm.cardNumber.$pristine || quickDonationForm.cardNumber.$error.pattern || quickDonationForm.cardNumber.$error.required">Please enter valid Credit Card Number.</p>
+      <p ng-show="quickDonationForm.cardExpiry.$invalid && quickDonationForm.cardNumber.$valid || quickDonationForm.cardExpiry.$error.required && quickDonationForm.cardExpiry.$error.pattern" >Please enter your card's expiration month and year.</p>
+      <p ng-show="quickDonationForm.securityCode.$invalid && quickDonationForm.cardNumber.$valid && quickDonationForm.cardExpiry.$valid || quickDonationForm.securityCode.$error.required &&  quickDonationForm.securityCode.$error.pattern || quickDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
+      <p ng-show="quickDonationForm.zip.$invalid && quickDonationForm.securityCode.$valid || quickDonationForm.zip.$error.required && quickDonationForm.zip.$error.pattern || quickDonationForm.zip.$error.minlength">Please enter a zip.</p>
+    </div>
       </div>
-      <div class="payment-block direct-debit-fields-block" ng-if="directDebitType">
-        <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.accountHolder.$invalid && !quickDonationForm.cardNumber.$pristine }" >
-          <label>Account Holder</label>
-          <input type="text" name="accountHolder" class="form-control accountHolder" ng-model="formInfo.accountHolder" data-encrypted-name="accountHolder" required maxlength="34" autocomplete="on" data-parsley-errors-container=".errorBlock" />
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankAccountNumber.$invalid && !quickDonationForm.bankAccountNumber.$pristine }">
-          <label>Bank Account Number</label>
-          <input type="text" name="bankAccountNumber" class="form-control bankAccountNumber" ng-model="formInfo.bankAccountNumber" data-encrypted-name="bankAccountNumber" required data-ng-pattern="/^[0-9]+$/" maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock" />
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankID.$invalid && !quickDonationForm.bankID.$pristine }">
-          <label>Bank Identificaiton Number</label>
-          <input type="text" name="bankID" class="form-control bankID" ng-model="formInfo.bankID" data-encrypted-name="bankID" required data-ng-pattern="/^[0-9]+$/" axlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : quickDonationForm.bankName.$invalid && !quickDonationForm.bankName.$pristine }">
-          <label>Bank Name</label>
-          <input type="text" name="bankName" class="form-control bankName" ng-model="formInfo.bankName" data-encrypted-name="bankName" required maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
-         </div>
-      </div>
-      <div class="payment-block hidden-block" ng-if="hiddenProcessor">
-	<input name="hidden_processor" type="hidden" value="1" />
-      </div>
-      <div class="errorBlock">
-      <p ng-show="quickDonationForm.cardNumber.$error.required && !quickDonationForm.cardNumber.$pristine || quickDonationForm.cardNumber.$error.pattern" class="help-block">Please enter a valid Card Number.</p>
-      <p ng-show="quickDonationForm.securityCode.$error.required && !quickDonationForm.securityCode.$pristine || quickDonationForm.securityCode.$error.pattern" class="help-block">Please enter a valid CVV Number.</p>
-      <p ng-show="quickDonationForm.securityCode.$error.required && !quickDonationForm.securityCode.$pristine || quickDonationForm.securityCode.$error.pattern" class="help-block">Please enter a zip.</p>
-
-</div>
     </fieldset>
     <button type="button" class="donate-sub button" ng-click="sectionShow()" ng-hide="section === 3">NEXT STEP<span class="icon next-icons"></span></button>
     <!-- SUBMIT BUTTON -->
     <button class="donate-submit-btn" ng-click="saveData()" loading-text="Saving..." enable-button="quickDonationForm.$pristine" ng-disabled="quickDonationForm.$invalid" ng-show="selectedSection(3)" submit-button > COMPLETE DONATION<span class="icon next-icons"></span></button>
-
   </div>
 </form>
-
