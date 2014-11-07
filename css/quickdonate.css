@@ -113,7 +113,6 @@ ul.paymentProcessor
 
 .credit_card_type-section {
     float: left;
-    width: auto;
     border-style: none !Important;
 }
 
@@ -126,7 +125,6 @@ ul.paymentProcessor
 
 .single-input-block {
     float: left;
-    width: 22%;
 }
 
 .single-input-block input {
@@ -134,9 +132,9 @@ ul.paymentProcessor
     border: none !important;
     box-shadow: none;
     outline: 0;
-    height: 64px;
+    height: 58px;
     padding: 0px !important;
-    margin: 0px !important;
+    margin: 1px;
 }
 
 button {

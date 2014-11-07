@@ -37,7 +37,23 @@
  * This class generates form components for Component
  */
 class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
-  protected $_components;
+  /**
+   * This function sets the default values for the form.
+   * default values are retrieved from the database
+   *
+   * @access public
+   *
+   * @return void
+   */
+  function setDefaultValues() {
+    $domainID = CRM_Core_Config::domainID();
+    $settings = civicrm_api3('Setting', 'get', array(
+      'domain_id' => $domainID,
+      'return' => "quick_donation_page",
+    ));
+    $this->_defaults['quickDonation'] = CRM_Utils_Array::value('quick_donation_page', $settings['values'][$domainID]);
+    return $this->_defaults;
+  }
 
   /**
    * Function to build the form
@@ -48,7 +64,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
   public function buildQuickForm() {
     CRM_Utils_System::setTitle(ts('Settings - Enable Quick Donation Form'));
     $quickDonationPage = CRM_Contribute_PseudoConstant::contributionPage();
-    $this->addElement('select', 'quickDonation', ts('Donation Form'), $quickDonationPage);
+    $this->addElement('select', 'quickDonation', ts('Donation Form'), array(ts('- Select -')) + $quickDonationPage);
 
     parent::buildQuickForm();
   }
