@@ -273,9 +273,6 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       'js/libs/modernizr.js',
       'js/libs/jquery.inputmask.js',
       'js/libs/jquery.inputmaskDate.extensions.js'
-    ),
-    'css' => array(
-                   //'css/quickdonate.css'
     )
   );
 }
