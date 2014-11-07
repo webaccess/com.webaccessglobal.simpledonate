@@ -302,40 +302,24 @@
       });
     }
 
-    $scope.existUserContri = function(contactId,addressID) {
+    $scope.userContri = function(contactId, addressID) {
+      primaryValue = 1;
+      action = "create";
+      if (addressID) {
+        action = "update";
+        primaryValue = 0;
+      }
       CRM.api3('Address', 'create', {
-        'contact_id': "null",
+        'contact_id': contactId,
         'location_type_id': 5,
-	'country_id' : CRM.quickdonate.$defaultContactCountry,
+        'country_id' : CRM.quickdonate.$defaultContactCountry,
         'street_address': $scope.formInfo.address,
         'city': $scope.formInfo.city,
         'state_province_id': $scope.state,
         'postal_code': $scope.formInfo.zip,
         'name': $scope.formInfo.user,
         'is_billing': 1,
-        'is_primary': 0,
-        'api.Address.update':{'id':addressID, 'contact_id': $scope.contact_id, 'is_billing':1,'street_address':$scope.formInfo.address,'city':$scope.formInfo.city,'postal_code':$scope.formInfo.zip},
-      });
-      formFactory.getUser(contactId).then(function(resultParams) {
-        $scope.createContribution(contactId,resultParams);
-      });
-    }
-    $scope.newUserContri = function(contactId) {
-      primaryValue = [0,1];
-      contactID = ['null',contactId];
-      cj.each( primaryValue, function( key, value ) {
-        CRM.api3('Address', 'create', {
-          'contact_id': contactID[key] ,
-          'location_type_id': 5,
-	  'country_id' : CRM.quickdonate.$defaultContactCountry,
-          'street_address': $scope.formInfo.address,
-          'city': $scope.formInfo.city,
-          'state_province_id': $scope.state,
-          'postal_code': $scope.formInfo.zip,
-          'name': $scope.formInfo.user,
-          'is_billing': 1,
-          'is_primary': primaryValue[key]
-        });
+        'is_primary': primary || 1
       });
       formFactory.getUser(contactId).then(function(resultParams) {
         $scope.createContribution(contactId,resultParams);
@@ -367,11 +351,8 @@
           }
         });
 
-        if (resultParams.contact_id && resultParams.address_id ) {
-          $scope.existUserContri(resultParams.contact_id,resultParams.address_id);
-        }
-        else if(resultParams.contact_id && !resultParams.address_id){
-          $scope.newUserContri(resultParams.contact_id);
+        if (resultParams.contact_id){
+          $scope.userContri(resultParams.contact_id, resultParams.address_id);
         }
         else{
           CRM.api3('Contact', 'create', {
@@ -380,12 +361,10 @@
             "last_name": $scope.names[1],
 	    "contact_type":"Individual"
           }).success(function(data, status, headers, config) {
-            $scope.newUserContri(data.id);
+            $scope.userContri(data.id);
           });
         }
-
-      formFactory.setEmail($scope.formInfo.email);
-        //$scope.quickDonationForm.$setPristine();
+        formFactory.setEmail($scope.formInfo.email);
       });
     };
 
@@ -440,26 +419,22 @@
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
         expirationComplete = function() {
-          elm.addClass("full")
-            .unbind("keydown blur")
-            .bind("keydown", function (e) {
-              if (e.keyCode === 8 && $(this).val() === "") {
-                $(this).removeClass("full");
-                  if (window.navigator.standalone || !Modernizr.touch) {
-                    $("#cardNumber").focus();
-                  }
-                }
-            });
-          if (window.navigator.standalone || !Modernizr.touch) {
-            setTimeout(function () {
-              $("#securityCode").focus();
-            }, 220);
-          }
+          elm.addClass("full").unbind("blur").bind("keydown", function (e) {
+            if (e.keyCode === 8 && $(this).val() === "") {
+              $(this).removeClass("full");
+              if (window.navigator.standalone || !Modernizr.touch) {
+                $("#cardNumber").focus();
+              }
+            }
+          });
+          setTimeout(function () {
+            $("#securityCode").focus();
+          }, 220);
         }
-	$(elm).inputmask({mask: "m/q", placeholder:"MM/YY", clearIncomplete: true, oncomplete: expirationComplete});
+	$(elm).inputmask({mask: "m/q", placeholder:"MM/YY", clearIncomplete: true, oncomplete: expirationComplete, showMaskOnHover: false, overrideFocus: true});
       }
     }
-    return directive
+    return directive;
   });
 
   quickDonation.directive('validCreditBlock', function() {
@@ -480,10 +455,10 @@
         });
       }
     }
-    return directive
+    return directive;
   });
 
-  quickDonation.directive('securityCode', function(){
+  quickDonation.directive('securityCode', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl) {
@@ -494,22 +469,26 @@
         });
       }
     }
-    return directive
+    return directive;
   });
 
-  quickDonation.directive('creditCardType', function(){
+  quickDonation.directive('creditCardType', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
-        scope.formInfo.cardNumberValue = null;
-        $(elm).inputmask({mask: "9999 9999 9999 9999", placeholder: "1234 5678 9012 3456"});
         creditCardComplete = function() {
           // We need to get the credit card field and the unmasked value of the field.
+          scope.maskedVal = elm.val();
+	    console.log(scope.maskedVal);
+	    console.log(elm.val());
+
           scope.cardNumberValue = scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
+	    console.log(uvalue);
+
           ccType = scope.getCreditCardType(uvalue);
           // Let's make sure the card is valid
           if (ccType === undefined) {
-            $(elm).addClass("ng-invalid shake");
+            $(elm).addClass("ng-invalid invalid shake");
             $(elm).parent('div').parent('div').addClass("ng-invalid shake");
             $('#invalidNumber').addClass("help-block");
             scope.formInfo.cardNumberValue = null;
@@ -518,63 +497,89 @@
             return;
           }
           // Replace the value with the last four numbers of the card.
-	  if ((ccType === "amex" && uvalue.length === 15) || (ccType !== "amex" && uvalue.length === 16)) {
-            $("#card-expiration").focus();
-            elm.val(uvalue.substr(uvalue.length - 4, uvalue.length));
-          }
+          elm.bind("saveValues", function () {
+	    if ((ccType === "Amex" && uvalue.length === 15) || (ccType !== "Amex" && uvalue.length === 16)) {
+              elm.data("ccNumber", uvalue).val(uvalue.substr(uvalue.length - 4, uvalue.length));
+            }
+	  });
           // Once this function is fired, we need to add a "transitioning" class to credit
           // card element so that we can take advantage of our CSS animations.
           elm.addClass("transitioning-out");
+          setTimeout(function () {
+            elm.removeClass("transitioning-out");
+            elm.bind("blur", function () {
+              elm.trigger("saveValues");
+            }).blur();
+            elm.addClass("full");
+          }, 600);
           // We have to set a timeout so that we give our animations time to finish. We have to
 	  // blur the element as well to fix a bug where our credit card field was losing its
 	  // value prematurely.
+
 	  setTimeout(function () {
-            elm.removeClass("transitioning-out");
-            elm.addClass("full");
-	  }, scope.animationWait);
+	    $("#card-expiration").show();
+	    $("#securityCode").show();
+	    $("#zipCode").show();
+	  }, 150);
+
 	  // After the credit card field is initially filled out, bind a click event
 	  // that will allow us to edit the number again if we want to. We also bind
 	  // a focus event (for mobile) and a keydown event in case of shift + tab
-	  elm.unbind("blur focus click keydown keypress")
-            .bind("focus click keydown keypress", function (e) {
+	  //elm.unbind("blur focus click keydown keypress")
+          elm.unbind("blur focus click keydown keypress keyup")
+	    .bind("focus click keydown keyup", function (e) {
+            //.bind("focus click keydown keypress", function (e) {
               if (e.type === "focus" || e.type === "click" || (e.shiftKey && e.keyCode === 9)) {
                 beginCreditCard(elm);
               }
             });
+
           if (window.navigator.standalone || !Modernizr.touch) {
             // Focus on the credit card expiration input.
-            elm.val(scope.formInfo.cardNumberValue);
-            $("#card-expiration").focus();
-            elm.val(uvalue.substr(uvalue.length - 4, uvalue.length));
-          }
-	};
-	beginCreditCard= function(elm) {
-          elm.val(scope.formInfo.cardNumberValue);
-          // Wait for the animation to complete and then remove our classes.
+            elm.data("ccNumber", uvalue).val(uvalue.substr(uvalue.length - 4, uvalue.length));
 
-          elm.unbind("keypress blur")
-            .bind("keypress blur", function (e) {
-              // Is it the enter key?
-              if (e.keyCode === 13 || e.type === "blur") {
+            $("#card-expiration").show().focus();
+
+	  }
+	};
+	beginCreditCard= function(elms) {
+          elms.val(elm.data("ccNumber")).addClass("transitioning-in");
+          // Wait for the animation to complete and then remove our classes.
+          setTimeout(function () {
+            elms.removeClass("transitioning-in full");
+          }, 600);
+
+          elms.unbind("keyup blur")
+            .bind("keyup blur", function (e) {
+              uvalues = elms.inputmask("unmaskedvalue");
+              if (e.keyCode === 13 || e.type === "blur" || (e.type==="keyup" && e.key !== "Backspace" && uvalues.length >= 15)) {
                 uvalue = elm.inputmask("unmaskedvalue");
                 ccType = scope.getCreditCardType(uvalue);
                 // Make sure the number length is valid
-                if ((ccType === "amex" && uvalue.length === 15) || (ccType !== "amex" && uvalue.length === 16)) {
-		    creditCardComplete();
+                if ((ccType === "Amex" && uvalue.length === 15) || (ccType !== "Amex" && uvalue.length === 16)) {
+		  creditCardComplete();
                   //$('#card-expiration').focus();
                 }
               }
             })
             .unbind("focus click keydown");
+	    maskValues();
 	};
-	cardNo = elm.val();
-	ccType = scope.getCreditCardType(cardNo);
 
-	if (ccType === "amex") {
-          elm.inputmask({ mask: "9999 999999 99999", placeholder: " ", oncomplete: creditCardComplete });
-        } else {
-          elm.inputmask({ mask: "9999 9999 9999 9999", placeholder: " ", oncomplete: creditCardComplete });
-	}
+	maskValues = function() {
+	  $("#card-expiration").hide();
+	  $("#securityCode").hide();
+	  $("#zipCode").hide();
+          elm.inputmask({ mask: "9999 9999 9999 9999", placeholder: " ", oncomplete: creditCardComplete,showMaskOnHover: false,	overrideFocus: true});
+	};
+        maskValues();
+
+        scope.$watch('type', function(newValue, oldValue) {
+          if (newValue === "Amex" && oldValue != "Amex") {
+            elm.inputmask({ mask: "9999 999999 99999", placeholder: " ", oncomplete: creditCardComplete,showMaskOnHover: false,	overrideFocus: true });
+          }
+        });
+
         ctrl.$parsers.unshift(function(value){
           scope.type = scope.getCreditCardType(value);
           if (value) {
@@ -584,7 +589,7 @@
         });
       }
     }
-    return directive
+    return directive;
   });
 
   quickDonation.directive('submitButton', function() {

@@ -150,8 +150,7 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 /**
  *  alterAPIPermissions() hook allows you to change the permissions checked when doing API 3 calls.
  */
-function quickdonate_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions)
-{
+function quickdonate_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
   if (($entity == "contact" && $action == "get") ||
     ($entity == "contact" && $action == "create") ||
     ($entity == "address" && $action == "create") ||
@@ -164,8 +163,71 @@ function quickdonate_civicrm_alterAPIPermissions($entity, $action, &$params, &$p
 
 function quickdonate_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
-  if ($pageName == 'CRM_Core_Page_Angular') {
-    quickdonate_getQuickDonateSetting();
+  if ($pageName == 'CRM_Core_Page_Angular' && $page->urlPath[1] == 'quick') {
+    $donatePageID = quickdonate_getQuickDonateSetting();
+    $session = CRM_Core_Session::singleton();
+    $contactID = $session->get('userID');
+    if ($donatePageID) {
+      $extends = CRM_Core_Component::getComponentID('CiviContribute');
+      $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
+
+      $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
+      $isQuickConfig = civicrm_api3('PriceSet', 'getvalue', array(
+        'id' => $priceSetID,
+        'return' => "is_quick_config",
+      ));
+      $otherAmount = FALSE;
+      foreach($priceField['values'] as $key => $value) {
+        if ($value['name'] == 'other_amount') {
+          $otherAmount = TRUE;
+        }
+        else {
+          $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id']));
+          $priceList = $priceFieldVal['values'];
+          $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
+        }
+      }
+      $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
+        'id' => $donatePageID,
+      ));
+      CRM_Utils_System::setTitle($donateConfig['title']);
+
+      $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
+      $test = !empty($_GET['test']) ? 'test' : 'live';
+
+      if (is_array($donatePage['payment_processor'])) {
+        $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], $test);
+      }
+      else {
+        $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], $test);
+        $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
+        $paymentProcessors[$paymentProcessor['id']]['hide'] = $donateConfig['is_pay_later'] ? FALSE : TRUE;
+      }
+      $config = CRM_Core_Config::singleton();
+      $defaultContactCountry = $config->defaultContactCountry;
+      $stateProvince = array_flip(CRM_Core_PseudoConstant::stateProvinceForCountry($defaultContactCountry));
+
+      CRM_Core_Resources::singleton()->addSetting(array(
+        'quickdonate' => array(
+          'donatePageID' => $donatePageID,
+          'priceSetID' => $priceSetID,
+          'sessionContact' => $contactID,
+          'currency' => $currencySymbol,
+          'config' => $donateConfig,
+          'paymentProcessor' => $paymentProcessors,
+          'priceList' => $priceList,
+          'otherAmount' => $otherAmount,
+          'country' => $defaultContactCountry,
+          'allStates' => $stateProvince,
+          'isTest' => ($test == 'test') ? 1 : 0,
+          'htmlPriceList' => $htmlPriceList,
+          'isQuickConfig' => $isQuickConfig,
+          'invoiceID' => md5(uniqid(rand(), TRUE))
+        ),
+      ));
+      CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
+      CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/quickdonate.css', 100, 'page-body');
+    }
   }
 }
 
@@ -199,66 +261,6 @@ function quickdonate_getQuickDonateSetting() {
  * @param $angularModule
  */
 function quickdonate_civicrm_angularModules(&$angularModule) {
-  $session = CRM_Core_Session::singleton();
-  $contactID = $session->get('userID');
-
-  if ($donatePageID = quickdonate_getQuickDonateSetting()) {
-    $extends = CRM_Core_Component::getComponentID('CiviContribute');
-    $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
-
-    $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
-    $isQuickConfig = civicrm_api3('PriceSet', 'getvalue', array(
-      'id' => $priceSetID,
-      'return' => "is_quick_config",
-    ));
-    $otherAmount = FALSE;
-    foreach($priceField['values'] as $key => $value) {
-      if ($value['name'] == 'other_amount') {
-        $otherAmount = TRUE;
-      }
-      else {
-        $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id']));
-        $priceList = $priceFieldVal['values'];
-        $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
-      }
-    }
-    $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
-      'id' => $donatePageID,
-    ));
-
-    $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
-    $test = !empty($_GET['test']) ? 'test' : 'live';
-
-    if (is_array($donatePage['payment_processor'])) {
-      $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], $test);
-    }
-    else {
-      $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], $test);
-      $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
-    }
-    $config = CRM_Core_Config::singleton();
-    $defaultContactCountry = $config->defaultContactCountry;
-    $stateProvince = array_flip(CRM_Core_PseudoConstant::stateProvinceForCountry($defaultContactCountry));
-  }
-
-  CRM_Core_Resources::singleton()->addSetting(array(
-    'quickdonate' => array(
-      'donatePageID' => $donatePageID,
-      'priceSetID' => $priceSetID,
-      'sessionContact' => $contactID,
-      'currency' => $currencySymbol,
-      'config' => $donateConfig,
-      'paymentProcessor' => $paymentProcessors,
-      'priceList' => $priceList,
-      'otherAmount' => $otherAmount,
-      'country' => $defaultContactCountry,
-      'allStates' => $stateProvince,
-      'isTest' => ($test == 'test') ? 1 : 0,
-      'htmlPriceList' => $htmlPriceList,
-      'isQuickConfig' => $isQuickConfig,
-      'invoiceID' => md5(uniqid(rand(), TRUE))
-    ),
-  ));
   CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
 
   $angularModule['quickdonate'] = array(
@@ -273,7 +275,7 @@ function quickdonate_civicrm_angularModules(&$angularModule) {
       'js/libs/jquery.inputmaskDate.extensions.js'
     ),
     'css' => array(
-      'css/quickdonate.css'
+                   //'css/quickdonate.css'
     )
   );
 }

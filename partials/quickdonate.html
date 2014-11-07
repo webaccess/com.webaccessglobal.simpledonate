@@ -1,7 +1,7 @@
 <!--
 Controller: QuickDonationCtrl
 -->
-<form class="row" name="quickDonationForm" id="quickDonationForm" class="row" role="form" novalidate>
+<form class="row" name="quickDonationForm" id="quickDonationForm" role="form" ng-submit="saveData()" novalidate>
   <div class="crm-block crm-form-block quickDonationForm">
     <!--Price field Block-->
     <fieldset class="priceset-group form-section col-sm-12" ng-show="selectedSection(1)">
@@ -87,7 +87,7 @@ Controller: QuickDonationCtrl
 
       <div class="form-group payment-processor-block col-sm-12">
         <ul class="paymentProcessor col-sm-12">
-          <li class="payment-processor-type" ng-repeat="type in paymentProcessor">
+          <li class="payment-processor-type" ng-repeat="type in paymentProcessor" ng-hide="type.hide">
             <input class="form-radio" id="{{type.name}}" ng-model="formInfo.payment_processor" type="radio" name="{{type.payment_processor}}" data-parsley-multiple="payment-processor" value="{{type.id}}" ng-change="setPaymentBlock({{type.id}})" ng-checked="{{type.is_default}}" ng-class="{active:processorDefault(type.id,type.is_default)}"/>
             <label for="{{type.name}}" class="control-label">{{type.name}}</label>
           </li>
@@ -153,11 +153,11 @@ Controller: QuickDonationCtrl
 	  <p ng-show="quickDonationForm.cardExpiry.$invalid && quickDonationForm.cardNumber.$valid || quickDonationForm.cardExpiry.$error.required && quickDonationForm.cardExpiry.$error.pattern" >Please enter your card's expiration month and year.</p>
 	  <p ng-show="quickDonationForm.securityCode.$invalid && quickDonationForm.cardNumber.$valid && quickDonationForm.cardExpiry.$valid || quickDonationForm.securityCode.$error.required &&  quickDonationForm.securityCode.$error.pattern || quickDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
 	  <p ng-show="quickDonationForm.zip.$invalid && quickDonationForm.securityCode.$valid || quickDonationForm.zip.$error.required && quickDonationForm.zip.$error.pattern || quickDonationForm.zip.$error.minlength">Please enter a zip.</p>
-    </div>
+        </div>
       </div>
     </fieldset>
     <button type="button" class="donate-sub button" ng-click="sectionShow()" ng-hide="section === 3">NEXT STEP<span class="icon next-icons"></span></button>
     <!-- SUBMIT BUTTON -->
-    <button class="donate-submit-btn" ng-click="saveData()" loading-text="Saving..." enable-button="quickDonationForm.$pristine" ng-disabled="quickDonationForm.$invalid" ng-show="selectedSection(3)" submit-button > COMPLETE DONATION<span class="icon next-icons"></span></button>
+    <button class="donate-submit-btn" ng-click="saveData()" loading-text="Saving..." enable-button="quickDonationForm.$pristine"  ng-show="selectedSection(3)" > COMPLETE DONATION<span class="icon next-icons"></span></button>
   </div>
 </form>
