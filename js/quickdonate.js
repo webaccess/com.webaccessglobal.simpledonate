@@ -479,12 +479,7 @@
         creditCardComplete = function() {
           // We need to get the credit card field and the unmasked value of the field.
           scope.maskedVal = elm.val();
-	    console.log(scope.maskedVal);
-	    console.log(elm.val());
-
           scope.cardNumberValue = scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
-	    console.log(uvalue);
-
           ccType = scope.getCreditCardType(uvalue);
           // Let's make sure the card is valid
           if (ccType === undefined) {
@@ -525,10 +520,8 @@
 	  // After the credit card field is initially filled out, bind a click event
 	  // that will allow us to edit the number again if we want to. We also bind
 	  // a focus event (for mobile) and a keydown event in case of shift + tab
-	  //elm.unbind("blur focus click keydown keypress")
           elm.unbind("blur focus click keydown keypress keyup")
 	    .bind("focus click keydown keyup", function (e) {
-            //.bind("focus click keydown keypress", function (e) {
               if (e.type === "focus" || e.type === "click" || (e.shiftKey && e.keyCode === 9)) {
                 beginCreditCard(elm);
               }
@@ -537,9 +530,7 @@
           if (window.navigator.standalone || !Modernizr.touch) {
             // Focus on the credit card expiration input.
             elm.data("ccNumber", uvalue).val(uvalue.substr(uvalue.length - 4, uvalue.length));
-
             $("#card-expiration").show().focus();
-
 	  }
 	};
 	beginCreditCard= function(elms) {
@@ -558,7 +549,6 @@
                 // Make sure the number length is valid
                 if ((ccType === "Amex" && uvalue.length === 15) || (ccType !== "Amex" && uvalue.length === 16)) {
 		  creditCardComplete();
-                  //$('#card-expiration').focus();
                 }
               }
             })
