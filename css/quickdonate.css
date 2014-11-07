@@ -9,6 +9,7 @@
 
 #branding {
     background: #006699 !important;
+    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%);
 }
 
 .breadcrumb {
@@ -457,6 +458,7 @@ ul.priceSet li{
 }
 #branding {
     padding: 20px 115px 0 115px !important;
+    background: #006699 !important;
 }
 }
 
@@ -477,5 +479,6 @@ ul.priceSet li {
 }
 #branding {
     padding: 20px 115px 0 115px !important;
+    background: #006699 !important;
 }
 }

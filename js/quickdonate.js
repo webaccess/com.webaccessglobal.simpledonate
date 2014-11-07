@@ -527,7 +527,7 @@
 	  // After the credit card field is initially filled out, bind a click event
 	  // that will allow us to edit the number again if we want to. We also bind
 	  // a focus event (for mobile) and a keydown event in case of shift + tab
-          elm.unbind("blur focus click keydown keyup")
+          elm.unbind("focus click keydown keypress keyup")
 	    .bind("focus click keydown keyup", function (e) {
               if (e.type === "focus" || e.type === "click" || (e.shiftKey && e.keyCode === 9)) {
                 beginCreditCard(elm);
