@@ -9,7 +9,24 @@
 
 #branding {
     background: #006699 !important;
-    padding: 20px 225px 0 225px !important;
+}
+
+.breadcrumb {
+    margin: 0 auto !important;
+    width: 755px;
+}
+
+#branding h1.page-title {
+    float: none !important;
+    width: 755px !important;
+    margin: 0 auto;
+}
+
+div.add-or-remove-shortcuts {
+    float: none !important;
+    padding : none !important;
+    margin: 0 auto !important;
+    width: 780px;
 }
 
 .breadcrumb a {
