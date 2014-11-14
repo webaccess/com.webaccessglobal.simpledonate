@@ -81,5 +81,194 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       throw new CRM_Core_Exception('Failed to create settings for angular_donation');
     }
   }
+
+  public function transactDonation() {
+    $session = CRM_Core_Session::singleton();
+    $contactID = $session->get('userID');
+    $params = $_POST['params'];
+    $params['amount'] = $_POST['amount'];
+    $creditInfo = $_POST['creditInfo'];
+    $isTest = $_POST['isTest'];
+    //create Contact, billing address
+    $userInfo = explode(' ', $params['user']);
+    $cParam = array(
+      'email' => $params['email'],
+      'first_name' =>$userInfo[0],
+      'last_name' =>$userInfo[1],
+      'contact_type' => 'Individual'
+    );
+    $address =array(
+      'location_type_id' => 'Billing',
+      'street_address'=> $params['address'],
+      'city'=> $params['city'],
+      'state_province_id'=> $params['state'],//1000,
+      'country_id' => $params['country'],// 1228,
+      'postal_code'=> $params['zip']
+    );
+    $email = array(
+      'email' => $params['email'],
+      'location_type_id' => 'Billing',
+    );
+
+    if (!$contactID) {
+      $dupeParams = $cParam;
+      $dedupeParams = CRM_Dedupe_Finder::formatParams($dupeParams, 'Individual');
+      $dedupeParams['check_permission'] = FALSE;
+      $ids = CRM_Dedupe_Finder::dupesByParams($dedupeParams, 'Individual');
+      // if we find more than one contact, use the first one
+      $contactID = CRM_Utils_Array::value(0, $ids);
+      if (!$contactID) {
+        $cont = civicrm_api3('Contact', 'create', $cParam);
+        $contactID = $cont['id'];
+      }
+      $params['contact_id'] = $contactID;
+    }
+    else {
+      foreach (array('address', 'email') as $loc) {
+        $result = civicrm_api3($loc, 'get', array(
+                    'contact_id' => $contactID,
+                    'location_type_id' => 'Billing',
+                  ));
+        // Use first id if we have any results
+        if (!empty($result['values'])) {
+          $ids = array_keys($result['values']);
+          ${$loc}['id'] = $ids[0];
+        }
+      }
+    }
+
+    if ($contactID) {
+      $address['contact_id'] = $email['contact_id'] = $contactID;
+      civicrm_api3('address', 'create', $address);
+      civicrm_api3('email', 'create', $email);
+    }
+
+    $donation = self::createQuickContribution($contactID, $params, $isTest, $creditInfo);
+    echo json_encode($donation);
+    CRM_Utils_System::civiExit();
+  }
+
+  public function createQuickContribution($contactID, $params, $isTest, $creditInfo) {
+    $locationTypes = CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
+    $bltID = array_search('Billing', $locationTypes);
+    $settings = civicrm_api3('Setting', 'get', array(
+      'domain_id' => $domainID,
+      'return' => "quick_donation_page",
+    ));
+    $donatePageID = $settings['values'][$domainID]['quick_donation_page'];
+    $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
+      'id' => $donatePageID,
+    ));
+    $contributionparams = array();
+    $expiry = explode('/', $params['cardExpiry']);
+    $isrecur = $params['recur'];
+
+    $contributionparams = array(
+      "billing_first_name" => $params['first_name'],
+      "first_name" => $params['first_name'],
+      "billing_middle_name" => $params['middle_name'],
+      "middle_name" => $params['middle_name'],
+      "billing_last_name" => $params['last_name'],
+      "last_name" => $params['last_name'],
+      "billing_street_address-{$bltID}" => $params['address'],
+      "street_address" => $params['address'],
+      "billing_city-{$bltID}" => $params['city'],
+      "city" => $params['city'],
+      "billing_country_id-{$bltID}" => $params['country'],// $countryID,
+      "country_id" => $params['country'],// $countryID,
+      "billing_state_province_id-{$bltID}" => $params['state'] ,
+      "state_province_id" => $params['state'],// $stateProvinceID,
+      "billing_postal_code-{$bltID}" => $params['zip'],
+      "postal_code" => $params['zip'],
+      "year" => "20"+$expiry[1],
+      "month" => $expiry[0],
+      "email" => $params['email'],
+      "contribution_page_id" => $donatePageID,
+      "payment_processor_id" => CRM_Utils_Array::value('payment_processor', $params),
+      "is_test" => $isTest,
+      "is_pay_later" => $params['is_pay_later'],
+      "total_amount"=> $params['amount'],
+      "financial_type_id" => $donateConfig['financial_type_id'],
+      "currencyID" => $donateConfig['currency'],
+      "currency" => $donateConfig['currency'],
+      "skipLineItem" => 0,
+      "skipRecentView" => 1,
+      'is_email_receipt' => 1,
+      "contact_id" => $contactID,//$params['contact_id'],
+      "source" => "Online Contribution: {$donateConfig['title']}",
+    );
+    if ($params['is_pay_later']) {
+      $contributionparams["contribution_status_id"] = 2;
+      $contributionparams["payment_processor_id"] = null;
+    }
+    if (!empty($creditInfo)) {
+      $contributionparams['credit_card_number'] = $creditInfo['credit_card_number'];
+      $contributionparams['cvv2'] = $creditInfo['cvv2'];
+      $contributionparams['credit_card_type'] = $creditInfo['credit_card_type'];
+    }
+    if (!empty($debitInfo)) {
+      $contributionparams['bank_identification_number'] = $creditInfo['credit_card_number'];
+      $contributionparams['bank_name'] = $creditInfo['cvv2'];
+      $contributionparams['bank_account_number'] = $creditInfo['credit_card_type'];
+      $contributionparams['payment_type'] = $creditInfo['payment_type'];
+      $contributionparams['account_holder'] = $creditInfo['account_holder'];
+    }
+    //unset the billing parameters if it is pay later mode
+    //to avoid creation of billing location
+    if ($params['is_pay_later']) {
+      $billingFields = array(
+        'billing_first_name',
+        'billing_middle_name',
+        'billing_last_name',
+        "billing_street_address-{$bltID}",
+        "billing_city-{$bltID}",
+        "billing_state_province-{$bltID}",
+        "billing_state_province_id-{$bltID}",
+        "billing_postal_code-{$bltID}",
+        "billing_country-{$bltID}",
+        "billing_country_id-{$bltID}",
+      );
+      foreach ($billingFields as $value) {
+        unset($contributionparams[$value]);
+      }
+    }
+    //check for recurring contribution
+    if ($isrecur) {
+      $recurParams = array('contact_id' => $contactID);
+      $recurParams['amount'] = CRM_Utils_Array::value('amount', $contributionparams);
+      $recurParams['auto_renew'] = 1;
+      $recurParams['frequency_unit'] = 'month';
+      $recurParams['frequency_interval'] = 1;
+      $recurParams['financial_type_id'] = $donateConfig['financial_type_id'];
+      $recurParams['is_test'] = $isTest;
+      $recurParams['start_date'] = $recurParams['create_date'] = $recurParams['modified_date'] = date('YmdHis');
+      $recurParams['invoice_id'] = $recurParams['trxn_id'] = md5(uniqid(rand(), TRUE));
+      $recurParams['contribution_status_id'] = CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
+      $recurParams['payment_processor_id'] = CRM_Utils_Array::value('payment_processor_id', $contributionparams);
+      $recurParams['is_email_receipt'] = 1;
+      //create recurring contribution record
+      $recurring = CRM_Contribute_BAO_ContributionRecur::add($recurParams);
+      $recurContriID = $recurring->id;
+      $contributionparams['contributionRecurID'] = $recurContriID;//$contribution->id;
+      $contributionparams['contribution_recur_id'] = $recurContriID;//$contribution->id;
+    }
+    //call transact api
+    $result = civicrm_api3('Contribution', 'transact', $contributionparams);
+
+    if ($result['error']) {
+      //make sure to cleanup db for recurring case.
+      if ($recurContriID) {
+        CRM_Contribute_BAO_ContributionRecur::deleteRecurContribution($recurContriID);
+      }
+      CRM_Core_Session::setStatus($result['error'], ts('Error'), 'error');
+      return false;
+    }
+    else {
+      $contributionID = $result['id'];
+      // Send receipt
+      civicrm_api3('contribution', 'sendconfirmation', array('id' => $contributionID) + $donateConfig);
+      return $result;
+    }
+  }
 }
 

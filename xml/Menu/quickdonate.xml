@@ -15,4 +15,14 @@
     <is_ssl>true</is_ssl>
     <is_public>true</is_public>
   </item>
+  <item>
+    <path>civicrm/quick/contribute/transact</path>
+    <page_callback>CRM_QuickDonate_Form_QuickDonationSetting::transactDonation</page_callback>
+    <path_arguments>cid=%%cid%%</path_arguments>
+    <title>Quick Donation Page</title>
+    <access_arguments>make online contributions</access_arguments>
+    <weight>0</weight>
+    <is_ssl>true</is_ssl>
+    <is_public>true</is_public>
+  </item>
 </menu>
