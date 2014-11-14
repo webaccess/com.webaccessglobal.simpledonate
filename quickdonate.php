@@ -147,20 +147,6 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _quickdonate_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
-/**
- *  alterAPIPermissions() hook allows you to change the permissions checked when doing API 3 calls.
- */
-function quickdonate_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
-  if (($entity == "contact" && $action == "get") ||
-    ($entity == "contact" && $action == "create") ||
-    ($entity == "address" && $action == "create") ||
-    ($entity == "contribution" && $action == "create") ||
-    ($entity == "contribution" && $action == "transact") ||
-    ($entity == "ContributionRecur" && $action == "create")) {
-    $params['check_permissions'] = false;
-  }
-}
-
 function quickdonate_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
   if ($pageName == 'CRM_Core_Page_Angular' && $page->urlPath[1] == 'quick') {
@@ -170,7 +156,6 @@ function quickdonate_civicrm_pageRun(&$page) {
     if ($donatePageID) {
       $extends = CRM_Core_Component::getComponentID('CiviContribute');
       $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
-
       $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
       $isQuickConfig = civicrm_api3('PriceSet', 'getvalue', array(
         'id' => $priceSetID,
@@ -209,7 +194,6 @@ function quickdonate_civicrm_pageRun(&$page) {
 
       CRM_Core_Resources::singleton()->addSetting(array(
         'quickdonate' => array(
-          'donatePageID' => $donatePageID,
           'priceSetID' => $priceSetID,
           'sessionContact' => $contactID,
           'currency' => $currencySymbol,
@@ -222,7 +206,6 @@ function quickdonate_civicrm_pageRun(&$page) {
           'isTest' => ($test == 'test') ? 1 : 0,
           'htmlPriceList' => $htmlPriceList,
           'isQuickConfig' => $isQuickConfig,
-          'invoiceID' => md5(uniqid(rand(), TRUE))
         ),
       ));
       CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');

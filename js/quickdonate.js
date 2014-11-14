@@ -1,5 +1,4 @@
 (function(angular, $, _) {
-
   var resourceUrl = CRM.resourceUrls['com.webaccessglobal.quickdonate'];
   var quickDonation = angular.module('quickdonate', ['ngRoute']);
   quickDonation.config(['$routeProvider',
@@ -36,21 +35,24 @@
 	}
 	return deferred.promise;
       },
-      createRecur: function(param, isRecur) {
+      postData: function(param, isTest, creditInfo, amount) {
         var deferred = $q.defer();
-        resultParams = null;
-        if (isRecur) {
-          CRM.api3('ContributionRecur', 'create', param ).success(function(data) {
-            if (data.is_error == 0) {
-              $recurID = {"contribution_recur_id": data.id};
-              resultParams = $recurID;
-            }
-            else {
-              deferred.reject("there was an error");
-            }
-          });
-        }
-        deferred.resolve(resultParams);
+        var resultParams = null;
+        $.ajax({
+          type: 'POST',
+          url: "quick/contribute/transact",
+          data: {
+            params: param, isTest: isTest, creditInfo: creditInfo, amount: amount
+          },
+          dataType: 'json',
+          success: function(data) {
+            resultParams = data;
+            deferred.resolve(resultParams);
+          },
+	  error: function(data) {
+            deferred.reject("there was an error");
+	  }
+        });
         return deferred.promise;
       },
       setEmail: function(data) {
@@ -59,26 +61,11 @@
       getEmail: function(data) {
         return savedData;
       },
-      createContri: function(action, contributionparams) {
-         var deferred = $q.defer();
-         param = null;
-         CRM.api3('Contribution', action, contributionparams ).success(function(data, status, headers, config) {
-           if (data.is_error == 0) {
-             param = data;
-             deferred.resolve(param);
-           }
-           else {
-             deferred.reject("Error"+data.error_message);
-           }
-         });
-         return deferred.promise;
-       }
      };
   });
 
   quickDonation.controller('QuickDonationCtrl', function($scope, formFactory, $route, $location) {
     //set donaiton page ID
-    $scope.donationID = CRM.quickdonate.donatePageID;
     $scope.thanks = $route.current.params.thanks;
     $scope.currencySymbol = CRM.quickdonate.currency;
     $scope.paymentProcessor = CRM.quickdonate.paymentProcessor;
@@ -222,151 +209,52 @@
       });
       return ccType;
     };
-
     $scope.createContribution = function (contactId,params) {
-      //get contribution page
-      var resultParams =$scope.donationConfig;//<?php echo json_encode($contributionPage);?>;
-      $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount || 1;
-      $scope.action = 'transact';
-      $scope.paymentParams = {};
-      $scope.recurID = {};
-      $scope.contributionparams = {
-        "billing_first_name": params.first_name,
-        "first_name": params.first_name,
-        "billing_middle_name": params.middle_name,
-        "middle_name": params.middle_name,
-        "billing_last_name": params.last_name,
-        "last_name": params.last_name,
-        "billing_street_address-5": params.street_address,
-        "street_address": params.street_address,
-        "billing_city-5": params.city,
-        "city": params.city,
-        "billing_country_id-5": params.country_id,
-        "country_id": params.country_id,
-        "billing_state_province_id-5": params.state_province_id,
-        "state_province_id": params.state_province_id,
-        "billing_postal_code-5": params.postal_code,
-        "postal_code": params.postal_code,
-        "year": "20"+$scope.year,
-        "month": $scope.month,
-        "email": params.email,
-        "contribution_page_id": resultParams.id,
-        "payment_processor_id": $scope.formInfo.payment_processor,
-        "is_test": $scope.test,
-        "is_pay_later": $scope.formInfo.is_pay_later,
-        "total_amount": $scope.amount,
-        "financial_type_id": resultParams.financial_type_id,
-        "currencyID": resultParams.currency,
-        "currency": resultParams.currency,
-        "skipLineItem": 0,
-        "skipRecentView": 1,
-        "contact_id": contactId,
-        "address_id": params.address_id,
-        "source": "Online Contribution: " + resultParams.title,
-      };
-
-      if ($scope.creditType) {
-        $scope.paymentParams = {
-          "credit_card_number": $scope.cardNumberValue,
-          "cvv2": $scope.formInfo.securityCode,
-          "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
-        };
-      }
-      if ($scope.formInfo.is_pay_later) {
-        $scope.paymentParams = {"contribution_status_id": 2};
-        $scope.action = 'create';
-      }
-      if ($scope.formInfo.payment_processor) {
-        $scope.payment_processor_id = $scope.formInfo.payment_processor;
-      }
-      $scope.recurParams = {
-        'contact_id': contactId,
-        "auto_renew": 1,
-        "frequency_unit": 'month',
-        "frequency_interval": 1,
-        "is_test": $scope.test,
-        "amount":$scope.amount,
-        "invoice_id": CRM.quickdonate.invoiceID,
-        "contribution_status_id":2,
-        "payment_processor_id": $scope.payment_processor_id,
-        "is_email_receipt": 1,
-        "trxn_id": CRM.quickdonate.invoiceID,
-        "financial_type_id": resultParams.financial_type_id,
-        "payment_instrument_id": 1
-      };
-
-      formFactory.createRecur($scope.recurParams, $scope.formInfo.recur).then(function(resultParams) {
-        $scope.thanks = 0;
-        $.extend($scope.contributionparams, $scope.paymentParams, resultParams);
-        formFactory.createContri($scope.action, $scope.contributionparams).then(function(param) {
-          $location.path('/donation/thanks');
-        });
-      });
     }
 
-    $scope.userContri = function(contactId, addressID) {
-      primaryValue = 1;
-      action = "create";
-      if (addressID) {
-        action = "update";
-        primaryValue = 0;
-      }
-      CRM.api3('Address', 'create', {
-        'contact_id': contactId,
-        'location_type_id': 5,
-        'country_id' : CRM.quickdonate.$defaultContactCountry,
-        'street_address': $scope.formInfo.address,
-        'city': $scope.formInfo.city,
-        'state_province_id': $scope.state,
-        'postal_code': $scope.formInfo.zip,
-        'name': $scope.formInfo.user,
-        'is_billing': 1,
-        'is_primary': primaryValue || 1
-      });
-      formFactory.getUser(contactId).then(function(resultParams) {
-        $scope.createContribution(contactId,resultParams);
-      });
-    };
 
     $scope.saveData = function() {
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
       $scope.state = CRM.quickdonate.allStates[$scope.formInfo.state];
       $scope.country = CRM.quickdonate.country;
       $scope.names = $scope.formInfo.user.split(' ');
+      $scope.creditInfo = {};
+      $('.donate-submit-btn').attr('disabled','disabled');
+      $('.donate-submit-btn').html('Saving');
+      $('.donate-submit-btn').addClass('loading');
 
       if ($scope.creditType) {
         $scope.expiry = $scope.formInfo.cardExpiry.split('/');
         $scope.month = $scope.expiry[0];
         $scope.year = $scope.expiry[1];
         $scope.ccType = true;
+        $scope.creditInfo = {
+          "credit_card_number": $scope.cardNumberValue,
+          "cvv2": $scope.formInfo.securityCode,
+          "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
+        };
+      }
+      if ($scope.directDebitType) {
+        $scope.creditInfo = {
+          "bank_identification_number": $scope.formInfo.bankID,
+          "bank_name": $scope.formInfo.bankName,
+          "account_holder": $scope.formInfo.accountHolder,
+          "payment_type": 2,
+          "bank_account_number": $scope.formInfo.bankAccountNumber
+        };
       }
 
-      CRM.api3('Contact', 'get', {
-        "email": $scope.formInfo.email,
-        "contact_type":"Individual"
-      }).success(function(data, status, headers, config) {
-        var counter = 0, resultParams = {};
-        cj.each( data.values, function( key, value ) {
-          counter++;
-          if (counter == 1) {
-            resultParams = value;
-          }
-        });
-
-        if (resultParams.contact_id){
-          $scope.userContri(resultParams.contact_id, resultParams.address_id);
+      $scope.param = {
+        "state" : $scope.state,
+        "country": $scope.country,
+        "amount": $scope.amount
+      };
+      $.extend($scope.param, $scope.formInfo, $scope.creditInfo);
+      formFactory.postData($scope.param, $scope.isTest, $scope.creditInfo, $scope.amount).then(function(resultParams) {
+        if (resultParams) {
+          formFactory.setEmail($scope.formInfo.email);
+          $location.path('/donation/thanks');
         }
-        else{
-          CRM.api3('Contact', 'create', {
-            "email":$scope.formInfo.email,
-            "first_name": $scope.names[0],
-            "last_name": $scope.names[1],
-	    "contact_type":"Individual"
-          }).success(function(data, status, headers, config) {
-            $scope.userContri(data.id);
-          });
-        }
-        formFactory.setEmail($scope.formInfo.email);
       });
     };
 
@@ -616,15 +504,16 @@
 
   quickDonation.directive('submitButton', function() {
     return {
-      restrict: 'A',
+      //restrict: 'A',
       scope: {
         loadingText: "@",
         enableButton: "="
       },
       link: function ($scope, ele) {
         var defaultSaveText = ele.html();
-        ele.bind('click', function(){
+        ele.on('click', function(){
           ele.attr('disabled','disabled');
+          ele.addClass('loading');
           ele.html($scope.loadingText);
         });
       }

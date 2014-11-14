@@ -361,6 +361,10 @@ button:hover .next-icons {
     color: #3b7840;
 }
 
+.loading, button:hover .loading {
+  background-image: url("../icons/loading.gif") no-repeat 0px 0px;
+}
+
 ::-moz-placeholder {
     color: #bbb !important;
 }

@@ -158,6 +158,6 @@ Controller: QuickDonationCtrl
     </fieldset>
     <button type="button" class="donate-sub button" ng-click="sectionShow()" ng-hide="section === 3">NEXT STEP<span class="icon next-icons"></span></button>
     <!-- SUBMIT BUTTON -->
-    <button class="donate-submit-btn" ng-click="saveData()" loading-text="Saving..." enable-button="quickDonationForm.$pristine"  ng-show="selectedSection(3)" > COMPLETE DONATION<span class="icon next-icons"></span></button>
+    <button class="donate-submit-btn" enable-button="quickDonationForm.$pristine" ng-show="selectedSection(3)" > COMPLETE DONATION<span class="icon next-icons"></span></button>
   </div>
 </form>
