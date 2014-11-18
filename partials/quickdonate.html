@@ -70,6 +70,14 @@ Controller: QuickDonationCtrl
         <label>ZIP</label>
         <input zip-code-info  data-parsley-type="number" data-parsley-minlength="5" class="form-control" data-parsley-trigger="focusout" ng-model="formInfo.zip" placeholder="15201" id="zip" name="zip" required />
       </div>
+      <div class="form-group field-padding field-container col-sm-6">
+        <label>Country</label>
+        <select name="country" class="form-control col-sm-6" id="country" data-ng-model="formInfo.country" data-parsley-trigger="change" ng-options="countryId as countryLabel for (countryId,countryLabel) in countryList" data-parsley-required><option value=''>--select country--</option></select>
+      </div>
+      <div class="form-group field-padding field-container col-sm-6">
+        <label>State</label>
+        <select check-state-valid name = 'stateList' class="form-control col-sm-6" id="stateList" ng-disabled="!formInfo.country" ng-model="formInfo.stateList" data-parsley-trigger="change" ng-options="stateId as stateLabel for (stateId,stateLabel) in stateList[formInfo.country]" data-parsley-required><option value=''>--select state--</option></select>
+      </div>
       <div class="form-group field-container col-sm-6">
         <label>City</label>
         <input type="text" class="form-control" ng-model="formInfo.city" data-parsley-trigger="focusin focusout" id="city" placeholder="Pittsburgh" name="city" required/>
@@ -112,11 +120,11 @@ Controller: QuickDonationCtrl
           </div>
           <div class="form-group single-input-block col-sm-5" ng-class="{ 'has-error' : quickDonationForm.cardNumber.$invalid && !quickDonationForm.cardNumber.$pristine && ccType}">
             <label>Card Number</label>
-            <input type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(atype)" data-parsley-trigger="focusin focusout" placeholder="1234 5678 9012 3456"/>
+            <input data-parsley-errors-messages-disabled type="text" name="cardNumber" class="form-control cardNumber" ng-model="formInfo.cardNumberValue" data-encrypted-name="cardNumber" required data-credit-card-type autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(atype)" data-parsley-trigger="focusin focusout" placeholder="1234 5678 9012 3456"/>
           </div>
           <div class="form-group single-input-block col-sm-2" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine " ng-class="{ 'has-error' : quickDonationForm.cardExpiry.$invalid && !quickDonationForm.cardExpiry.$pristine }">
             <label>Expiration Date </label>
-            <input valid-credit-block data-ng-minlength="4" placeholder="MM/YY" data-ng-pattern="/^[0-9/]*/" type="text" ng-model="formInfo.cardExpiry" class="form-control" id="card-expiration" name="cardExpiry" ng-focus="selectedCardType(atype)" required data-credit-card-expiry data-parsley-errors-container=".errorBlock">
+            <input valid-credit-block data-ng-minlength="4" placeholder="MM/YY" data-ng-pattern="/^[0-9]*/" type="text" ng-model="formInfo.cardExpiry" class="form-control" id="card-expiration" name="cardExpiry" ng-focus="selectedCardType(atype)" required data-credit-card-expiry data-parsley-errors-container=".errorBlock">
           </div>
           <div class="form-group single-input-block col-sm-2" ng-class="{'has-error':quickDonationForm.securityCode.$invalid && !quickDonationForm.securityCode.$pristine}" ng-show="quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine ">
             <label>Security Code </label>
@@ -158,6 +166,6 @@ Controller: QuickDonationCtrl
     </fieldset>
     <button type="button" class="donate-sub button" ng-click="sectionShow()" ng-hide="section === 3">NEXT STEP<span class="icon next-icons"></span></button>
     <!-- SUBMIT BUTTON -->
-    <button class="donate-submit-btn" enable-button="quickDonationForm.$pristine" ng-show="selectedSection(3)" > COMPLETE DONATION<span class="icon next-icons"></span></button>
+    <button id= "testing" ng-click="isCreditValid()" class="donate-submit-btn" enable-button="quickDonationForm.$pristine" ng-show="selectedSection(3)" > COMPLETE DONATION<span class="icon next-icons"></span></button>
   </div>
 </form>

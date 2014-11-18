@@ -22,6 +22,8 @@ function quickdonate_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function quickdonate_civicrm_install() {
+  //Add menu for donation page link under Contribution parent navigation
+  //And Configuration link under Admin navigation
   $civiContributeParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'CiviContribute', 'id', 'name');
   $params = array(
     'domain_id' => CRM_Core_Config::domainID(),
@@ -150,17 +152,20 @@ function quickdonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 function quickdonate_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
   if ($pageName == 'CRM_Core_Page_Angular' && $page->urlPath[1] == 'quick') {
-    $donatePageID = quickdonate_getQuickDonateSetting();
+    //Get all contribution page detils and session details to be used in js
+    $settingVal = quickdonate_getQuickDonateSetting();
     $session = CRM_Core_Session::singleton();
     $contactID = $session->get('userID');
-    if ($donatePageID) {
+    if ($settingVal['donatePageID']) {
       $extends = CRM_Core_Component::getComponentID('CiviContribute');
-      $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $donatePageID, $extends);
+      $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $settingVal['donatePageID'], $extends);
       $priceField = civicrm_api3('PriceField', 'get', array("price_set_id" => $priceSetID));
+      //Check for is_quick_config
       $isQuickConfig = civicrm_api3('PriceSet', 'getvalue', array(
         'id' => $priceSetID,
         'return' => "is_quick_config",
       ));
+      //Check for Other amount
       $otherAmount = FALSE;
       foreach($priceField['values'] as $key => $value) {
         if ($value['name'] == 'other_amount') {
@@ -172,14 +177,16 @@ function quickdonate_civicrm_pageRun(&$page) {
           $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
         }
       }
+      //Get donation page details
       $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
-        'id' => $donatePageID,
+        'id' => $settingVal['donatePageID'],
       ));
-      CRM_Utils_System::setTitle($donateConfig['title']);
+      CRM_Utils_System::setTitle($donateConfig['title']); // Set the page title
 
       $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
-      $test = !empty($_GET['test']) ? 'test' : 'live';
+      $test = !empty($_GET['test']) ? 'test' : 'live'; // Check for test or live donation
 
+      //Get payment processor details
       if (is_array($donatePage['payment_processor'])) {
         $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], $test);
       }
@@ -188,28 +195,46 @@ function quickdonate_civicrm_pageRun(&$page) {
         $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
         $paymentProcessors[$paymentProcessor['id']]['hide'] = $donateConfig['is_pay_later'] ? FALSE : TRUE;
       }
+      //set Country and State value
       $config = CRM_Core_Config::singleton();
       $defaultContactCountry = $config->defaultContactCountry;
       $stateProvince = array_flip(CRM_Core_PseudoConstant::stateProvinceForCountry($defaultContactCountry));
+      $countryList = CRM_Core_PseudoConstant::country();
+      $stateList = array();
+      foreach($countryList as $key => $val) {
+        $stateList[$key] = CRM_Core_PseudoConstant::stateProvinceForCountry($key);
+      }
 
       CRM_Core_Resources::singleton()->addSetting(array(
         'quickdonate' => array(
-          'priceSetID' => $priceSetID,
           'sessionContact' => $contactID,
+          'priceSetID' => $priceSetID,
+          'ziptasticEnable' => $settingVal['ziptasticEnable'],
+          'countryList' => CRM_Core_PseudoConstant::country(),
+          'stateList' => $stateList,
+          'country' => $defaultContactCountry,
+          'allStates' => $stateProvince,
           'currency' => $currencySymbol,
           'config' => $donateConfig,
           'paymentProcessor' => $paymentProcessors,
           'priceList' => $priceList,
           'otherAmount' => $otherAmount,
-          'country' => $defaultContactCountry,
-          'allStates' => $stateProvince,
           'isTest' => ($test == 'test') ? 1 : 0,
           'htmlPriceList' => $htmlPriceList,
           'isQuickConfig' => $isQuickConfig,
         ),
       ));
+      //Include bootstrap and custom css files to affect this angular page only
       CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/bootstrap.min.css', 103, 'page-header');
       CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.quickdonate',  'css/quickdonate.css', 100, 'page-body');
+    }
+
+    if ($contactID) {
+      $id = array('id' => $contactID);
+      $result = civicrm_api3('Contact', 'getSingle', $id);
+      CRM_Core_Resources::singleton()->addSetting(array(
+        'quickdonateVal' => $result,
+      ));
     }
   }
 }
@@ -218,13 +243,10 @@ function quickdonate_civicrm_pageRun(&$page) {
  * get tab options from DB using setting-get api
  */
 function quickdonate_getQuickDonateSetting() {
-  $domainID = CRM_Core_Config::domainID();
-  $settings = civicrm_api3('Setting', 'get', array(
-    'domain_id' => $domainID,
-    'return' => "quick_donation_page",
-  ));
-  $donatePageID = NULL;
-  if (CRM_Utils_Array::value('is_error', $settings, FALSE) || empty($settings['values'][$domainID]['quick_donation_page'])) {
+  $settingVal = array();
+  $donateId = CRM_Core_BAO_Setting::getItem('Quick Donation', 'quick_donation_page');
+  if (empty($donateId)) {
+    //Redirect to configuration page if user has permission
     if (CRM_Core_Permission::check('administer CiviCRM')) {
       CRM_Core_Session::setStatus('Donation form configuration is not done!', ts('Notice'), 'warning');
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/quick/donation/configuration'),'reset=1');
@@ -235,9 +257,10 @@ function quickdonate_getQuickDonateSetting() {
     }
   }
   else {
-    $donatePageID = $settings['values'][$domainID]['quick_donation_page'];
+    $settingVal['donatePageID'] = $donateId;
+    $settingVal['ziptasticEnable'] = CRM_Core_BAO_Setting::getItem('Quick Donation', 'ziptastic_enable');
   }
-  return $donatePageID;
+  return $settingVal;
 }
 
 /**
