@@ -52,6 +52,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       'return' => "quick_donation_page",
     ));
     $this->_defaults['quickDonation'] = CRM_Utils_Array::value('quick_donation_page', $settings['values'][$domainID]);
+    $this->_defaults['ziptastic'] = CRM_Core_BAO_Setting::getItem('Quick Donation', 'ziptastic_enable');
     return $this->_defaults;
   }
 
@@ -65,17 +66,28 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     CRM_Utils_System::setTitle(ts('Settings - Enable Quick Donation Form'));
     $quickDonationPage = CRM_Contribute_PseudoConstant::contributionPage();
     $this->addElement('select', 'quickDonation', ts('Donation Form'), array(ts('- Select -')) + $quickDonationPage);
+    $this->addElement('checkbox', "ziptastic", ts('Is Ziptastic Enable'));
 
     parent::buildQuickForm();
   }
 
   public function postProcess() {
     $params = $this->controller->exportValues($this->_name);
-    $params = array(
+    $donationParams = array(
       'domain_id' => CRM_Core_Config::domainID(),
       'quick_donation_page' => $params['quickDonation'],
     );
-    $result = civicrm_api3('setting', 'create', $params);
+    $result = civicrm_api3('setting', 'create', $donationParams);
+    if (CRM_Utils_Array::value('is_error', $result, FALSE)) {
+      CRM_Core_Error::debug_var('setting-create result for angular_donation', $result);
+      throw new CRM_Core_Exception('Failed to create settings for angular_donation');
+    }
+
+    $zipParams = array(
+      'domain_id' => CRM_Core_Config::domainID(),
+      'ziptastic_enable' => CRM_Utils_Array::value('ziptastic', $params) ? 1 : 0,
+    );
+    $result = civicrm_api3('setting', 'create', $zipParams);
     if (CRM_Utils_Array::value('is_error', $result, FALSE)) {
       CRM_Core_Error::debug_var('setting-create result for angular_donation', $result);
       throw new CRM_Core_Exception('Failed to create settings for angular_donation');
@@ -101,9 +113,10 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       'location_type_id' => 'Billing',
       'street_address'=> $params['address'],
       'city'=> $params['city'],
-      'state_province_id'=> $params['state'],//1000,
-      'country_id' => $params['country'],// 1228,
-      'postal_code'=> $params['zip']
+      'state_province_id'=> $params['state'],
+      'country_id' => $params['country'],
+      'postal_code'=> $params['zip'],
+      'name' => $userInfo[0].' '.$userInfo[1],
     );
     $email = array(
       'email' => $params['email'],
@@ -111,6 +124,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     );
 
     if (!$contactID) {
+      //Check if contact exist using dedup rule
       $dupeParams = $cParam;
       $dedupeParams = CRM_Dedupe_Finder::formatParams($dupeParams, 'Individual');
       $dedupeParams['check_permission'] = FALSE;
@@ -123,21 +137,19 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       }
       $params['contact_id'] = $contactID;
     }
-    else {
+
+    if ($contactID) {
       foreach (array('address', 'email') as $loc) {
         $result = civicrm_api3($loc, 'get', array(
-                    'contact_id' => $contactID,
-                    'location_type_id' => 'Billing',
-                  ));
+          'contact_id' => $contactID,
+          'location_type_id' => 'Billing',
+        ));
         // Use first id if we have any results
         if (!empty($result['values'])) {
           $ids = array_keys($result['values']);
           ${$loc}['id'] = $ids[0];
         }
       }
-    }
-
-    if ($contactID) {
       $address['contact_id'] = $email['contact_id'] = $contactID;
       civicrm_api3('address', 'create', $address);
       civicrm_api3('email', 'create', $email);
@@ -160,7 +172,6 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       'id' => $donatePageID,
     ));
     $contributionparams = array();
-    $expiry = explode('/', $params['cardExpiry']);
     $isrecur = $params['recur'];
 
     $contributionparams = array(
@@ -174,14 +185,14 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       "street_address" => $params['address'],
       "billing_city-{$bltID}" => $params['city'],
       "city" => $params['city'],
-      "billing_country_id-{$bltID}" => $params['country'],// $countryID,
-      "country_id" => $params['country'],// $countryID,
+      "billing_country_id-{$bltID}" => $params['country'],
+      "country_id" => $params['country'],
       "billing_state_province_id-{$bltID}" => $params['state'] ,
-      "state_province_id" => $params['state'],// $stateProvinceID,
+      "state_province_id" => $params['state'],
       "billing_postal_code-{$bltID}" => $params['zip'],
       "postal_code" => $params['zip'],
-      "year" => "20"+$expiry[1],
-      "month" => $expiry[0],
+      "year" => "20".substr($params['cardExpiry'], 2, 3),
+      "month" => substr($params['cardExpiry'], 0, 2),
       "email" => $params['email'],
       "contribution_page_id" => $donatePageID,
       "payment_processor_id" => CRM_Utils_Array::value('payment_processor', $params),
@@ -194,11 +205,11 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       "skipLineItem" => 0,
       "skipRecentView" => 1,
       'is_email_receipt' => 1,
-      "contact_id" => $contactID,//$params['contact_id'],
+      "contact_id" => $contactID,
       "source" => "Online Contribution: {$donateConfig['title']}",
     );
     if ($params['is_pay_later']) {
-      $contributionparams["contribution_status_id"] = 2;
+      $contributionparams["contribution_status_id"] =  CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
       $contributionparams["payment_processor_id"] = null;
     }
     if (!empty($creditInfo)) {
@@ -235,7 +246,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     //check for recurring contribution
     if ($isrecur) {
       $recurParams = array('contact_id' => $contactID);
-      $recurParams['amount'] = CRM_Utils_Array::value('amount', $contributionparams);
+      $recurParams['amount'] =  $params['amount'];
       $recurParams['auto_renew'] = 1;
       $recurParams['frequency_unit'] = 'month';
       $recurParams['frequency_interval'] = 1;
@@ -266,6 +277,14 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     else {
       $contributionID = $result['id'];
       // Send receipt
+      // send recurring Notification email for user
+      if ($recurContriID) {
+        CRM_Contribute_BAO_ContributionPage::recurringNotify( CRM_Core_Payment::RECURRING_PAYMENT_START,
+          $contactID,
+          $donatePageID,
+          $recurring
+        );
+      }
       civicrm_api3('contribution', 'sendconfirmation', array('id' => $contributionID) + $donateConfig);
       return $result;
     }

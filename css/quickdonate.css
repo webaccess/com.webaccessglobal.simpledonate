@@ -1,3 +1,9 @@
+.field-container select {
+    border: 1px solid #ddd !important;
+    border-radius : 8px !important;
+    height: 46px;
+}
+
 #page-title {
     color: #006699;
 }
@@ -9,12 +15,16 @@
 
 #branding {
     background: #006699 !important;
-    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%);
+    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%) !important;
 }
 
 .breadcrumb {
     margin: 0 auto !important;
     width: 755px;
+}
+
+.field-padding {
+    padding-right:30px !important;
 }
 
 #branding h1.page-title {
@@ -39,6 +49,14 @@ div.add-or-remove-shortcuts {
     border-top: 1px solid #006699 !important;
 }
 
+.recurDonation {
+    padding-left: 16px;
+}
+
+.recurDonation label:hover{
+    color: #006699 !important;
+}
+
 .ng-dirty .ng-valid:focus,
 .ng-dirty .ng-invalid:focus,
 .ng-pristine .ng-valid:focus,
@@ -46,11 +64,11 @@ div.add-or-remove-shortcuts {
     box-shadow: none !important;
 }
 
-.field-container input.parsley-success, .ng-scope .ng-valid {
+.ng-scope .blockIsValid, .ng-scope .parsley-success {
     border-color: #089e00 !important;
 }
 
-.field-container input.parsley-error, .ng-invalid .shake, .ng-scope .blockInValid {
+.ng-invalid .shake, .ng-scope .blockInValid, .ng-scope .parsley-error {
     border-color: #b94a48 !important;
 }
 

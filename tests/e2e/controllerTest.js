@@ -3,6 +3,11 @@ describe("Test Donation page", function () {
   ptor = protractor.getInstance();
   ptor.ignoreSynchronization = true;
   var contriTitle = "Test "+stringGen();
+  var firstName = stringGen();
+  var lastName = stringGen();
+  var userName = firstName;
+  var emailId = firstName+'@info.com';
+
   describe("Contribution Page", function () {
     it ("should create new contribution", function() {
       ptor.get(ptor.baseUrl+'civicrm/admin/contribute/add?reset=1&action=add');
@@ -22,11 +27,7 @@ describe("Test Donation page", function () {
     });
   });
 
-  describe("Test Donation page for Logged in User", function () {
-    var firstName = stringGen();
-    var lastName = stringGen();
-    var userName = firstName;
-    var emailId = firstName+'@info.com';
+  describe("Test Donation page for Logged in User when ziptastic enable", function () {
     it ("should create new user", function() {
       ptor.get(ptor.baseUrl+'admin/people/create');
       ptor.findElement(protractor.By.id('edit-name')).sendKeys(userName);
@@ -47,11 +48,10 @@ describe("Test Donation page", function () {
       ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
       ptor.sleep(1000);
       ptor.findElement(protractor.By.cssContainingText('option', contriTitle)).click();
+      ptor.findElement(protractor.By.id('ziptastic')).click();
       ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
       ptor.get(ptor.baseUrl+'user/logout');
-      ptor.findElement(protractor.By.id('edit-name')).sendKeys(userName);
-      ptor.findElement(protractor.By.id('edit-pass')).sendKeys(userName);
-      ptor.findElement(protractor.By.id('edit-submit')).click();
+      login(userName);
     });
 
     priceSetTest();
@@ -74,7 +74,7 @@ describe("Test Donation page", function () {
     creditInfoTest(emailId);
   });
 
-  describe("Test Donation for anonymous user", function () {
+  describe("Test Donation for anonymous user when ziptastic enable", function () {
     var firstName = stringGen();
     var lastName = stringGen();
     var userName = firstName;
@@ -105,22 +105,67 @@ describe("Test Donation page", function () {
     creditInfoTest(emailId);
   });
 
+  describe("Test Donation page for Logged in User when ziptastic disable", function () {
+    it ("should save setting of quick configration page", function() {
+      ptor.get(ptor.baseUrl);
+      login(userName);
+      ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
+      ptor.sleep(1000);
+      ptor.findElement(protractor.By.id('ziptastic')).click();
+      ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
+    });
+
+    priceSetTest();
+
+    //user information section
+    it ("check session value of login user info", function() {
+      expect(ptor.findElement(protractor.By.model('formInfo.user')).getAttribute('value')).toBe(firstName+' '+lastName);
+      expect(ptor.findElement(protractor.By.model('formInfo.email')).getAttribute('value')).toBe(emailId);
+      expect(ptor.findElement(protractor.By.model('formInfo.address')).getAttribute('value')).toBe("Test street address");
+      expect(ptor.findElement(protractor.By.model('formInfo.zip')).getAttribute('value')).toBe("15201");
+      expect(ptor.findElement(protractor.By.model('formInfo.city')).getAttribute('value')).toBe("Pittsburgh");
+      element(by.model('formInfo.country')).getAttribute('value').then(function (selectValue) {
+        expect(element(by.css('select option[value="' + selectValue + '"]')).getText()).toEqual('United States');
+      });
+      element(by.model('formInfo.stateList')).getAttribute('value').then(function (selectVal) {
+        expect(element(by.css('select option[value="' + selectVal + '"]')).getText()).toEqual('Pennsylvania');
+      });
+    });
+    creditInfoTest(emailId);
+  });
+
+  describe("Test Donation for anonymous user when ziptastic disable", function () {
+    var firstName = stringGen();
+    var lastName = stringGen();
+    var userName = firstName;
+    var emailId = firstName+'@info.com';
+    priceSetTest();
+    it ("should fill proper info for user section", function() {
+      ptor.findElement(protractor.By.model('formInfo.user')).sendKeys(firstName+' '+lastName);
+      ptor.findElement(protractor.By.model('formInfo.email')).sendKeys(emailId);
+      ptor.findElement(protractor.By.model('formInfo.address')).sendKeys('123 Main Land street');
+      ptor.findElement(protractor.By.model('formInfo.zip')).sendKeys('15201');
+      ptor.findElement(protractor.By.cssContainingText('option', 'United States')).click();
+      ptor.findElement(protractor.By.cssContainingText('option', 'Pennsylvania')).click();
+      ptor.findElement(protractor.By.model('formInfo.city')).sendKeys('Pittsburgh');
+    });
+    creditInfoTest(emailId);
+  });
+
+
   function creditInfoTest(emailId) {
     //credit card section
     it ("should check for credit card information",function() {
       ptor.findElement(protractor.By.css('button.donate-sub')).click();
-      ptor.findElement(protractor.By.css('ul.paymentProcessor li:nth-child(1) input')).click();
       isPresentCreditElement(false);
-
       ptor.findElement(protractor.By.model('formInfo.cardNumberValue')).sendKeys('4100000000000000');
       isPresentCreditElement(true);
+      ptor.findElement(protractor.By.model('formInfo.cardExpiry')).click();
       ptor.findElement(protractor.By.model('formInfo.cardExpiry')).sendKeys('0820');
       ptor.findElement(protractor.By.model('formInfo.securityCode')).sendKeys('510');
-      ptor.findElement(protractor.By.model('formInfo.zipCode')).sendKeys('15425');
-
+      ptor.findElement(protractor.By.model('formInfo.zipCode')).sendKeys('154235');
       var elementSubmit = ptor.findElement(protractor.By.css('button.donate-submit-btn'));
       elementSubmit.click();
-      expect(elementSubmit.getText()).toBe('Saving...');
       ptor.sleep(2000);
       expect(ptor.getCurrentUrl()).toContain('donation/thanks');
       expect(ptor.findElement(protractor.By.css('strong.ng-binding')).getText()).toContain(emailId);
@@ -170,6 +215,12 @@ describe("Test Donation page", function () {
         }
       });
     });
+  }
+
+  function login(userName) {
+    ptor.findElement(protractor.By.id('edit-name')).sendKeys(userName);
+    ptor.findElement(protractor.By.id('edit-pass')).sendKeys(userName);
+    ptor.findElement(protractor.By.id('edit-submit')).click();
   }
 
   function getSelectedAmt(index) {

@@ -32,6 +32,10 @@
                 <td>{$form.quickDonation.html}<br />
                 <span class="description">{ts}Default contribution page used for quick donation.{/ts}</span></td>
             </tr>
+            <tr>
+              <td class="label">{$form.ziptastic.label}</td>
+              <td>{$form.ziptastic.html}<br />
+           </tr>
         </table>
     <div class="crm-submit-buttons">
         {include file="CRM/common/formButtons.tpl" location="bottom"}
