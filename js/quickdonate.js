@@ -47,7 +47,7 @@
      };
   });
 
-  quickDonation.controller('QuickDonationCtrl', function($scope, formFactory, $route, $location) {
+  quickDonation.controller('QuickDonationCtrl', function($scope, formFactory, $route, $location, $window) {
     //set donaiton page ID
     $scope.thanks = $route.current.params.thanks;
     $scope.ziptasticIsEnabled = CRM.quickdonate.ziptasticEnable;
@@ -299,7 +299,6 @@
       $('.donate-submit-btn').attr('disabled','disabled');
       $('.donate-submit-btn').html('Saving');
       $('.donate-submit-btn').addClass('loading');
-
       if ($scope.creditType) {
         $scope.ccType = true;
         $scope.creditInfo = {
@@ -329,6 +328,7 @@
         if (resultParams) {
           formFactory.setEmail($scope.formInfo.email);
           $location.path('/donation/thanks');
+          $window.scrollTo(0,0)
         }
       });
     };
@@ -364,7 +364,7 @@
       link: function(scope, elm, attrs, ctrl) {
         elm.bind('keyup', function() {
           //check if all field are valid
-          if (scope.quickDonationForm.zip.$valid && scope.quickDonationForm.securityCode.$valid && scope.quickDonationForm.cardExpiry.$valid) {
+          if (scope.quickDonationForm.securityCode.$valid && scope.quickDonationForm.cardExpiry.$valid) {
             $(elm).parent('div').parent('div').removeClass("blockInValid");
             $(elm).parent('div').parent('div').addClass("blockIsValid");
           }
@@ -391,20 +391,6 @@
           else {
             $('#stateList').removeClass("parsley-success");
           }
-        });
-      }
-    }
-    return directive;
-  });
-
-  quickDonation.directive('securityCode', function() {
-    var directive = {
-      require: 'ngModel',
-      link: function(scope, elm, attrs, ctrl) {
-        elm.bind('keyup', function() {
-          if (scope.quickDonationForm.securityCode.$valid) {
-            $('#zipCode').focus();
-	  }
         });
       }
     }
@@ -458,7 +444,6 @@
 	  setTimeout(function () {
 	    $("#card-expiration").show();
 	    $("#securityCode").show();
-	    $("#zipCode").show();
 	  }, 150);
 
 	  // After the credit card field is initially filled out, bind a click event
@@ -506,7 +491,6 @@
 	maskValues = function() {
 	  $("#card-expiration").hide();
 	  $("#securityCode").hide();
-	  $("#zipCode").hide();
 	};
         maskValues();
         scope.$watch('cardcomplete',function(newvalue,oldvalue){

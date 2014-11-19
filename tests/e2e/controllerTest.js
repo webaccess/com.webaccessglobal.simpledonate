@@ -163,7 +163,6 @@ describe("Test Donation page", function () {
       ptor.findElement(protractor.By.model('formInfo.cardExpiry')).click();
       ptor.findElement(protractor.By.model('formInfo.cardExpiry')).sendKeys('0820');
       ptor.findElement(protractor.By.model('formInfo.securityCode')).sendKeys('510');
-      ptor.findElement(protractor.By.model('formInfo.zipCode')).sendKeys('154235');
       var elementSubmit = ptor.findElement(protractor.By.css('button.donate-submit-btn'));
       elementSubmit.click();
       ptor.sleep(2000);
@@ -237,8 +236,6 @@ describe("Test Donation page", function () {
     expect(elcardExpiry.isDisplayed()).toBe(display);
     var elsecurityCode = ptor.findElement(protractor.By.model('formInfo.securityCode'));
     expect(elsecurityCode.isDisplayed()).toBe(display);
-    var elzipCode = ptor.findElement(protractor.By.model('formInfo.zipCode'));
-    expect(elzipCode.isDisplayed()).toBe(display);
   }
 
   //to generate random words

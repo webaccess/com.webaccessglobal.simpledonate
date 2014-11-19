@@ -25,7 +25,7 @@ return array (
     'type' => 'Integer',
     'quick_form_type' => 'Element',
     'html_type' => 'Checkbox',
-    'default' => 0,
+    'default' => 1,
     'add' => '4.5',
     'title' => 'Ziptastic Enabled',
     'is_domain' => 1,
