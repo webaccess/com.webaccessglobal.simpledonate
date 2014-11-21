@@ -154,7 +154,7 @@ Controller: QuickDonationCtrl
 	</div>
 	<div class="errorBlock" ng-show="!quickDonationForm.cardNumber.$valid || !quickDonationForm.cardExpiry.$valid || !quickDonationForm.securityCode.$valid">
           <p id = "invalidNumber" ng-show="!quickDonationForm.cardNumber.$valid || quickDonationForm.cardNumber.$error.minlength || quickDonationForm.cardNumber.$error.required">Please enter valid Credit Card Number.</p>
-          <p ng-show="(quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine) && (quickDonationForm.cardExpiry.$invalid || quickDonationForm.cardExpiry.$error.required || quickDonationForm.cardExpiry.$error.pattern || quickDonationForm.cardExpiry.$error.minlength)" >Please enter your card's expiration month and year.</p>
+          <p ng-show="(quickDonationForm.cardNumber.$valid && !quickDonationForm.cardNumber.$pristine) && (quickDonationForm.cardExpiry.$invalid || quickDonationForm.cardExpiry.$error.required || quickDonationForm.cardExpiry.$error.pattern || quickDonationForm.cardExpiry.$error.minlength)" >Please enter valid card's expiration month and year.</p>
           <p ng-show="quickDonationForm.securityCode.$invalid && quickDonationForm.cardNumber.$valid && quickDonationForm.cardExpiry.$valid || quickDonationForm.securityCode.$error.required &&  quickDonationForm.securityCode.$error.pattern || quickDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
         </div>
       </div>

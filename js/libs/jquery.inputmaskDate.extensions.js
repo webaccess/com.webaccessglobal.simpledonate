@@ -42,7 +42,7 @@ Optional extensions on the jquery.inputmask base
         // Two digit year (12-29)
         // Is this better left to validation? Otherwise we would have to update every year.
         'q': {
-            validator: "(1[2-9])|(2[0-9])",
+            validator: "(1[4-9])|(2[0-9])",
             cardinality: 2,
             prevalidator: [
                 { validator: "[12]", cardinality: 1 }

@@ -125,22 +125,9 @@
     }
     //check credit card validation on form submit
     $scope.isCreditValid = function() {
-      if ($scope.quickDonationForm.cardNumber.$pristine || $scope.quickDonationForm.cardNumber.$invalid) {
-        $('.cardNumber').parent('div').parent('div').addClass("blockInValid");
-        $('.errorBlock').addClass("help-block");
-      }
-    }
-
-    // hide and remove validation of country and stateList if ziptastic is disabled
-    if ($scope.ziptasticIsEnabled) {
-      $('#country').attr('data-parsley-required', 'false');
-      $('#stateList').attr('data-parsley-required', 'false');
-      $('#country').parent().hide();
-      $('#stateList').parent().hide();
-    }
-    //check credit card validation on form submit
-    $scope.isCreditValid = function() {
-      if ($scope.quickDonationForm.cardNumber.$pristine || $scope.quickDonationForm.cardNumber.$invalid) {
+      if ($scope.quickDonationForm.cardNumber.$pristine || $scope.quickDonationForm.cardNumber.$invalid || $scope.quickDonationForm.cardExpiry.$invalid || $scope.quickDonationForm.securityCode.$invalid) {
+        $('.errorBlock ul').hide();
+        $('.cardNumber').parent('div').parent('div').removeClass("blockIsValid");
         $('.cardNumber').parent('div').parent('div').addClass("blockInValid");
         $('.errorBlock').addClass("help-block");
       }
@@ -322,10 +309,21 @@
         "country": $scope.country,
         "amount": $scope.amount
       };
-      $.extend($scope.param, $scope.formInfo, $scope.creditInfo);
+      $formParams ={};
+      $.extend($formParams,$scope.formInfo);
+      delete $formParams.state;
+      delete $formParams.country;
+      delete $formParams.amount;
+      $.extend($scope.param, $formParams, $scope.creditInfo);
       //Show thank you page on data submission
       formFactory.postData($scope.param, $scope.isTest, $scope.creditInfo, $scope.amount).then(function(resultParams) {
-        if (resultParams) {
+        if (resultParams.cardExpiryError) {
+          $('.donate-submit-btn').removeAttr('disabled');
+          $('.donate-submit-btn').html('Complete Donation <span class="icon next-icons"></span>');
+          $scope.quickDonationForm.cardExpiry.$setValidity("required", false);
+          $scope.isCreditValid();
+        }
+        else if (resultParams) {
           formFactory.setEmail($scope.formInfo.email);
           $location.path('/donation/thanks');
           $window.scrollTo(0,0)
@@ -338,6 +336,11 @@
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
+        elm.bind('keydown', function(e) {
+          if (e.keyCode === 8) {
+            scope.quickDonationForm.cardExpiry.$setValidity("minlength", false);
+          }
+        });
         expirationComplete = function() {
           scope.formInfo.cardExpiry = elm.inputmask("unmaskedvalue");
           elm.addClass("full").unbind("blur").bind("keydown", function (e) {
