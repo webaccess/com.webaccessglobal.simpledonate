@@ -98,6 +98,22 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     $session = CRM_Core_Session::singleton();
     $contactID = $session->get('userID');
     $params = $_POST['params'];
+
+    //check credit card expiry validation
+    $cardExpiryMonth = substr($params['cardExpiry'],0,2);
+    $cardExpiryYear = substr($params['cardExpiry'],2);
+    $currentYear = date("y");
+    $errorList =array();
+    if ($cardExpiryYear < $currentYear) {
+      $errorList['cardExpiryError'] = "Card is Expire";
+      echo json_encode($errorList);
+      exit;
+    }
+    else if ($cardExpiryYear == $currentYear && $cardExpiryMonth < date("m")) {
+      $errorList['cardExpiryError'] = "Card is Expire";
+      echo json_encode($errorList);
+      exit;
+    }
     $params['amount'] = $_POST['amount'];
     $creditInfo = $_POST['creditInfo'];
     $isTest = $_POST['isTest'];
@@ -290,4 +306,3 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     }
   }
 }
-

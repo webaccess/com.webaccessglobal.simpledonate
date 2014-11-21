@@ -48,7 +48,6 @@ describe("Test Donation page", function () {
       ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
       ptor.sleep(1000);
       ptor.findElement(protractor.By.cssContainingText('option', contriTitle)).click();
-      ptor.findElement(protractor.By.id('ziptastic')).click();
       ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
       ptor.get(ptor.baseUrl+'user/logout');
       login(userName);
@@ -113,6 +112,8 @@ describe("Test Donation page", function () {
       ptor.sleep(1000);
       ptor.findElement(protractor.By.id('ziptastic')).click();
       ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
+      ptor.get(ptor.baseUrl+'user/logout');
+      login(userName);
     });
 
     priceSetTest();
@@ -163,10 +164,9 @@ describe("Test Donation page", function () {
       ptor.findElement(protractor.By.model('formInfo.cardExpiry')).click();
       ptor.findElement(protractor.By.model('formInfo.cardExpiry')).sendKeys('0820');
       ptor.findElement(protractor.By.model('formInfo.securityCode')).sendKeys('510');
-      ptor.findElement(protractor.By.model('formInfo.zipCode')).sendKeys('154235');
       var elementSubmit = ptor.findElement(protractor.By.css('button.donate-submit-btn'));
       elementSubmit.click();
-      ptor.sleep(2000);
+      ptor.sleep(3000);
       expect(ptor.getCurrentUrl()).toContain('donation/thanks');
       expect(ptor.findElement(protractor.By.css('strong.ng-binding')).getText()).toContain(emailId);
       ptor.get(ptor.baseUrl+'user/logout');
@@ -237,8 +237,6 @@ describe("Test Donation page", function () {
     expect(elcardExpiry.isDisplayed()).toBe(display);
     var elsecurityCode = ptor.findElement(protractor.By.model('formInfo.securityCode'));
     expect(elsecurityCode.isDisplayed()).toBe(display);
-    var elzipCode = ptor.findElement(protractor.By.model('formInfo.zipCode'));
-    expect(elzipCode.isDisplayed()).toBe(display);
   }
 
   //to generate random words
