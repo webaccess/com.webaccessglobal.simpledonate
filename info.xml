@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <extension key="com.webaccessglobal.quickdonate" type="module">
   <file>quickdonate</file>
-  <name>Quick Donation</name>
+  <name>Quick Donate</name>
   <description>Simplified donation form</description>
   <license>AGPL-3.0</license>
   <maintainer>
