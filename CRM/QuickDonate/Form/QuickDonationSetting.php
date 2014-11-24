@@ -63,11 +63,15 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
    * @access public
    */
   public function buildQuickForm() {
-    CRM_Utils_System::setTitle(ts('Settings - Enable Quick Donation Form'));
-    $quickDonationPage = CRM_Contribute_PseudoConstant::contributionPage();
-    $this->addElement('select', 'quickDonation', ts('Donation Form'), array(ts('- Select -')) + $quickDonationPage);
-    $this->addElement('checkbox', "ziptastic", ts('Is Ziptastic Enable'));
+    CRM_Utils_System::setTitle(ts('Settings - Quick donate form'));
+    $attributes = array(
+      'entity' => 'Contribution',
+      'field' => 'contribution_page_id',
+      'option_url' => NULL,
+    );
 
+    $this->addSelect('quickDonation', $attributes, TRUE);
+    $this->addElement('checkbox', "ziptastic", ts('Is Ziptastic enabled?'));
     parent::buildQuickForm();
   }
 

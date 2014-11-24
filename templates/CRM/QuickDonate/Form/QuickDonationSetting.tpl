@@ -25,16 +25,16 @@
 *}
 <div class="crm-block crm-form-block crm-quick-donation-form-block">
 <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"} </div>
-    <h3>{ts}Quick Donation Page Setting{/ts}</h3>
         <table class="form-layout-compressed">
             <tr class="crm-quick-donation-form-block">
                 <td class="label">{$form.quickDonation.label}</td>
                 <td>{$form.quickDonation.html}<br />
-                <span class="description">{ts}Default contribution page used for quick donation.{/ts}</span></td>
+                <span class="description">{ts}Contribution page that should be used in quick donation form{/ts}</span></td>
             </tr>
             <tr>
               <td class="label">{$form.ziptastic.label}</td>
               <td>{$form.ziptastic.html}<br />
+                <span class="description">{ts}This is a US specific service that autofills "City" and "State" based on zipcode. Uncheck for non-US installs.{/ts}</span></td>
            </tr>
         </table>
     <div class="crm-submit-buttons">

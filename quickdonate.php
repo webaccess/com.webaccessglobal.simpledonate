@@ -29,7 +29,7 @@ function quickdonate_civicrm_install() {
     'domain_id' => CRM_Core_Config::domainID(),
     'label'     => 'Quick Donation Configuration',
     'name'      => 'Quick Donation Configuration',
-    'url'       => 'civicrm/quick/donation/configuration',
+    'url'       => 'civicrm/quick/donation/configuration?reset=1',
     'permission'=> 'access CiviContribute',
     'parent_id' => $civiContributeParentId,
     'has_separator' => 1,
@@ -55,13 +55,13 @@ function quickdonate_civicrm_install() {
 
   $donationMenuTree = array(
     array(
-      'label' => ts('Test Donation'),
+      'label' => ts('Test mode'),
       'name' => 'Test Donation',
       'url'  => 'civicrm/quick?test=1#/donation',
       'permission' => 'access CiviContribute',
     ),
     array(
-      'label' => ts('Live Donation'),
+      'label' => ts('Live mode'),
       'name' => 'Live Donation',
       'url'  => 'civicrm/quick/#/donation',
       'permission' => 'access CiviContribute',
@@ -74,7 +74,6 @@ function quickdonate_civicrm_install() {
     $menuItems['weight'] = $key;
     CRM_Core_BAO_Navigation::add($menuItems);
   }
-  CRM_Core_BAO_Navigation::resetNavigation();
   return _quickdonate_civix_civicrm_install();
 }
 
@@ -84,7 +83,6 @@ function quickdonate_civicrm_install() {
 function quickdonate_civicrm_uninstall() {
   $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donation','Quick Donation Configuration')";
   CRM_Core_DAO::executeQuery($query);
-  CRM_Core_BAO_Navigation::resetNavigation();
   return _quickdonate_civix_civicrm_uninstall();
 }
 
@@ -248,8 +246,8 @@ function quickdonate_getQuickDonateSetting() {
   if (empty($donateId)) {
     //Redirect to configuration page if user has permission
     if (CRM_Core_Permission::check('administer CiviCRM')) {
-      CRM_Core_Session::setStatus('Donation form configuration is not done!', ts('Notice'), 'warning');
-      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/quick/donation/configuration'),'reset=1');
+      CRM_Core_Session::setStatus('Quick donation configuration is incomplete!', ts('Incomplete configuration'), 'warning');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/quick/donation/configuration','reset=1'));
     }
     else {
       CRM_Core_Error::debug_var('setting-get result for quick_donation_page', $settings);
