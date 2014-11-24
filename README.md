@@ -1,8 +1,15 @@
-com.webaccessglobal.quickdonate
-===============================
+=================================
+Quick Donate - civicrm extension
+=================================
 
 responsive, sleek and user friendly donation page
 
-Quick donation page: site-name/civicrm/a/#/donation
+Navigation menu links:
+Settings page: 
+Administer >> CiviContribution >> Quick Donate Configuration
 
-Configuration page: site-name/civicrm/quick/donation/configuration?reset=1
+Quick donation page: 
+Contribution >> Quick Donate >> Test mode
+Contribution >> Quick Donate >> Live mode
+
+Requirements: CiviCRM v4.5+ 
