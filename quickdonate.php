@@ -27,8 +27,8 @@ function quickdonate_civicrm_install() {
   $civiContributeParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'CiviContribute', 'id', 'name');
   $params = array(
     'domain_id' => CRM_Core_Config::domainID(),
-    'label'     => 'Quick Donation Configuration',
-    'name'      => 'Quick Donation Configuration',
+    'label'     => 'Quick Donate Configuration',
+    'name'      => 'Quick Donate Configuration',
     'url'       => 'civicrm/quick/donation/configuration?reset=1',
     'permission'=> 'access CiviContribute',
     'parent_id' => $civiContributeParentId,
@@ -41,8 +41,8 @@ function quickdonate_civicrm_install() {
   $donationNavigation = new CRM_Core_DAO_Navigation();
   $params = array(
     'domain_id' => CRM_Core_Config::domainID(),
-    'label'     => 'Quick Donation',
-    'name'      => 'Quick Donation',
+    'label'     => 'Quick Donate',
+    'name'      => 'Quick Donate',
     'url'       => NULL,
     'permission'=> 'access CiviContribute',
     'parent_id' => $contributionsParentId,
@@ -81,7 +81,7 @@ function quickdonate_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function quickdonate_civicrm_uninstall() {
-  $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donation','Quick Donation Configuration')";
+  $query = "DELETE FROM civicrm_navigation WHERE name in ('Quick Donate','Quick Donate Configuration')";
   CRM_Core_DAO::executeQuery($query);
   return _quickdonate_civix_civicrm_uninstall();
 }
@@ -90,7 +90,7 @@ function quickdonate_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function quickdonate_civicrm_enable() {
-  $sql = "UPDATE civicrm_navigation SET is_active=1 WHERE name IN ('Quick Donation Configuration', 'Quick Donation', 'Test Donation', 'Live Donation')";
+  $sql = "UPDATE civicrm_navigation SET is_active=1 WHERE name IN ('Quick Donate Configuration', 'Quick Donate', 'Test Donation', 'Live Donation')";
   CRM_Core_DAO::executeQuery($sql);
   return _quickdonate_civix_civicrm_enable();
 }
@@ -99,7 +99,7 @@ function quickdonate_civicrm_enable() {
  * Implementation of hook_civicrm_disable
  */
 function quickdonate_civicrm_disable() {
-  $sql = "UPDATE civicrm_navigation SET is_active=0 WHERE name IN ('Quick Donation Configuration', 'Quick Donation', 'Test Donation', 'Live Donation')";
+  $sql = "UPDATE civicrm_navigation SET is_active=0 WHERE name IN ('Quick Donate Configuration', 'Quick Donate', 'Test Donation', 'Live Donation')";
   CRM_Core_DAO::executeQuery($sql);
   return _quickdonate_civix_civicrm_disable();
 }
