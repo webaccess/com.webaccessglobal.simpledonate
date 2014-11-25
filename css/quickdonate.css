@@ -13,11 +13,6 @@
     margin: 0 auto;
 }
 
-#branding {
-    background: #006699 !important;
-    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%) !important;
-}
-
 .breadcrumb {
     margin: 0 auto !important;
     width: 755px;
@@ -28,33 +23,34 @@
 }
 
 #branding h1.page-title {
-    float: none !important;
-    width: 755px !important;
-    margin: 0 auto;
+  float: none !important;
+  width: 755px !important;
+  margin: 0 auto;
 }
 
 div.add-or-remove-shortcuts {
-    float: none !important;
-    padding : none !important;
-    margin: 0 auto !important;
-    width: 780px;
-}
-
-.breadcrumb a {
-    color: #fff !important;
+  float: none !important;
+  padding : none !important;
+  margin: 0 auto !important;
+  width: 780px;
 }
 
 .quickDonationForm {
-    background: none !important;
-    border-top: 1px solid #006699 !important;
+  background: none !important;
+  border-top: 1px solid #006699 !important;
+  border-radius: 0px !important;
+}
+
+.crm-container fieldset {
+  border-radius: 0px !important;
 }
 
 .recurDonation {
-    padding-left: 16px;
+  padding-left: 16px;
 }
 
-.recurDonation label:hover{
-    color: #006699 !important;
+.recurDonation label:hover {
+  color: #006699 !important;
 }
 
 .ng-dirty .ng-valid:focus,
@@ -392,16 +388,7 @@ button:hover .next-icons {
 }
 
 .breadcrumb {
-    background-color: transparent !important;
-    border-bottom: 1px solid #eee !important;
-    list-style: none outside none !important;
-    margin-bottom: 20px !important;
-    padding: 8px 15px !important;
-}
-
-#header {
-    background-color: #006699 !important;
-    background-image: -moz-linear-gradient(center top , #006699 0%, #66cc66 100%);
+  display: none;
 }
 
 .shake {
