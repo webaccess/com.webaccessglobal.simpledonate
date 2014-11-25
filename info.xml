@@ -1,8 +1,17 @@
 <?xml version="1.0"?>
 <extension key="com.webaccessglobal.quickdonate" type="module">
+  <downloadUrl>https://github.com/webaccess/com.webaccessglobal.quickdonate/archive/master.zip</downloadUrl>
   <file>quickdonate</file>
   <name>Quick Donate</name>
   <description>Simplified donation form</description>
+  <urls>
+    <url desc="Main Extension Page">
+      https://civicrm.org/extensions/quick-donate
+    </url>
+    <url desc="Documentation">https://github.com/webaccess/com.webaccessglobal.quickdonate/blob/master/README.md</url>
+    <url desc="Support">https://github.com/webaccess/com.webaccessglobal.quickdonate/issues</url>
+    <url desc="Licensing">http://civicrm.org/licensing</url>
+  </urls>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>Web Access</author>
@@ -14,7 +23,7 @@
   <compatibility>
     <ver>4.5</ver>
   </compatibility>
-  <comments>This is a new, undeveloped module</comments>
+  <comments>For support, please contact the team on github. (https://github.com/webaccess/com.webaccessglobal.quickdonate/issues)</comments>
   <civix>
     <namespace>CRM/QuickDonate</namespace>
   </civix>
