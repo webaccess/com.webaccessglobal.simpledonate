@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<extension key="com.webaccessglobal.quickdonate" type="module">
-  <downloadUrl>https://github.com/webaccess/com.webaccessglobal.quickdonate/archive/master.zip</downloadUrl>
-  <file>quickdonate</file>
-  <name>Quick Donate</name>
+<extension key="com.webaccessglobal.simpledonate" type="module">
+  <downloadUrl>https://github.com/webaccess/com.webaccessglobal.simpledonate/archive/master.zip</downloadUrl>
+  <file>simpledonate</file>
+  <name>Simple Donate</name>
   <description>Simplified donation form</description>
   <urls>
     <url desc="Main Extension Page">
-      https://civicrm.org/extensions/quick-donate
+      https://civicrm.org/extensions/simple-donate
     </url>
-    <url desc="Documentation">https://github.com/webaccess/com.webaccessglobal.quickdonate/blob/master/README.md</url>
-    <url desc="Support">https://github.com/webaccess/com.webaccessglobal.quickdonate/issues</url>
+    <url desc="Documentation">https://github.com/webaccess/com.webaccessglobal.simpledonate/blob/master/README.md</url>
+    <url desc="Support">https://github.com/webaccess/com.webaccessglobal.simpledonate/issues</url>
     <url desc="Licensing">http://civicrm.org/licensing</url>
   </urls>
   <license>AGPL-3.0</license>
@@ -23,8 +23,8 @@
   <compatibility>
     <ver>4.5</ver>
   </compatibility>
-  <comments>For support, please contact the team on github. (https://github.com/webaccess/com.webaccessglobal.quickdonate/issues)</comments>
+  <comments>For support, please contact the team on github. (https://github.com/webaccess/com.webaccessglobal.simpledonate/issues)</comments>
   <civix>
-    <namespace>CRM/QuickDonate</namespace>
+    <namespace>CRM/SimpleDonate</namespace>
   </civix>
 </extension>

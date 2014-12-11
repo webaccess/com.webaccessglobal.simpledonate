@@ -1,26 +1,26 @@
 (function(angular, $, _) {
-  var resourceUrl = CRM.resourceUrls['com.webaccessglobal.quickdonate'];
-  var quickDonation = angular.module('quickdonate', ['ngRoute']);
-  quickDonation.config(['$routeProvider',
+  var resourceUrl = CRM.resourceUrls['com.webaccessglobal.simpledonate'];
+  var simpleDonation = angular.module('simpledonate', ['ngRoute']);
+  simpleDonation.config(['$routeProvider',
     function($routeProvider) {
       $routeProvider.when('/donation', {
-        templateUrl: resourceUrl + '/partials/quickdonate.html',
-        controller: 'QuickDonationCtrl'
+        templateUrl: resourceUrl + '/partials/simpledonate.html',
+        controller: 'SimpleDonationCtrl'
       });
       $routeProvider.when('/donation/:thanks', {
         templateUrl: resourceUrl + '/partials/thankYou.html',
-        controller: 'QuickDonationCtrl'
+        controller: 'SimpleDonationCtrl'
       });
     }
   ]);
 
-  quickDonation.factory('formFactory', function($q) {
+  simpleDonation.factory('formFactory', function($q) {
     var savedData = {}
     return {
       postData: function(param, isTest, creditInfo, amount) {
         var deferred = $q.defer();
         var resultParams = null;
-        var transactURL = CRM.url("civicrm/quick/contribute/transact");
+        var transactURL = CRM.url("civicrm/simple/contribute/transact");
         $.ajax({
           type: 'POST',
           url: transactURL,
@@ -47,25 +47,25 @@
      };
   });
 
-  quickDonation.controller('QuickDonationCtrl', function($scope, formFactory, $route, $location, $window) {
+  simpleDonation.controller('SimpleDonationCtrl', function($scope, formFactory, $route, $location, $window) {
     //set donaiton page ID
     $scope.thanks = $route.current.params.thanks;
-    $scope.ziptasticIsEnabled = CRM.quickdonate.ziptasticEnable;
-    $scope.countryList = CRM.quickdonate.countryList;
-    $scope.stateList = CRM.quickdonate.stateList;
-    $scope.currencySymbol = CRM.quickdonate.currency;
-    $scope.paymentProcessor = CRM.quickdonate.paymentProcessor;
-    $scope.donationConfig = CRM.quickdonate.config;
-    $scope.priceListInfo = CRM.quickdonate.priceList;
-    $scope.htmlPriceList = CRM.quickdonate.htmlPriceList;
-    $scope.quickConfig = CRM.quickdonate.isQuickConfig;
-    $scope.otherAmount = CRM.quickdonate.otherAmount;
-    $scope.isTest = CRM.quickdonate.isTest;
+    $scope.ziptasticIsEnabled = CRM.simpledonate.ziptasticEnable;
+    $scope.countryList = CRM.simpledonate.countryList;
+    $scope.stateList = CRM.simpledonate.stateList;
+    $scope.currencySymbol = CRM.simpledonate.currency;
+    $scope.paymentProcessor = CRM.simpledonate.paymentProcessor;
+    $scope.donationConfig = CRM.simpledonate.config;
+    $scope.priceListInfo = CRM.simpledonate.priceList;
+    $scope.htmlPriceList = CRM.simpledonate.htmlPriceList;
+    $scope.quickConfig = CRM.simpledonate.isQuickConfig;
+    $scope.otherAmount = CRM.simpledonate.otherAmount;
+    $scope.isTest = CRM.simpledonate.isTest;
     $scope.section = 1;
-    $scope.values = CRM.quickdonateVal;
+    $scope.values = CRM.simpledonateVal;
 
     //manually binds Parsley--Validation Library to this form.
-    $('#quickDonationForm').parsley({
+    $('#simpleDonationForm').parsley({
     excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
     });
     $scope.formInfo = {}; //property is set to bind input value
@@ -74,7 +74,7 @@
     $scope.formInfo.donateAmount = 0;
 
     //get session
-    if (CRM.quickdonate.sessionContact) {
+    if (CRM.simpledonate.sessionContact) {
       if ($scope.values.email) {
         $scope.formInfo.email = $scope.values.email;
         $('#email').addClass('parsley-success');
@@ -95,7 +95,7 @@
             $scope.formInfo.city = $scope.values.city;
             $('#city').parent().show();
             $('#city').addClass('parsley-success');
-            $scope.formInfo.state = $.map(CRM.quickdonate.allStates, function(obj, index) {
+            $scope.formInfo.state = $.map(CRM.simpledonate.allStates, function(obj, index) {
               if(obj == $scope.values.state_province_id) {
                 return index;
               }
@@ -122,15 +122,6 @@
       $('#stateList').attr('data-parsley-required', 'false');
       $('#country').parent().hide();
       $('#stateList').parent().hide();
-    }
-    //check credit card validation on form submit
-    $scope.isCreditValid = function() {
-      if ($scope.quickDonationForm.cardNumber.$pristine || $scope.quickDonationForm.cardNumber.$invalid || $scope.quickDonationForm.cardExpiry.$invalid || $scope.quickDonationForm.securityCode.$invalid) {
-        $('.errorBlock ul').hide();
-        $('.cardNumber').parent('div').parent('div').removeClass("blockIsValid");
-        $('.cardNumber').parent('div').parent('div').addClass("blockInValid");
-        $('.errorBlock').addClass("help-block");
-      }
     }
 
     //Setting donation amount and message
@@ -279,8 +270,8 @@
     //Submit form data
     $scope.saveData = function() {
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
-      $scope.state = $scope.ziptasticIsEnabled ? CRM.quickdonate.allStates[$scope.formInfo.state] : $scope.formInfo.stateList ;
-      $scope.country = $scope.ziptasticIsEnabled ? CRM.quickdonate.country : $scope.formInfo.country;
+      $scope.state = $scope.ziptasticIsEnabled ? CRM.simpledonate.allStates[$scope.formInfo.state] : $scope.formInfo.stateList ;
+      $scope.country = $scope.ziptasticIsEnabled ? CRM.simpledonate.country : $scope.formInfo.country;
       $scope.names = $scope.formInfo.user.split(' ');
       $scope.creditInfo = {};
       $('.donate-submit-btn').attr('disabled','disabled');
@@ -289,6 +280,7 @@
       if ($scope.creditType) {
         $scope.ccType = true;
         $scope.creditInfo = {
+          "credit": true,
           "credit_card_number": $scope.cardNumberValue,
           "cvv2": $scope.formInfo.securityCode,
           "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
@@ -320,8 +312,15 @@
         if (resultParams.cardExpiryError) {
           $('.donate-submit-btn').removeAttr('disabled');
           $('.donate-submit-btn').html('Complete Donation <span class="icon next-icons"></span>');
-          $scope.quickDonationForm.cardExpiry.$setValidity("required", false);
-          $scope.isCreditValid();
+          if ($scope.creditType) {
+            $scope.simpleDonationForm.cardExpiry.$setValidity("required", false);
+            if ($scope.simpleDonationForm.cardNumber.$pristine || $scope.simpleDonationForm.cardNumber.$invalid || $scope.simpleDonationForm.cardExpiry.$invalid || $scope.simpleDonationForm.securityCode.$invalid) {
+              $('.errorBlock ul').hide();
+              $('.cardNumber').parent('div').parent('div').removeClass("blockIsValid");
+              $('.cardNumber').parent('div').parent('div').addClass("blockInValid");
+              $('.errorBlock').addClass("help-block");
+            }
+          }
         }
         else if (resultParams) {
           formFactory.setEmail($scope.formInfo.email);
@@ -332,13 +331,13 @@
     };
   });
 
-  quickDonation.directive('creditCardExpiry', function() {
+  simpleDonation.directive('creditCardExpiry', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
         elm.bind('keydown', function(e) {
           if (e.keyCode === 8) {
-            scope.quickDonationForm.cardExpiry.$setValidity("minlength", false);
+            scope.simpleDonationForm.cardExpiry.$setValidity("minlength", false);
           }
         });
         expirationComplete = function() {
@@ -361,13 +360,13 @@
     return directive;
   });
 
-  quickDonation.directive('validCreditBlock', function() {
+  simpleDonation.directive('validCreditBlock', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl) {
         elm.bind('keyup', function() {
           //check if all field are valid
-          if (scope.quickDonationForm.securityCode.$valid && scope.quickDonationForm.cardExpiry.$valid) {
+          if (scope.simpleDonationForm.securityCode.$valid && scope.simpleDonationForm.cardExpiry.$valid) {
             $(elm).parent('div').parent('div').removeClass("blockInValid");
             $(elm).parent('div').parent('div').addClass("blockIsValid");
           }
@@ -382,7 +381,7 @@
     return directive;
   });
 
-  quickDonation.directive('checkStateValid', function() {
+  simpleDonation.directive('checkStateValid', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl) {
@@ -400,7 +399,7 @@
     return directive;
   });
 
-  quickDonation.directive('creditCardType', function() {
+  simpleDonation.directive('creditCardType', function() {
     var directive = {
       require: 'ngModel',
       link: function(scope, elm, attrs, ctrl){
@@ -509,39 +508,39 @@
 
           if (value.length==2 && (scope.type != undefined && scope.type !== "Amex")) {
             elm.inputmask({ mask: "9999 9999 9999 9999", placeholder: " ", oncomplete: creditCardComplete,showMaskOnHover: false, overrideFocus: true});
-            scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+            scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
           }
           else if (scope.type === "Amex" && value.length==3) {
             elm.inputmask({ mask: "9999 999999 99999", placeholder: " ", oncomplete: creditCardComplete, showMaskOnHover: false,overrideFocus: true });
-            scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+            scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
           }
           else if (scope.type === undefined && value.length==3) {
             elm.inputmask({ mask: "9999 9999 9999 9999", placeholder: " ", oncomplete: creditCardComplete,showMaskOnHover: false, overrideFocus: true});
-            scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+            scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
           }
           else if (elm.inputmask("hasMaskedValue") && scope.type === undefined && value.length ==0) {
             elm.unbind(".inputmask");
           }
 
           if (scope.type === undefined || value.length==1) {
-            scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+            scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
           }
 
           if (!scope.cardcomplete) {
             if (scope.type === 'Amex' && value.length < 16 && value.length > 2) {
-              scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+              scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
             }
             else if(value.length < 18 && value.length > 2) {
-              scope.quickDonationForm.cardNumber.$setValidity("minLength", false);
+              scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
             }
             else if(value.length > 2) {
-              scope.quickDonationForm.cardNumber.$setValidity("minLength", true);
+              scope.simpleDonationForm.cardNumber.$setValidity("minLength", true);
             }
           }
           else {
             scope.atype = scope.type = scope.getCreditCardType(scope.cardNumberValue);
             scope.selectedCardType(scope.type);
-            scope.quickDonationForm.cardNumber.$setValidity("minLength", true);
+            scope.simpleDonationForm.cardNumber.$setValidity("minLength", true);
           }
           return value;
         });
@@ -550,7 +549,7 @@
     return directive;
   });
 
-  quickDonation.directive('submitButton', function() {
+  simpleDonation.directive('submitButton', function() {
     return {
       scope: {
         loadingText: "@",
@@ -567,7 +566,7 @@
     };
   });
 
-  quickDonation.directive('zipCodeInfo', function() {
+  simpleDonation.directive('zipCodeInfo', function() {
     var directive = {
       require: 'ngModel',
       link: function($scope, elm, attrs, ctrl){
@@ -600,7 +599,7 @@
     return directive;
   });
 
-  quickDonation.directive('radioLabel', function() {
+  simpleDonation.directive('radioLabel', function() {
     var directive = {
       link: function($scope, elm, attrs, ctrl) {
         elm.bind('click change', function(e) {
@@ -615,7 +614,7 @@
     return directive;
   });
 
-  quickDonation.directive('hradioLabel', function() {
+  simpleDonation.directive('hradioLabel', function() {
     var directive = {
       link: function($scope, elm, attrs, ctrl) {
         elm.bind('click', function(e) {
@@ -629,7 +628,7 @@
     return directive;
   });
 
-  quickDonation.directive('checkbxLabel', function() {
+  simpleDonation.directive('checkbxLabel', function() {
     var directive = {
       link: function($scope, elm, attrs, ctrl) {
         elm.bind('click', function(e) {

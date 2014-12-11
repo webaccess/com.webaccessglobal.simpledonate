@@ -36,7 +36,7 @@
 /**
  * This class generates form components for Component
  */
-class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
+class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting {
   /**
    * This function sets the default values for the form.
    * default values are retrieved from the database
@@ -49,10 +49,10 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     $domainID = CRM_Core_Config::domainID();
     $settings = civicrm_api3('Setting', 'get', array(
       'domain_id' => $domainID,
-      'return' => "quick_donation_page",
+      'return' => "simple_donation_page",
     ));
-    $this->_defaults['quickDonation'] = CRM_Utils_Array::value('quick_donation_page', $settings['values'][$domainID]);
-    $this->_defaults['ziptastic'] = CRM_Core_BAO_Setting::getItem('Quick Donation', 'ziptastic_enable');
+    $this->_defaults['simpleDonation'] = CRM_Utils_Array::value('simple_donation_page', $settings['values'][$domainID]);
+    $this->_defaults['ziptastic'] = CRM_Core_BAO_Setting::getItem('Simple Donation', 'ziptastic_enable');
     return $this->_defaults;
   }
 
@@ -63,14 +63,14 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
    * @access public
    */
   public function buildQuickForm() {
-    CRM_Utils_System::setTitle(ts('Settings - Quick donate form'));
+    CRM_Utils_System::setTitle(ts('Settings - Simple donate form'));
     $attributes = array(
       'entity' => 'Contribution',
       'field' => 'contribution_page_id',
       'option_url' => NULL,
     );
 
-    $this->addSelect('quickDonation', $attributes, TRUE);
+    $this->addSelect('simpleDonation', $attributes, TRUE);
     $this->addElement('checkbox', "ziptastic", ts('Is Ziptastic enabled?'));
     parent::buildQuickForm();
   }
@@ -79,7 +79,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     $params = $this->controller->exportValues($this->_name);
     $donationParams = array(
       'domain_id' => CRM_Core_Config::domainID(),
-      'quick_donation_page' => $params['quickDonation'],
+      'simple_donation_page' => $params['simpleDonation'],
     );
     $result = civicrm_api3('setting', 'create', $donationParams);
     if (CRM_Utils_Array::value('is_error', $result, FALSE)) {
@@ -104,19 +104,21 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     $params = $_POST['params'];
 
     //check credit card expiry validation
-    $cardExpiryMonth = substr($params['cardExpiry'],0,2);
-    $cardExpiryYear = substr($params['cardExpiry'],2);
-    $currentYear = date("y");
-    $errorList =array();
-    if ($cardExpiryYear < $currentYear) {
-      $errorList['cardExpiryError'] = "Card is Expire";
-      echo json_encode($errorList);
-      exit;
-    }
-    else if ($cardExpiryYear == $currentYear && $cardExpiryMonth < date("m")) {
-      $errorList['cardExpiryError'] = "Card is Expire";
-      echo json_encode($errorList);
-      exit;
+    if (!empty($params["credit"])) {
+      $cardExpiryMonth = substr($params['cardExpiry'],0,2);
+      $cardExpiryYear = substr($params['cardExpiry'],2);
+      $currentYear = date("y");
+      $errorList =array();
+      if ($cardExpiryYear < $currentYear) {
+        $errorList['cardExpiryError'] = "Card is Expired";
+        echo json_encode($errorList);
+        exit;
+      }
+      else if ($cardExpiryYear == $currentYear && $cardExpiryMonth < date("m")) {
+        $errorList['cardExpiryError'] = "Card is Expired";
+        echo json_encode($errorList);
+        exit;
+      }
     }
     $params['amount'] = $_POST['amount'];
     $creditInfo = $_POST['creditInfo'];
@@ -175,19 +177,19 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
       civicrm_api3('email', 'create', $email);
     }
 
-    $donation = self::createQuickContribution($contactID, $params, $isTest, $creditInfo);
+    $donation = self::createSimpleContribution($contactID, $params, $isTest, $creditInfo);
     echo json_encode($donation);
     CRM_Utils_System::civiExit();
   }
 
-  public function createQuickContribution($contactID, $params, $isTest, $creditInfo) {
+  public function createSimpleContribution($contactID, $params, $isTest, $creditInfo) {
     $locationTypes = CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
     $bltID = array_search('Billing', $locationTypes);
     $settings = civicrm_api3('Setting', 'get', array(
       'domain_id' => $domainID,
-      'return' => "quick_donation_page",
+      'return' => "simple_donation_page",
     ));
-    $donatePageID = $settings['values'][$domainID]['quick_donation_page'];
+    $donatePageID = $settings['values'][$domainID]['simple_donation_page'];
     $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
       'id' => $donatePageID,
     ));
@@ -230,7 +232,7 @@ class CRM_QuickDonate_Form_QuickDonationSetting extends CRM_Admin_Form_Setting {
     );
     if ($params['is_pay_later']) {
       $contributionparams["contribution_status_id"] =  CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
-      $contributionparams["payment_processor_id"] = null;
+      $contributionparams["payment_processor_id"] = 1;
     }
     if (!empty($creditInfo)) {
       $contributionparams['credit_card_number'] = $creditInfo['credit_card_number'];
