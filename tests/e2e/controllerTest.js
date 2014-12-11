@@ -44,11 +44,11 @@ describe("Test Donation page", function () {
       ptor.findElement(protractor.By.id('edit-submit')).click();
     });
 
-    it ("should save setting of quick configration page", function() {
-      ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
+    it ("should save setting of simple configration page", function() {
+      ptor.get(ptor.baseUrl+'civicrm/simple/donation/configuration');
       ptor.sleep(1000);
       ptor.findElement(protractor.By.cssContainingText('option', contriTitle)).click();
-      ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
+      ptor.findElement(protractor.By.id('_qf_SimpleDonationSetting_next-bottom')).click();
       ptor.get(ptor.baseUrl+'user/logout');
       login(userName);
     });
@@ -105,13 +105,13 @@ describe("Test Donation page", function () {
   });
 
   describe("Test Donation page for Logged in User when ziptastic disable", function () {
-    it ("should save setting of quick configration page", function() {
+    it ("should save setting of simple configration page", function() {
       ptor.get(ptor.baseUrl);
       login(userName);
-      ptor.get(ptor.baseUrl+'civicrm/quick/donation/configuration');
+      ptor.get(ptor.baseUrl+'civicrm/simple/donation/configuration');
       ptor.sleep(1000);
       ptor.findElement(protractor.By.id('ziptastic')).click();
-      ptor.findElement(protractor.By.id('_qf_QuickDonationSetting_next-bottom')).click();
+      ptor.findElement(protractor.By.id('_qf_SimpleDonationSetting_next-bottom')).click();
       ptor.get(ptor.baseUrl+'user/logout');
       login(userName);
     });
@@ -175,9 +175,9 @@ describe("Test Donation page", function () {
 
   function priceSetTest() {
     it ("should redirect to donation page", function() {
-      ptor.get(ptor.baseUrl+'civicrm/quick?test=1#/donation');
+      ptor.get(ptor.baseUrl+'civicrm/simple?test=1#/donation');
       ptor.sleep(1500);
-      expect(ptor.getCurrentUrl()).toContain('civicrm/quick?test=1#/donation');
+      expect(ptor.getCurrentUrl()).toContain('civicrm/simple?test=1#/donation');
     });
 
    it ("should check default priceset is set", function() {
