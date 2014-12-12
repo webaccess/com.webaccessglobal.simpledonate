@@ -259,7 +259,7 @@
     };
 
     $scope.processorDefault= function(processorID, isDefault){
-      if (isDefault && !$scope.formInfo.payment_processor && !$scope.formInfo.is_pay_later) {
+      if (isDefault==1 && !$scope.formInfo.payment_processor && !$scope.formInfo.is_pay_later) {
 	$scope.formInfo.payment_processor = processorID;
         $scope.setPaymentBlock(processorID);
         return true;
@@ -280,7 +280,7 @@
       if ($scope.creditType) {
         $scope.ccType = true;
         $scope.creditInfo = {
-          "credit": true,
+          "creditType": true,
           "credit_card_number": $scope.cardNumberValue,
           "cvv2": $scope.formInfo.securityCode,
           "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
@@ -288,6 +288,7 @@
       }
       if ($scope.directDebitType) {
         $scope.creditInfo = {
+          "debitType": true,
           "bank_identification_number": $scope.formInfo.bankID,
           "bank_name": $scope.formInfo.bankName,
           "account_holder": $scope.formInfo.accountHolder,
@@ -321,6 +322,10 @@
               $('.errorBlock').addClass("help-block");
             }
           }
+        }
+        else if (resultParams.error){
+          CRM.alert(resultParams.error);
+          $window.location.reload();
         }
         else if (resultParams) {
           formFactory.setEmail($scope.formInfo.email);
