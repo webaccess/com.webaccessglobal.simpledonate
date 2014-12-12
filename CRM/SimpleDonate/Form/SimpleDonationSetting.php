@@ -104,7 +104,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     $params = $_POST['params'];
 
     //check credit card expiry validation
-    if (!empty($params["credit"])) {
+    if (!empty($params["creditType"])) {
       $cardExpiryMonth = substr($params['cardExpiry'],0,2);
       $cardExpiryYear = substr($params['cardExpiry'],2);
       $currentYear = date("y");
@@ -234,15 +234,16 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionparams["contribution_status_id"] =  CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
       $contributionparams["payment_processor_id"] = 1;
     }
-    if (!empty($creditInfo)) {
+    if (!empty($params['creditType'])) {
       $contributionparams['credit_card_number'] = $creditInfo['credit_card_number'];
       $contributionparams['cvv2'] = $creditInfo['cvv2'];
       $contributionparams['credit_card_type'] = $creditInfo['credit_card_type'];
     }
-    if (!empty($debitInfo)) {
-      $contributionparams['bank_identification_number'] = $creditInfo['credit_card_number'];
-      $contributionparams['bank_name'] = $creditInfo['cvv2'];
-      $contributionparams['bank_account_number'] = $creditInfo['credit_card_type'];
+
+    if (!empty($params['debitType'])) {
+      $contributionparams['bank_identification_number'] = $creditInfo['bank_identification_number'];
+      $contributionparams['bank_name'] = $creditInfo['bank_name'];
+      $contributionparams['bank_account_number'] = $creditInfo['bank_account_number'];
       $contributionparams['payment_type'] = $creditInfo['payment_type'];
       $contributionparams['account_holder'] = $creditInfo['account_holder'];
     }
@@ -286,17 +287,23 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionparams['contribution_recur_id'] = $recurContriID;//$contribution->id;
     }
     //call transact api
-    $result = civicrm_api3('Contribution', 'transact', $contributionparams);
+    try {
+      $result = civicrm_api3('Contribution', 'transact', $contributionparams);
+    }
+    catch (CiviCRM_API3_Exception $e) {
+      $error = $e->getMessage();
+      $errorList['error'] = $error;
+      return $errorList;
+    }
 
     if ($result['error']) {
       //make sure to cleanup db for recurring case.
       if ($recurContriID) {
         CRM_Contribute_BAO_ContributionRecur::deleteRecurContribution($recurContriID);
       }
-      CRM_Core_Session::setStatus($result['error'], ts('Error'), 'error');
-      return false;
+      return $result['error'];
     }
-    else {
+    else if ($result){
       $contributionID = $result['id'];
       // Send receipt
       // send recurring Notification email for user

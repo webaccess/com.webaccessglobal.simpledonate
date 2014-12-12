@@ -95,7 +95,7 @@ Controller: SimpleDonationCtrl
       <div class="form-group payment-processor-block col-sm-12">
         <ul class="paymentProcessor col-sm-12">
           <li class="payment-processor-type" ng-repeat="type in paymentProcessor" ng-hide="type.hide">
-            <input class="form-radio" id="{{type.name}}" ng-model="formInfo.payment_processor" type="radio" name="{{type.payment_processor}}" data-parsley-multiple="payment-processor" value="{{type.id}}" ng-change="setPaymentBlock({{type.id}})" ng-checked="{{type.is_default}}" ng-class="{active:processorDefault(type.id,type.is_default)}"/>
+            <input class="form-radio" id="{{type.name}}" ng-model="formInfo.payment_processor" type="radio" name="{{type.payment_processor}}" data-parsley-multiple="payment-processor" value="{{type.id}}" ng-change="setPaymentBlock({{type.id}})" ng-class="{active:processorDefault(type.id,type.is_default)}"/>
             <label for="{{type.name}}" class="control-label">{{type.name}}</label>
           </li>
           <li class="payment-processor-type" ng-if="donationConfig.is_pay_later">
@@ -133,26 +133,26 @@ Controller: SimpleDonationCtrl
 	<div class="payment-block direct-debit-fields-block" ng-if="directDebitType">
           <div class="form-group" ng-class="{ 'has-error' : simpleDonationForm.accountHolder.$invalid && !simpleDonationForm.cardNumber.$pristine }" >
             <label>Account Holder</label>
-            <input type="text" name="accountHolder" class="form-control accountHolder" ng-model="formInfo.accountHolder" data-encrypted-name="accountHolder" required maxlength="34" autocomplete="on" data-parsley-errors-container=".errorBlock" />
+            <input type="text" name="accountHolder" class="form-control accountHolder" ng-model="formInfo.accountHolder" data-encrypted-name="accountHolder" required maxlength="34" autocomplete="on"  />
           </div>
           <div class="form-group" ng-class="{ 'has-error' : simpleDonationForm.bankAccountNumber.$invalid && !simpleDonationForm.bankAccountNumber.$pristine }">
             <label>Bank Account Number</label>
-            <input type="text" name="bankAccountNumber" class="form-control bankAccountNumber" ng-model="formInfo.bankAccountNumber" data-encrypted-name="bankAccountNumber" required data-ng-pattern="/^[0-9]+$/" maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock" />
+            <input type="text" name="bankAccountNumber" class="form-control bankAccountNumber" ng-model="formInfo.bankAccountNumber" data-encrypted-name="bankAccountNumber" required data-ng-pattern="/^[0-9]+$/" maxlength="34" autocomplete="off"  />
           </div>
           <div class="form-group" ng-class="{ 'has-error' : simpleDonationForm.bankID.$invalid && !simpleDonationForm.bankID.$pristine }">
             <label>Bank Identificaiton Number</label>
-            <input type="text" name="bankID" class="form-control bankID" ng-model="formInfo.bankID" data-encrypted-name="bankID" required data-ng-pattern="/^[0-9]+$/" axlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
+            <input type="text" name="bankID" class="form-control bankID" ng-model="formInfo.bankID" data-encrypted-name="bankID" required data-ng-pattern="/^[0-9]+$/" axlength="34" autocomplete="off" />
           </div>
           <div class="form-group" ng-class="{ 'has-error' : simpleDonationForm.bankName.$invalid && !simpleDonationForm.bankName.$pristine }">
             <label>Bank Name</label>
-            <input type="text" name="bankName" class="form-control bankName" ng-model="formInfo.bankName" data-encrypted-name="bankName" required maxlength="34" autocomplete="off" data-parsley-errors-container=".errorBlock"/>
+            <input type="text" name="bankName" class="form-control bankName" ng-model="formInfo.bankName" data-encrypted-name="bankName" required maxlength="34" autocomplete="off" />
           </div>
 	</div>
 	<div class="payment-block hidden-block" ng-if="hiddenProcessor">
 	  <input name="hidden_processor" type="hidden" value="1" />
 	</div>
 	<div class="errorBlock" ng-show="!simpleDonationForm.cardNumber.$valid || !simpleDonationForm.cardExpiry.$valid || !simpleDonationForm.securityCode.$valid" ng-if="creditType || directDebitType">
-          <p id = "invalidNumber" ng-show="!simpleDonationForm.cardNumber.$valid || simpleDonationForm.cardNumber.$error.minlength || simpleDonationForm.cardNumber.$error.required">Please enter valid Credit Card Number.</p>
+          <p id = "invalidNumber" ng-show="simpleDonationForm.cardNumber && !simpleDonationForm.cardNumber.$valid || simpleDonationForm.cardNumber.$error.minlength || simpleDonationForm.cardNumber.$error.required">Please enter valid Credit Card Number.</p>
           <p ng-show="(simpleDonationForm.cardNumber.$valid && !simpleDonationForm.cardNumber.$pristine) && (simpleDonationForm.cardExpiry.$invalid || simpleDonationForm.cardExpiry.$error.required || simpleDonationForm.cardExpiry.$error.pattern || simpleDonationForm.cardExpiry.$error.minlength)" >Please enter valid card's expiration month and year.</p>
           <p ng-show="simpleDonationForm.securityCode.$invalid && simpleDonationForm.cardNumber.$valid && simpleDonationForm.cardExpiry.$valid || simpleDonationForm.securityCode.$error.required &&  simpleDonationForm.securityCode.$error.pattern || simpleDonationForm.securityCode.$error.minlength" >Please enter a valid CVV Number.</p>
         </div>
