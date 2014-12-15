@@ -125,10 +125,10 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     $isTest = $_POST['isTest'];
     //create Contact, billing address
     $userInfo = explode(' ', $params['user']);
+    $params['first_name'] = $userInfo[0];
+    $params['last_name'] = $userInfo[1];
     $cParam = array(
       'email' => $params['email'],
-      'first_name' =>$userInfo[0],
-      'last_name' =>$userInfo[1],
       'contact_type' => 'Individual'
     );
     $address =array(
@@ -195,7 +195,6 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     ));
     $contributionparams = array();
     $isrecur = $params['recur'];
-
     $contributionparams = array(
       "billing_first_name" => $params['first_name'],
       "first_name" => $params['first_name'],
@@ -211,6 +210,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       "country_id" => $params['country'],
       "billing_state_province_id-{$bltID}" => $params['state'] ,
       "state_province_id" => $params['state'],
+      "state_province" => CRM_Core_PseudoConstant::stateProvince($params['state']),
       "billing_postal_code-{$bltID}" => $params['zip'],
       "postal_code" => $params['zip'],
       "year" => "20".substr($params['cardExpiry'], 2, 3),
