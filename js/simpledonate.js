@@ -281,9 +281,9 @@
         $scope.ccType = true;
         $scope.creditInfo = {
           "creditType": true,
-          "credit_card_number": $scope.cardNumberValue,
+          "credit_card_number": $scope.formInfo.ccNumber,
           "cvv2": $scope.formInfo.securityCode,
-          "credit_card_type": $scope.getCreditCardType($scope.cardNumberValue)
+          "credit_card_type": $scope.getCreditCardType($scope.formInfo.ccNumber)
         };
       }
       if ($scope.directDebitType) {
@@ -414,7 +414,7 @@
           // We need to get the credit card field and the unmasked value of the field.
           scope.maskedVal = elm.val();
           scope.cardcomplete = true;
-          scope.cardNumberValue = scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
+          scope.formInfo.ccNumber = scope.cardNumberValue = scope.formInfo.cardNumberValue = uvalue = elm.inputmask("unmaskedvalue");
           ccType = scope.getCreditCardType(uvalue);
           // Let's make sure the card is valid
           if (ccType === undefined) {
