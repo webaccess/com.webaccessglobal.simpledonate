@@ -234,7 +234,7 @@ ul.hpriceSet li span{
 
 .field-container label {
     font-weight: bold !important;
-    font-size: 1.15em;
+    font-size: 1.15em !important;
 }
 
 .form-control {
@@ -242,7 +242,7 @@ ul.hpriceSet li span{
 }
 
 .priceSet label, .hpriceSet label {
-    font-size: 1.4em;
+    font-size: 1.4em !important;
     background: #006699;
     font-weight: normal;
     color: #fff;
@@ -363,7 +363,7 @@ button:hover .next-icons {
 }
 
 .payment-processor-type label {
-    font-size: 1.2em;
+    font-size: 1.2em !important;
     vertical-align: middle;
 }
 

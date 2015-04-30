@@ -272,7 +272,9 @@
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
       $scope.state = $scope.ziptasticIsEnabled ? CRM.simpledonate.allStates[$scope.formInfo.state] : $scope.formInfo.stateList ;
       $scope.country = $scope.ziptasticIsEnabled ? CRM.simpledonate.country : $scope.formInfo.country;
-      $scope.names = $scope.formInfo.user.split(' ');
+      if ($scope.formInfo.use) {
+        $scope.names = $scope.formInfo.user.split(' ');
+      }
       $scope.creditInfo = {};
       $('.donate-submit-btn').attr('disabled','disabled');
       $('.donate-submit-btn').html('Saving');
