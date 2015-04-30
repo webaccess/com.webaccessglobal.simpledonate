@@ -149,7 +149,7 @@ function simpledonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 
 function simpledonate_civicrm_pageRun(&$page) {
   $pageName = $page->getVar('_name');
-  if ($pageName == 'CRM_Core_Page_Angular' && $page->urlPath[1] == 'simple') {
+  if ($pageName == 'Civi\Angular\Page\Main' && $page->urlPath[1] == 'simple') {
     //Get all contribution page detils and session details to be used in js
     $settingVal = simpledonate_getSimpleDonateSetting();
     $session = CRM_Core_Session::singleton();

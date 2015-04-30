@@ -8,7 +8,7 @@
   </item>
   <item>
     <path>civicrm/simple</path>
-    <page_callback>CRM_Core_Page_Angular</page_callback>
+    <page_callback>\Civi\Angular\Page\Main</page_callback>
     <title>Simple Donation Page</title>
     <access_arguments>make online contributions</access_arguments>
     <weight>0</weight>

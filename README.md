@@ -12,4 +12,4 @@ Simple donation page:
 Contribution >> Simple Donate >> Test mode
 Contribution >> Simple Donate >> Live mode
 
-Requirements: CiviCRM v4.5+ 
+Requirements: CiviCRM v4.6+

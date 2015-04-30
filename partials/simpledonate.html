@@ -98,7 +98,7 @@ Controller: SimpleDonationCtrl
             <input class="form-radio" id="{{type.name}}" ng-model="formInfo.payment_processor" type="radio" name="{{type.payment_processor}}" data-parsley-multiple="payment-processor" value="{{type.id}}" ng-change="setPaymentBlock({{type.id}})" ng-class="{active:processorDefault(type.id,type.is_default)}"/>
             <label for="{{type.name}}" class="control-label">{{type.name}}</label>
           </li>
-          <li class="payment-processor-type" ng-if="donationConfig.is_pay_later">
+          <li class="payment-processor-type" ng-if="donationConfig.is_pay_later == 1">
             <input class="form-radio" id="payLater" ng-model="formInfo.is_pay_later" type="radio" name="is_pay_later" data-parsley-multiple="payment-processor" value="1" ng-change="setPaymentBlock('payLater')"/>
             <label for="payLater" class="control-label">{{donationConfig.pay_later_text}}</label>
           </li>
