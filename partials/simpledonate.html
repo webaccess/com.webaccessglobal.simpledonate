@@ -6,7 +6,7 @@ Controller: SimpleDonationCtrl
     <!--Price field Block-->
     <fieldset class="priceset-group form-section col-sm-12" ng-show="selectedSection(1)">
       <h4 class="form-head donate-step-legend col-sm-12"><span class="form-step">1</span> Choose an amount to donate:</h4>
-      <div ng-if="quickConfig">
+      <div ng-if="quickConfig == 1">
         <div class="priceSetMessage col-sm-12" ng-hide="hidePriceVal">Donation amount: {{currencySymbol}} <span ng-bind="formInfo.donateAmount"></span></div>
         <ul class="priceSet col-sm-12">
           <li class="pull-left" ng-mouseover="amounthover(price.amount)" ng-repeat="price in priceListInfo" ng-click="amountSelected(price.amount)">
