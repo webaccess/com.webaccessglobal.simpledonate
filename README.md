@@ -4,6 +4,13 @@ A responsive, sleek and user friendly donation page for CiviCRM.
 
 This extension demonstrates an AngularJS approach to providing a simplified CiviCRM donate interface.
 
+More information:
+
+* [Simple Donate](https://github.com/webaccess/com.webaccessglobal.simpledonate) on GitHub
+* [Simple Donate](https://civicrm.org/extensions/simple-donate) on CiviCRM Extensions
+* [Donations made simply (and beautifully) with CiviCRM](https://civicrm.org/blogs/tonymazz/donations-made-simply-and-beautifully-civicrm) on CiviCRM blog
+* [Decoding Simple Donate Extension](https://civicrm.org/blogs/nileema/decoding-simple-donate-extension) on CiviCRM blog
+
 ## Requirements
 
 * CiviCRM v4.6+
