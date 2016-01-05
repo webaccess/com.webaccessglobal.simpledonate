@@ -42,12 +42,18 @@
         savedData = data;
       },
       getEmail: function(data) {
-        return savedData;
+        if(Object.keys(savedData).length) {
+          return savedData;
+        }
+        else {
+          return null;
+        }
       },
      };
   });
 
   simpleDonation.controller('SimpleDonationCtrl', function($scope, formFactory, $route, $location, $window) {
+
     //set donaiton page ID
     $scope.thanks = $route.current.params.thanks;
     $scope.ziptasticIsEnabled = CRM.simpledonate.ziptasticEnable;
