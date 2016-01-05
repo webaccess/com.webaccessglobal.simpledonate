@@ -170,7 +170,7 @@ function simpledonate_civicrm_pageRun(&$page) {
           $otherAmount = TRUE;
         }
         else {
-          $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id']));
+          $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id'], 'is_active' => 1));
           $priceList = $priceFieldVal['values'];
           $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
         }
