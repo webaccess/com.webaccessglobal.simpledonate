@@ -265,8 +265,6 @@ function simpledonate_getSimpleDonateSetting() {
  * @param $angularModule
  */
 function simpledonate_civicrm_angularModules(&$angularModule) {
-  CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.simpledonate',  'css/bootstrap.min.css', 103, 'page-header');
-
   $angularModule['simpledonate'] = array(
     'ext' => 'com.webaccessglobal.simpledonate',
     'js' => array(
