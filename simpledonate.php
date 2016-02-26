@@ -57,7 +57,7 @@ function simpledonate_civicrm_install() {
     array(
       'label' => ts('Test mode'),
       'name' => 'Test Donation',
-      'url'  => 'civicrm/simple?test=1#/donation',
+      'url'  => 'civicrm/simple/test/#/donation/',
       'permission' => 'access CiviContribute',
     ),
     array(
@@ -182,7 +182,14 @@ function simpledonate_civicrm_pageRun(&$page) {
       CRM_Utils_System::setTitle($donateConfig['title']); // Set the page title
 
       $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
-      $test = !empty($_GET['test']) ? 'test' : 'live'; // Check for test or live donation
+
+      // Check for test or live donation
+      if (!empty($page->urlPath[2]) && $page->urlPath[2] === 'test') {
+        $test = 'test';
+      }
+      else {
+        $test = 'live';
+      }
 
       //Get payment processor details
       if (is_array($donatePage['payment_processor'])) {
@@ -250,7 +257,7 @@ function simpledonate_getSimpleDonateSetting() {
       CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/simple/donation/configuration','reset=1'));
     }
     else {
-      CRM_Core_Error::debug_var('setting-get result for simple_donation_page', $settings);
+      //CRM_Core_Error::debug_var('setting-get result for simple_donation_page', $settings);
       CRM_Core_Error::fatal(ts('Donation page is not configures. Please contact site administrator.'));
     }
   }
