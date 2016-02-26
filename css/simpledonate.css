@@ -169,7 +169,7 @@ ul.paymentProcessor
     margin: 1px;
 }
 
-button {
+.sd-button {
     padding: 0.8em 1.5em 0.8em;
     background: #BADBEF;
     font-weight: bold !important;
@@ -185,7 +185,7 @@ button {
     outline: none;
 }
 
-button:hover {
+.sd-button:hover {
     background: #006699;
     color: #fff !important;
     border-bottom: 2px solid #006699;
