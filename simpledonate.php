@@ -186,6 +186,17 @@ function simpledonate_civicrm_pageRun(&$page) {
       // Check for test or live donation
       if (!empty($page->urlPath[2]) && $page->urlPath[2] === 'test') {
         $test = 'test';
+        $liveProcessor = new CRM_Financial_DAO_PaymentProcessor();
+        $liveProcessor->id = $donatePage['payment_processor'];
+        if ($liveProcessor->find(TRUE)) {
+          $processorName = $liveProcessor->name;
+        }
+        $testProcessor = new CRM_Financial_DAO_PaymentProcessor();
+        $testProcessor->name = $processorName;
+        $testProcessor->is_test = 1;
+        if ($testProcessor->find(TRUE)) {
+          $donatePage['payment_processor'] = $testProcessor->id;
+        }
       }
       else {
         $test = 'live';
@@ -222,10 +233,10 @@ function simpledonate_civicrm_pageRun(&$page) {
           'currency' => $currencySymbol,
           'config' => $donateConfig,
           'paymentProcessor' => $paymentProcessors,
-          'priceList' => $priceList,
+          'priceList' => empty($priceList) ? NULL : $priceList,
           'otherAmount' => $otherAmount,
           'isTest' => ($test == 'test') ? 1 : 0,
-          'htmlPriceList' => $htmlPriceList,
+          'htmlPriceList' => empty($priceList) ? NULL :$htmlPriceList,
           'isQuickConfig' => $isQuickConfig,
         ),
       ));

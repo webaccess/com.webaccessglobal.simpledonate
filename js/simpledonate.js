@@ -16,7 +16,7 @@
   ]);
 
   simpleDonation.factory('formFactory', function ($q) {
-    var savedData = {}
+    var savedData = {};
     return {
       postData: function (param, isTest, creditInfo, amount) {
         var deferred = $q.defer();
@@ -43,7 +43,15 @@
         savedData = data;
       },
       getEmail: function (data) {
-        if (Object.keys(savedData).length) {
+        if(angular.isObject(savedData) === true) {
+          if (Object.keys(savedData).length) {
+            return savedData;
+          }
+          else {
+            return null;
+          }
+        }
+        else if (savedData.length) {
           return savedData;
         }
         else {
