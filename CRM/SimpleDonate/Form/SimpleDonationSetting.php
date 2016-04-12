@@ -129,9 +129,11 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     $params['last_name'] = $userInfo[1];
     $cParam = array(
       'email' => $params['email'],
-      'contact_type' => 'Individual'
+      'contact_type' => 'Individual',
+      'first_name' => $userInfo[0],
+      'last_name' => $userInfo[1],
     );
-    $address =array(
+    $address = array(
       'location_type_id' => 'Billing',
       'street_address'=> $params['address'],
       'city'=> $params['city'],
@@ -159,6 +161,10 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       }
       $params['contact_id'] = $contactID;
     }
+
+    // update the name for the existing contact
+    $cParam['id'] = $contactID;
+    $cont = civicrm_api3('Contact', 'create', $cParam);
 
     if ($contactID) {
       foreach (array('address', 'email') as $loc) {
@@ -286,6 +292,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionparams['contributionRecurID'] = $recurContriID;//$contribution->id;
       $contributionparams['contribution_recur_id'] = $recurContriID;//$contribution->id;
     }
+
     //call transact api
     try {
       $result = civicrm_api3('Contribution', 'transact', $contributionparams);
