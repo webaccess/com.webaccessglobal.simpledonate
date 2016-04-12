@@ -289,7 +289,8 @@
       $scope.amount = $scope.formInfo.otherAmount || $scope.formInfo.donateAmount;
       $scope.state = $scope.ziptasticIsEnabled ? CRM.simpledonate.allStates[$scope.formInfo.state] : $scope.formInfo.stateList;
       $scope.country = $scope.ziptasticIsEnabled ? CRM.simpledonate.country : $scope.formInfo.country;
-      if ($scope.formInfo.use) {
+
+      if ($scope.formInfo.user) {
         $scope.names = $scope.formInfo.user.split(' ');
       }
       $scope.creditInfo = {};
@@ -351,7 +352,7 @@
             if (resultParams) {
               formFactory.setEmail($scope.formInfo.email);
               $location.path('/donation/thanks');
-              $window.scrollTo(0, 0)
+              $window.scrollTo(0, 0);
             }
           }
         }
