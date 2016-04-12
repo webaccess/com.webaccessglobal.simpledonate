@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <extension key="com.webaccessglobal.simpledonate" type="module">
-  <downloadUrl>https://github.com/webaccess/com.webaccessglobal.simpledonate/archive/1.0.zip</downloadUrl>
+  <downloadUrl>https://github.com/webaccess/com.webaccessglobal.simpledonate/archive/1.2.zip</downloadUrl>
   <file>simpledonate</file>
   <name>Simple Donate</name>
   <description>Simplified donation form</description>
@@ -17,7 +17,7 @@
     <author>Web Access</author>
     <email>info@webaccessglobal.com</email>
   </maintainer>
-  <releaseDate>2016-03-10</releaseDate>
+  <releaseDate>2016-04-12</releaseDate>
   <version>1.2</version>
   <develStage>stable</develStage>
   <compatibility>
