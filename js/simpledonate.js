@@ -144,17 +144,17 @@
     $scope.amountSelected = function (price) {
       $scope.hidePriceVal = false;
       $scope.amount = price;
-    }
+    };
 
     $scope.amountActive = function (price) {
       return $scope.amount === price;
-    }
+    };
 
     $scope.amounthover = function (price) {
       $scope.formInfo.donateAmount = price;
       $scope.hidePriceVal = false;
       return $scope.message;
-    }
+    };
 
     $scope.amountDefault = function (price, isDefault) {
       if (isDefault == 1 && !$scope.formInfo.donateAmount) {
@@ -163,7 +163,7 @@
         return $scope.amountActive(price);
       }
       return false;
-    }
+    };
 
     //HTML PRICE SETS
     $scope.subtleAmount = 0; //Temporary calculated amount
@@ -174,7 +174,7 @@
     $scope.calcAmount = function (amnt) {
       $scope.hidePriceVal = false;
       $scope.amount = parseInt($scope.amount) + parseInt(amnt);
-    }
+    };
 
     $scope.hamountEnter = function (price, type) {
       $scope.subtleAmount = parseInt($scope.formInfo.donateAmount) + parseInt(price);
@@ -182,14 +182,14 @@
         $scope.subtleAmount = parseInt($scope.formInfo.donateAmount) + parseInt(price) - parseInt($scope.formInfo.radioDonateAmount);
       }
       $scope.hidePriceVal = false;
-    }
+    };
 
     $scope.hamountLeave = function (price, type) {
       if ($scope.formInfo.donateAmount != $scope.subtleAmount) {
         $scope.subtleAmount = parseInt($scope.subtleAmount) - parseInt(price);
         $scope.hidePriceVal = false;
       }
-    }
+    };
 
     $scope.hamountClick = function (price, type, name) {
       if (price && type == 'radio') {
@@ -197,7 +197,7 @@
       }
       $scope.subtleAmount = $scope.formInfo.donateAmount = $scope.amount = parseInt($scope.formInfo.CheckBoxAmount) + parseInt($scope.formInfo.selectDonateAmount) + parseInt($scope.formInfo.radioDonateAmount) + parseInt($scope.formInfo.textDonateAmount);
       $scope.hidePriceVal = false;
-    }
+    };
 
     //Show blocks on next step button click
     $scope.sectionShow = function () {
@@ -250,7 +250,7 @@
 
       if (value == 'payLater') {
         $scope.payLater = true;
-        $scope.formInfo.payment_processor = 0
+        $scope.formInfo.payment_processor = 0;
       }
       else {
         $scope.formInfo.is_pay_later = 0;
@@ -381,7 +381,7 @@
           setTimeout(function () {
             $("#securityCode").focus();
           }, 220);
-        }
+        };
         $(elm).inputmask({
           mask: "m/q",
           placeholder: " ",
@@ -391,7 +391,7 @@
           overrideFocus: true
         });
       }
-    }
+    };
     return directive;
   });
 
@@ -414,7 +414,7 @@
           }
         });
       }
-    }
+    };
     return directive;
   });
 
@@ -432,7 +432,7 @@
           }
         });
       }
-    }
+    };
     return directive;
   });
 
@@ -543,7 +543,7 @@
             scope.selectedCardType(scope.type);
           }
 
-          if (value.length == 2 && (scope.type != undefined && scope.type !== "Amex")) {
+          if (value.length == 2 && (scope.type !== undefined && scope.type !== "Amex")) {
             elm.inputmask({
               mask: "9999 9999 9999 9999",
               placeholder: " ",
@@ -576,7 +576,7 @@
                 scope.simpleDonationForm.cardNumber.$setValidity("minLength", false);
               }
               else {
-                if (elm.inputmask("hasMaskedValue") && scope.type === undefined && value.length == 0) {
+                if (elm.inputmask("hasMaskedValue") && scope.type === undefined && value.length === 0) {
                   elm.unbind(".inputmask");
                 }
               }
@@ -610,7 +610,7 @@
           return value;
         });
       }
-    }
+    };
     return directive;
   });
 
@@ -641,7 +641,7 @@
             country: $('#country'),
             state: $('#state'),
             city: $('#city')
-          }
+          };
           elements.state.parent().hide();
           elements.city.parent().hide();
 
@@ -649,10 +649,10 @@
             // State
             $('#state').val(state).parent().show(duration);
             $scope.formInfo.state = state;
-            $('#state').addClass('parsley-success')
+            $('#state').addClass('parsley-success');
             // City
             $('#city').val(city).parent().show(duration);
-            $('#city').addClass('parsley-success')
+            $('#city').addClass('parsley-success');
             $scope.formInfo.city = city;
           });
         }
