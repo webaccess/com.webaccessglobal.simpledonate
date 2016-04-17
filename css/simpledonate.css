@@ -1,3 +1,6 @@
+#crm-container div#printer-friendly {
+  display: none !important;
+}
 .field-container select {
     border: 1px solid #ddd !important;
     border-radius : 8px !important;
