@@ -453,7 +453,7 @@ button:hover .next-icons {
 /* SmartPhones (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
 .other-amount {
-    bottom: 15px;
+    /*bottom: 15px;*/
 }
 .other-amount input[type=text] {
     padding-top: 7px !important;
@@ -474,7 +474,7 @@ ul.priceSet li{
 /* iPads (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
 .other-amount {
-    bottom: 16px;
+    /*bottom: 16px;*/
 }
 .other-amount input[type=text] {
     padding-top: 8px !important;

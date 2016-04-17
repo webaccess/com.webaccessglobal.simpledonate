@@ -12,7 +12,7 @@ Controller: SimpleDonationCtrl
         <div class="priceSetMessage col-sm-12" ng-hide="hidePriceVal">Donation amount: {{currencySymbol}} <span
           ng-bind="formInfo.donateAmount"></span></div>
         <ul class="priceSet col-sm-12">
-          <li class="pull-left" ng-mouseover="amounthover(price.amount)" ng-repeat="price in priceListInfo"
+          <li class="pull-left" ng-mouseover="amounthover(price.amount)" ng-mouseleave="amountLeave(price.amount)" ng-repeat="price in priceListInfo"
               ng-click="amountSelected(price.amount)">
             <input ng-model="formInfo.donateAmount" type="radio" name="donate-amount-{{price.name}}" id="donate-amount"
                    data-parsley-multiple="donate-amount" ng-checked="{{price.is_default}}" value="{{price.amount}}"
@@ -23,7 +23,7 @@ Controller: SimpleDonationCtrl
           <li class="pull-left other-amount" ng-if="otherAmount">
             <span class="currency-input-addon">{{currencySymbol}}</span>
             <input ng-model="formInfo.otherAmount" class="form-control" type="text" placeholder=" Other"
-                   ng-click="amountSelected()" ng-keyup="formInfo.donateAmount=formInfo.otherAmount"/>
+                   ng-click="amountSelected()" ng-change="amountChange()" select-on-focus ng-keyup="formInfo.donateAmount=formInfo.otherAmount"/>
           </li>
         </ul>
       </div>
@@ -60,7 +60,7 @@ Controller: SimpleDonationCtrl
                 <span class="currency-input-addon">{{currencySymbol}}</span>
                 <input class="form-control" ng-model="formInfo.textDonateAmount" name="donate-amount-{{hprice.name}}"
                        type="text" id="donate-amount-{{hprice.name}}" data-parsley-multiple="donate-amount"
-                       ng-change="hamountClick()" placeholder=" {{hprice.name}}"/>
+                       ng-change="hamountClick(0,'other')" select-on-focus placeholder=" {{hprice.name}}"/>
               </span>
             </span>
           </li>
@@ -202,6 +202,7 @@ Controller: SimpleDonationCtrl
           </div>
         </div>
         <div class="payment-block direct-debit-fields-block" ng-if="directDebitType">
+            <div style="width:100%; max-width:538;"><img src="/sites/default/files/civicrm/extensions/com.webaccessglobal.simpledonate/US.png" alt="This is an image of cheque" style="max-width:100%"></div>
           <div class="form-group"
                ng-class="{ 'has-error' : simpleDonationForm.accountHolder.$invalid && !simpleDonationForm.cardNumber.$pristine }">
             <label>Account Holder</label>
@@ -210,14 +211,14 @@ Controller: SimpleDonationCtrl
           </div>
           <div class="form-group"
                ng-class="{ 'has-error' : simpleDonationForm.bankAccountNumber.$invalid && !simpleDonationForm.bankAccountNumber.$pristine }">
-            <label>Bank Account Number</label>
+            <label>Account Number</label>
             <input type="text" name="bankAccountNumber" class="form-control bankAccountNumber"
                    ng-model="formInfo.bankAccountNumber" data-encrypted-name="bankAccountNumber" required
                    data-ng-pattern="/^[0-9]+$/" maxlength="34" autocomplete="off"/>
           </div>
           <div class="form-group"
                ng-class="{ 'has-error' : simpleDonationForm.bankID.$invalid && !simpleDonationForm.bankID.$pristine }">
-            <label>Bank Identificaiton Number</label>
+            <label>Routing Number</label>
             <input type="text" name="bankID" class="form-control bankID" ng-model="formInfo.bankID"
                    data-encrypted-name="bankID" required data-ng-pattern="/^[0-9]+$/" axlength="34" autocomplete="off"/>
           </div>

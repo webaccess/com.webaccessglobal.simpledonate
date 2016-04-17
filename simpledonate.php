@@ -18,62 +18,69 @@ function simpledonate_civicrm_xmlMenu(&$files) {
   _simpledonate_civix_civicrm_xmlMenu($files);
 }
 
-/**
- * Implementation of hook_civicrm_install
- */
-function simpledonate_civicrm_install() {
-  //Add menu for donation page link under Contribution parent navigation
-  //And Configuration link under Admin navigation
-  $civiContributeParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'CiviContribute', 'id', 'name');
-  $params = array(
-    'domain_id' => CRM_Core_Config::domainID(),
-    'label'     => 'Simple Donate Configuration',
-    'name'      => 'Simple Donate Configuration',
-    'url'       => 'civicrm/simple/donation/configuration?reset=1',
-    'permission'=> 'access CiviContribute',
-    'parent_id' => $civiContributeParentId,
-    'has_separator' => 1,
-    'is_active' => 1,
-  );
-  CRM_Core_BAO_Navigation::add($params);
-
-  $contributionsParentId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'Contributions', 'id', 'name');
-  $donationNavigation = new CRM_Core_DAO_Navigation();
-  $params = array(
-    'domain_id' => CRM_Core_Config::domainID(),
+function simpledonate_civicrm_navigationMenu(&$navMenu) {
+  $pages = array(
+    'admin_page' => array(
     'label'     => 'Simple Donate',
     'name'      => 'Simple Donate',
     'url'       => NULL,
+      //'url'        => 'civicrm/admin/contribute/simpledonate',
     'permission'=> 'access CiviContribute',
-    'parent_id' => $contributionsParentId,
-    'has_separator' => 1,
-    'is_active' => 1,
-    'weight' => 100,
-  );
-  $donationNavigation->copyValues($params);
-  $donationNavigation->save();
-
-  $donationMenuTree = array(
-    array(
+      //'parent_id' => $contributionsParentId,
+      'parent' => array('Contributions'),
+      'operator'   => 'AND',
+      'separator'  => NULL,
+      'active'     => 1
+    ),
+    'settings_page' => array(
+      'label'     => 'Simple Donate Configuration',
+      'name'      => 'Simple Donate Configuration',
+      'url'       => 'civicrm/simple/donation/configuration?reset=1',
+      //'url'        => 'civicrm/admin/contribute/simpledonate',
+      //'permission'=> 'access CiviContribute',
+      'permission' => 'access CiviContribute,administer CiviCRM',
+      'parent'    => array('Administer','CiviContribute'),
+      'operator'   => 'AND',
+      'separator'  => NULL,
+      'active'     => 1
+    ),
+    'test_page' => array(
       'label' => ts('Test mode'),
       'name' => 'Test Donation',
-      'url'  => 'civicrm/simple/test/#/donation/',
+      'url'  => 'civicrm/simple/test/#/donation',
       'permission' => 'access CiviContribute',
+      'active'     => 1,
+      'parent' => array('Contributions', 'Simple Donate'),
     ),
-    array(
+    'live_page' => array(
       'label' => ts('Live mode'),
       'name' => 'Live Donation',
       'url'  => 'civicrm/simple/#/donation',
       'permission' => 'access CiviContribute',
+      'active'     => 1,
+      'parent' => array('Contributions', 'Simple Donate'),
     ),
   );
-
-  foreach ($donationMenuTree as $key => $menuItems) {
-    $menuItems['is_active'] = 1;
-    $menuItems['parent_id'] =  $donationNavigation->id;
-    $menuItems['weight'] = $key;
-    CRM_Core_BAO_Navigation::add($menuItems);
+  foreach($pages as $item) {
+    // Check that our item doesn't already exist
+    if (empty($item['url'])) {
+      $menu_item_search = array('name' => $item['name']);
+    } else {
+      $menu_item_search = array('url' => $item['url']);
+    }
+    $menu_items = array();
+    CRM_Core_BAO_Navigation::retrieve($menu_item_search, $menu_items);
+    if (empty($menu_items)) {
+      $path = implode('/',$item['parent']);
+      unset($item['parent']);
+      _simpledonate_civix_insert_navigation_menu($navMenu, $path, $item);
+    }
   }
+}
+/**
+ * Implementation of hook_civicrm_install
+ */
+function simpledonate_civicrm_install() {
   return _simpledonate_civix_civicrm_install();
 }
 
@@ -153,7 +160,18 @@ function simpledonate_civicrm_pageRun(&$page) {
     //Get all contribution page detils and session details to be used in js
     $settingVal = simpledonate_getSimpleDonateSetting();
     $session = CRM_Core_Session::singleton();
+    $tempID = CRM_Utils_Request::retrieve('cid', 'Positive');
+    //check if this is a checksum authentication
+    $userChecksum = CRM_Utils_Request::retrieve('cs', 'String');
+    if ($userChecksum) {
+      //check for anonymous user.
+      $validUser = CRM_Contact_BAO_Contact_Utils::validChecksum($tempID, $userChecksum);
+      if ($validUser) {
+				$contactID = $tempID;
+      }
+		} else {
     $contactID = $session->get('userID');
+		}
     if ($settingVal['donatePageID']) {
       $extends = CRM_Core_Component::getComponentID('CiviContribute');
       $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $settingVal['donatePageID'], $extends);
@@ -204,12 +222,32 @@ function simpledonate_civicrm_pageRun(&$page) {
 
       //Get payment processor details
       if (is_array($donatePage['payment_processor'])) {
-        $paymentProcessors = CRM_Financial_BAO_PaymentProcessor::getPayments($donatePage['payment_processor'], $test);
+				$mode = $test;
+				$paymentProcessorIDs = $donatePage['payment_processor'];
+				if (!$paymentProcessorIDs) {
+					CRM_Core_Error::fatal(ts('Invalid value passed to getPayment function'));
+				}
+
+				$payments = array( );
+				foreach ($paymentProcessorIDs as $paymentProcessorID) {
+					$payment = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+					$payments[$payment['id']] = $payment;
+				}
+
+				asort($payments);
+				$paymentProcessors = $payments;
       }
       else {
         $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], $test);
         $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
         $paymentProcessors[$paymentProcessor['id']]['hide'] = $donateConfig['is_pay_later'] ? FALSE : TRUE;
+      }
+
+      //Only use paymentProcessors of billing_mode type FORM
+      foreach ($paymentProcessors as $id => $payment) {
+        if ($payment['billing_mode'] != CRM_Core_Payment::BILLING_MODE_FORM) {
+          unset ($paymentProcessors[$id]);
+        }
       }
       //set Country and State value
       $config = CRM_Core_Config::singleton();
