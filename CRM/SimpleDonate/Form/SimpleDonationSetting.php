@@ -246,6 +246,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       "email" => $params['email'],
       "contribution_page_id" => $donatePageID,
       "payment_processor_id" => CRM_Utils_Array::value('payment_processor', $params),
+      "payment_processor" => CRM_Utils_Array::value('payment_processor', $params),
       "is_test" => $isTest,
       "is_pay_later" => $params['is_pay_later'],
       "total_amount"=> $params['amount'],
@@ -324,6 +325,11 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionparams['contribution_recur_id'] = $recurContriID;//$contribution->id;
     }
 
+    // Get the test payment processor.
+    if ($isTest) {
+      $test_payment_processor = self::getTestProcessorId($contributionparams['payment_processor']);
+      $contributionparams['payment_processor'] = $contributionparams['payment_processor_id'] = $test_payment_processor;
+    }
     //call transact api
     try {
       if (CRM_Utils_Array::value('is_pay_later', $params)) {
@@ -360,4 +366,17 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       return $result;
     }
   }
+
+	static function getTestProcessorId($id) {
+		$liveProcessorName = civicrm_api3('payment_processor', 'getvalue', array(
+			'id' => $id,
+			'return' => 'name',
+		));
+		return civicrm_api3('payment_processor', 'getvalue', array(
+			'return' => 'id',
+			'name' => $liveProcessorName,
+			'is_test' => 1,
+			'domain_id' =>  CRM_Core_Config::domainID(),
+		));
+	}
 }

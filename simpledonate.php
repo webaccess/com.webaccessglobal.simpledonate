@@ -193,6 +193,15 @@ function simpledonate_civicrm_pageRun(&$page) {
           $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
         }
       }
+
+      // Check for test or live donation
+      if (!empty($page->urlPath[2]) && $page->urlPath[2] === 'test') {
+        $test = 'test';
+      }
+      else {
+        $test = 'live';
+      }
+
       //Get donation page details
       $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
         'id' => $settingVal['donatePageID'],
@@ -201,54 +210,7 @@ function simpledonate_civicrm_pageRun(&$page) {
 
       $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
 
-      // Check for test or live donation
-      if (!empty($page->urlPath[2]) && $page->urlPath[2] === 'test') {
-        $test = 'test';
-        $liveProcessor = new CRM_Financial_DAO_PaymentProcessor();
-        $liveProcessor->id = $donatePage['payment_processor'];
-        if ($liveProcessor->find(TRUE)) {
-          $processorName = $liveProcessor->name;
-        }
-        $testProcessor = new CRM_Financial_DAO_PaymentProcessor();
-        $testProcessor->name = $processorName;
-        $testProcessor->is_test = 1;
-        if ($testProcessor->find(TRUE)) {
-          $donatePage['payment_processor'] = $testProcessor->id;
-        }
-      }
-      else {
-        $test = 'live';
-      }
-
-      //Get payment processor details
-      if (is_array($donatePage['payment_processor'])) {
-				$mode = $test;
-				$paymentProcessorIDs = $donatePage['payment_processor'];
-				if (!$paymentProcessorIDs) {
-					CRM_Core_Error::fatal(ts('Invalid value passed to getPayment function'));
-				}
-
-				$payments = array( );
-				foreach ($paymentProcessorIDs as $paymentProcessorID) {
-					$payment = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
-					$payments[$payment['id']] = $payment;
-				}
-
-				asort($payments);
-				$paymentProcessors = $payments;
-      }
-      else {
-        $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($donatePage['payment_processor'], $test);
-        $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
-        $paymentProcessors[$paymentProcessor['id']]['hide'] = $donateConfig['is_pay_later'] ? FALSE : TRUE;
-      }
-
-      //Only use paymentProcessors of billing_mode type FORM
-      foreach ($paymentProcessors as $id => $payment) {
-        if ($payment['billing_mode'] != CRM_Core_Payment::BILLING_MODE_FORM) {
-          unset ($paymentProcessors[$id]);
-        }
-      }
+      $paymentProcessors = simpledonate_civicrm_get_payment_processors($donatePage['payment_processor'], $test);
       //set Country and State value
       $config = CRM_Core_Config::singleton();
       $defaultContactCountry = $config->defaultContactCountry;
@@ -334,3 +296,48 @@ function simpledonate_civicrm_angularModules(&$angularModule) {
     )
   );
 }
+
+/**
+ * Get live and/or test payment processor based on live paymentProcessorId.
+ * Fixes bugs in civicrm getPayment function.
+ *
+ * Passing test to getPayment will always return NULL to CiviCRM bug.  
+ *
+ * PaymentProcessor Ids via the Donate Page Config are always live.
+ *
+ * Deal with getting the test processor during transaction processing.
+ *
+ * @param $paymentProcessorIds
+ */
+function simpledonate_civicrm_get_payment_processors($paymentProcessorIDs, $mode) {
+  //Get payment processor details
+  if (!$paymentProcessorIDs) {
+    CRM_Core_Error::fatal(ts('Invalid value passed to getPayment function'));
+  }
+
+  if (is_array($paymentProcessorIDs)) {
+    $payments = array( );
+    foreach ($paymentProcessorIDs as $paymentProcessorID) {
+      $payment = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID);
+      $payments[$payment['id']] = $payment;
+    }
+
+    asort($payments);
+    $paymentProcessors = $payments;
+  }
+  else {
+    $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorIDs);
+    $paymentProcessors[$paymentProcessor['id']] = $paymentProcessor;
+    $paymentProcessors[$paymentProcessor['id']]['hide'] = $donateConfig['is_pay_later'] ? FALSE : TRUE;
+  }
+
+  //Only use paymentProcessors of billing_mode type FORM
+  foreach ($paymentProcessors as $id => $payment) {
+    if ($payment['billing_mode'] != CRM_Core_Payment::BILLING_MODE_FORM) {
+      unset ($paymentProcessors[$id]);
+    }
+  }
+
+  return $paymentProcessors;
+}
+
