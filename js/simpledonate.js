@@ -100,6 +100,14 @@
     $scope.values = CRM.simpledonateVal;
     $scope.payLaterReceipt = formFactory.getPayLaterReceipt();
 
+    console.log(navigator.userAgent);
+
+    // Fix bug for Firebox on Android Bug 737658.
+    if (navigator.userAgent.match(/Android.*Firefox/i)) {
+      $('#zip').change(function(ev) {
+        $('#zip').trigger('keyup');
+      });
+    }
     //manually binds Parsley--Validation Library to this form.
     $('#simpleDonationForm').parsley({
       excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
@@ -431,12 +439,12 @@
           }, 220);
         };
         $(elm).inputmask({
-          mask: "m/q",
-          placeholder: " ",
+          mask: "m/y",
+          placeholder: "mm/yyyy",
           clearIncomplete: true,
           oncomplete: expirationComplete,
           showMaskOnHover: false,
-          overrideFocus: true
+          overrideFocus: true,
         });
       }
     };

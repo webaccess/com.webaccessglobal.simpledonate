@@ -147,8 +147,9 @@ ul.paymentProcessor
 }
 
 .credit_card_type-section {
-    float: left;
+ /*   float: left; */
     border-style: none !Important;
+    height: 60px;
 }
 
 .credit_card_type-section a {

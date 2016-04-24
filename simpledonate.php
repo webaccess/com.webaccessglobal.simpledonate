@@ -291,8 +291,9 @@ function simpledonate_civicrm_angularModules(&$angularModule) {
       'js/libs/jquery.ziptastic.js',
       'js/libs/bootstrap.min.js',
       'js/libs/modernizr.js',
-      'js/libs/jquery.inputmask.js',
-      'js/libs/jquery.inputmaskDate.extensions.js'
+      //'js/libs/jquery.inputmask.js',
+      'js/libs/jquery.inputmask.bundle.min.js',
+      //'js/libs/jquery.inputmaskDate.extensions.js',
     )
   );
 }
