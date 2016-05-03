@@ -103,6 +103,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     $contactID = $session->get('userID');
     $params = CRM_Utils_Array::value('params', $_POST);
 
+    $params['cardExpiry'] = str_replace('20', '', $params['cardExpiry']);
     //check credit card expiry validation
     if (!empty($params["creditType"])) {
       $cardExpiryMonth = substr($params['cardExpiry'],0,2);
