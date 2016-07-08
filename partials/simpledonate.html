@@ -175,8 +175,12 @@ Controller: SimpleDonationCtrl
                    autocomplete="off" data-parsley-errors-container=".errorBlock" ng-focus="selectedCardType(atype)"
                    data-parsley-trigger="focusin focusout" placeholder="1234 5678 9012 3456"/>
           </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
+
           <div class="form-group single-input-block col-sm-2"
-               ng-show="simpleDonationForm.cardNumber.$valid && !simpleDonationForm.cardNumber.$pristine "
                ng-class="{ 'has-error' : simpleDonationForm.cardExpiry.$invalid && !simpleDonationForm.cardExpiry.$pristine }">
             <label>Expiration Date </label>
             <input data-parsley-errors-messages-disabled valid-credit-block data-ng-minlength="4" placeholder="MM/YY"
@@ -184,9 +188,13 @@ Controller: SimpleDonationCtrl
                    id="card-expiration" name="cardExpiry" ng-focus="selectedCardType(atype)" required
                    data-credit-card-expiry data-parsley-errors-container=".errorBlock">
           </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
+
           <div class="form-group single-input-block col-sm-2"
-               ng-class="{'has-error':simpleDonationForm.securityCode.$invalid && !simpleDonationForm.securityCode.$pristine}"
-               ng-show="simpleDonationForm.cardNumber.$valid && !simpleDonationForm.cardNumber.$pristine ">
+               ng-class="{'has-error':simpleDonationForm.securityCode.$invalid && !simpleDonationForm.securityCode.$pristine}">
             <label>Security Code </label>
             <input data-parsley-errors-messages-disabled valid-credit-block type="text" name="securityCode"
                    id="securityCode" class="form-control" ng-model="formInfo.securityCode" required
