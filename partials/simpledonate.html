@@ -18,7 +18,7 @@ Controller: SimpleDonationCtrl
                    data-parsley-multiple="donate-amount" ng-checked="{{price.is_default}}" value="{{price.amount}}"
                    radio-icon/><label
             ng-class="{'active':amountActive(price.amount) || amountDefault(price.amount, price.is_default)}"
-            radio-label>{{currencySymbol}} {{price.amount}}</label>
+            radio-label>{{currencySymbol}}{{price.amount}}</label>
           </li>
           <li class="pull-left other-amount" ng-if="otherAmount">
             <span class="currency-input-addon">{{currencySymbol}}</span>
@@ -46,8 +46,7 @@ Controller: SimpleDonationCtrl
                        id="donate-amount-{{hprice.name}}" data-parsley-multiple="donate-amount"
                        ng-checked="{{hprice.is_default}}" value="{{hprice.amount}}"/>
                 <label for="donate-amount-{{hprice.name}}" ng-mouseenter="hamountEnter(hprice.amount)"
-                       ng-mouseleave="hamountLeave(hprice.amount)" checkbx-label>{{currencySymbol}}
-                  {{hprice.amount}}</label>
+                       ng-mouseleave="hamountLeave(hprice.amount)" checkbx-label>{{currencySymbol}}{{hprice.amount}}</label>
               </span>
               <span class="pull-left" ng-if="hk==='Radio'">
                 <input ng-model="formInfo.radioDonateAmount" name="donate-amount-{{hprice.name}}" type="{{hk}}"
@@ -55,8 +54,7 @@ Controller: SimpleDonationCtrl
                        ng-checked="{{hprice.is_default}}" value="{{hprice.amount}}" radio-icon/>
                 <label for="donate-amount-{{hprice.name}}" ng-mouseenter="hamountEnter(hprice.amount,'radio')"
                        ng-mouseleave="hamountLeave(hprice.amount,'radio')"
-                       ng-click="hamountClick(hprice.amount,'radio')" hradio-label>{{currencySymbol}}
-                  {{hprice.amount}}</label>
+                       ng-click="hamountClick(hprice.amount,'radio')" hradio-label>{{currencySymbol}}{{hprice.amount}}</label>
               </span>
               <span class="pull-left other-amount" ng-if="hk==='Text'">
                 <span class="currency-input-addon">{{currencySymbol}}</span>
