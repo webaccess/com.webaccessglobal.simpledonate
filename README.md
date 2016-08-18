@@ -13,7 +13,7 @@ More information:
 
 ## Requirements
 
-* CiviCRM v4.6+
+* CiviCRM v4.7+
 
 ## Configuration
 
