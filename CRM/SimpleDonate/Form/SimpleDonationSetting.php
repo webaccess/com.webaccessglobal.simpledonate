@@ -98,11 +98,12 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     }
   }
 
-  public function transactDonation() {
+  static public function transactDonation() {
     $session = CRM_Core_Session::singleton();
     $contactID = $session->get('userID');
-    $params = $_POST['params'];
+    $params = CRM_Utils_Array::value('params', $_POST);
 
+    $params['cardExpiry'] = str_replace('20', '', $params['cardExpiry']);
     //check credit card expiry validation
     if (!empty($params["creditType"])) {
       $cardExpiryMonth = substr($params['cardExpiry'],0,2);
@@ -120,9 +121,9 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
         exit;
       }
     }
-    $params['amount'] = $_POST['amount'];
-    $creditInfo = $_POST['creditInfo'];
-    $isTest = $_POST['isTest'];
+    $params['amount'] = CRM_Utils_Array::value('amount', $_POST);
+    $creditInfo = CRM_Utils_Array::value('creditInfo', $_POST);
+    $isTest = CRM_Utils_Array::value('isTest', $_POST);
     //create Contact, billing address
     $userInfo = explode(' ', $params['user']);
     $params['first_name'] = $userInfo[0];
@@ -188,9 +189,10 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     CRM_Utils_System::civiExit();
   }
 
-  public function createSimpleContribution($contactID, $params, $isTest, $creditInfo) {
+  static public function createSimpleContribution($contactID, $params, $isTest, $creditInfo) {
     $locationTypes = CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
     $bltID = array_search('Billing', $locationTypes);
+    $domainID = CRM_Core_Config::domainID();
     $settings = civicrm_api3('Setting', 'get', array(
       'domain_id' => $domainID,
       'return' => "simple_donation_page",
@@ -200,12 +202,12 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       'id' => $donatePageID,
     ));
     $contributionparams = array();
-    $isrecur = $params['recur'];
+    $isrecur = CRM_Utils_Array::value('recur', $params);
     $contributionparams = array(
       "billing_first_name" => $params['first_name'],
       "first_name" => $params['first_name'],
-      "billing_middle_name" => $params['middle_name'],
-      "middle_name" => $params['middle_name'],
+      //"billing_middle_name" => $params['middle_name'],
+      //"middle_name" => $params['middle_name'],
       "billing_last_name" => $params['last_name'],
       "last_name" => $params['last_name'],
       "billing_street_address-{$bltID}" => $params['address'],
@@ -219,11 +221,10 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       "state_province" => CRM_Core_PseudoConstant::stateProvince($params['state']),
       "billing_postal_code-{$bltID}" => $params['zip'],
       "postal_code" => $params['zip'],
-      "year" => "20".substr($params['cardExpiry'], 2, 3),
-      "month" => substr($params['cardExpiry'], 0, 2),
       "email" => $params['email'],
       "contribution_page_id" => $donatePageID,
       "payment_processor_id" => CRM_Utils_Array::value('payment_processor', $params),
+      "payment_processor" => CRM_Utils_Array::value('payment_processor', $params),
       "is_test" => $isTest,
       "is_pay_later" => $params['is_pay_later'],
       "total_amount"=> $params['amount'],
@@ -236,29 +237,20 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       "contact_id" => $contactID,
       "source" => "Online Contribution: {$donateConfig['title']}",
     );
-    if ($params['is_pay_later']) {
+    if (CRM_Utils_Array::value('is_pay_later', $params)) {
       $contributionparams["contribution_status_id"] =  CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Pending');
-      $contributionparams["payment_processor_id"] = 1;
-    }
-    if (!empty($params['creditType'])) {
-      $contributionparams['credit_card_number'] = $creditInfo['credit_card_number'];
-      $contributionparams['cvv2'] = $creditInfo['cvv2'];
-      $contributionparams['credit_card_type'] = $creditInfo['credit_card_type'];
-    }
+      $contributionparams["payment_processor_id"] = 0;
 
-    if (!empty($params['debitType'])) {
-      $contributionparams['bank_identification_number'] = $creditInfo['bank_identification_number'];
-      $contributionparams['bank_name'] = $creditInfo['bank_name'];
-      $contributionparams['bank_account_number'] = $creditInfo['bank_account_number'];
-      $contributionparams['payment_type'] = $creditInfo['payment_type'];
-      $contributionparams['account_holder'] = $creditInfo['account_holder'];
+      $contributionparams['payment_processor_mode'] = empty($contributionparams['is_test']) ? 'live' : 'test';
+      $contributionparams['amount'] = $contributionparams['total_amount'];
+      if (!isset($contributionparams['net_amount'])) {
+        $contributionparams['net_amount'] = $contributionparams['amount'];
     }
     //unset the billing parameters if it is pay later mode
     //to avoid creation of billing location
-    if ($params['is_pay_later']) {
       $billingFields = array(
         'billing_first_name',
-        'billing_middle_name',
+        //'billing_middle_name',
         'billing_last_name',
         "billing_street_address-{$bltID}",
         "billing_city-{$bltID}",
@@ -271,7 +263,25 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       foreach ($billingFields as $value) {
         unset($contributionparams[$value]);
       }
+    } else if (CRM_Utils_Array::value('creditType', $params)) {
+      $contributionparams += array(
+        "year" => "20".substr($params['cardExpiry'], 2, 3),
+        "month" => substr($params['cardExpiry'], 0, 2),
+        'credit_card_number' => $creditInfo['credit_card_number'],
+        'cvv2' => $creditInfo['cvv2'],
+        'credit_card_type' => $creditInfo['credit_card_type'],
+      );
+
+    } else if (CRM_Utils_Array::value('debitType', $params)) {
+      $contributionparams += array(
+        'bank_identification_number' => $creditInfo['bank_identification_number'],
+        'bank_name' => $creditInfo['bank_name'],
+        'bank_account_number' => $creditInfo['bank_account_number'],
+        'payment_type' => $creditInfo['payment_type'],
+        'account_holder' => $creditInfo['account_holder'],
+      );
     }
+
     //check for recurring contribution
     if ($isrecur) {
       $recurParams = array('contact_id' => $contactID);
@@ -293,9 +303,18 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionparams['contribution_recur_id'] = $recurContriID;//$contribution->id;
     }
 
+    // Get the test payment processor.
+    if ($isTest) {
+      $test_payment_processor = self::getTestProcessorId($contributionparams['payment_processor']);
+      $contributionparams['payment_processor'] = $contributionparams['payment_processor_id'] = $test_payment_processor;
+    }
     //call transact api
     try {
+      if (CRM_Utils_Array::value('is_pay_later', $params)) {
+        $result = civicrm_api3('Contribution', 'create', $contributionparams);
+      } else {
       $result = civicrm_api3('Contribution', 'transact', $contributionparams);
+    }
     }
     catch (CiviCRM_API3_Exception $e) {
       $error = $e->getMessage();
@@ -303,7 +322,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       return $errorList;
     }
 
-    if ($result['error']) {
+    if (CRM_Utils_Array::value('error', $result)) {
       //make sure to cleanup db for recurring case.
       if ($recurContriID) {
         CRM_Contribute_BAO_ContributionRecur::deleteRecurContribution($recurContriID);
@@ -314,7 +333,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       $contributionID = $result['id'];
       // Send receipt
       // send recurring Notification email for user
-      if ($recurContriID) {
+      if (isset($recurContriID)) {
         CRM_Contribute_BAO_ContributionPage::recurringNotify( CRM_Core_Payment::RECURRING_PAYMENT_START,
           $contactID,
           $donatePageID,
@@ -325,4 +344,17 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
       return $result;
     }
   }
+
+	static function getTestProcessorId($id) {
+		$liveProcessorName = civicrm_api3('payment_processor', 'getvalue', array(
+			'id' => $id,
+			'return' => 'name',
+		));
+		return civicrm_api3('payment_processor', 'getvalue', array(
+			'return' => 'id',
+			'name' => $liveProcessorName,
+			'is_test' => 1,
+			'domain_id' =>  CRM_Core_Config::domainID(),
+		));
+	}
 }
