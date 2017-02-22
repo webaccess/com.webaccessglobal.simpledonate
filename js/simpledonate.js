@@ -150,12 +150,6 @@
       return $scope.amount === price;
     };
 
-    $scope.amounthover = function (price) {
-      $scope.formInfo.donateAmount = price;
-      $scope.hidePriceVal = false;
-      return $scope.message;
-    };
-
     $scope.amountDefault = function (price, isDefault) {
       if (isDefault == 1 && !$scope.formInfo.donateAmount) {
         $scope.amount = $scope.formInfo.donateAmount = price;
