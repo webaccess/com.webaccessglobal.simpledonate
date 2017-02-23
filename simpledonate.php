@@ -243,6 +243,7 @@ function simpledonate_civicrm_pageRun(&$page) {
       //Include bootstrap and custom css files to affect this angular page only
       CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.simpledonate',  'css/bootstrap.min.css', 103, 'page-header');
       CRM_Core_Resources::singleton()->addStyleFile('com.webaccessglobal.simpledonate',  'css/simpledonate.css', 100, 'page-body');
+      CRM_Core_Resources::singleton()->addScriptFile('com.webaccessglobal.simpledonate',  'js/libs/bootstrap.min.js', 100, 'html-header');
     }
 
     if ($contactID) {
@@ -269,7 +270,7 @@ function simpledonate_getSimpleDonateSetting() {
     }
     else {
       //CRM_Core_Error::debug_var('setting-get result for simple_donation_page', $settings);
-      CRM_Core_Error::fatal(ts('Donation page is not configures. Please contact site administrator.'));
+      CRM_Core_Error::fatal(ts('Donation page is not configured. Please contact site administrator.'));
     }
   }
   else {
@@ -289,7 +290,6 @@ function simpledonate_civicrm_angularModules(&$angularModule) {
       'js/simpledonate.js',
       'js/libs/parsley.min.js',
       'js/libs/jquery.ziptastic.js',
-      'js/libs/bootstrap.min.js',
       'js/libs/modernizr.js',
       'js/libs/jquery.inputmask.js',
       'js/libs/jquery.inputmaskDate.extensions.js'
