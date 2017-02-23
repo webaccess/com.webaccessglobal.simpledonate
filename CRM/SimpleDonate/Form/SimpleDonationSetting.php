@@ -72,7 +72,30 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
 
     $this->addSelect('simpleDonation', $attributes, TRUE);
     $this->addElement('checkbox', "ziptastic", ts('Is Ziptastic enabled?'));
+    $this->addFormRule(array('CRM_SimpleDonate_Form_SimpleDonationSetting', 'formRule'), $this);
     parent::buildQuickForm();
+  }
+
+  /**
+   * Global form rule.
+   *
+   * @param array $fields
+   *   The input form values.
+   * @param array $files
+   *   The uploaded files if any.
+   * @param $self
+   *
+   * @return bool|array
+   *   true if no errors, else array of errors
+   */
+  public static function formRule($fields, $files, $self) {
+    $errors = array();
+    $extends = CRM_Core_Component::getComponentID('CiviContribute');
+    $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $fields['simpleDonation'], $extends);
+    if (empty($priceSetID)) {
+      $errors['simpleDonation'] = ts('Simple Donation is currently not supported for Memberships. Please select pages with Contribution priceset.');
+    }
+    return $errors;
   }
 
   public function postProcess() {
