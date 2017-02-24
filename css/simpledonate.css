@@ -1,3 +1,6 @@
+#crm-container div#printer-friendly {
+  display: none !important;
+}
 .field-container select {
     border: 1px solid #ddd !important;
     border-radius : 8px !important;
@@ -144,8 +147,9 @@ ul.paymentProcessor
 }
 
 .credit_card_type-section {
-    float: left;
+ /*   float: left; */
     border-style: none !Important;
+    height: 60px;
 }
 
 .credit_card_type-section a {
@@ -273,6 +277,18 @@ ul.hpriceSet li span{
 }
 
 .other-amount input[type=text] {
+    border : 2px solid #006699 !important;
+    border-radius : 10px !important;
+    font-size: 1.4em !important;
+    color: #006699 !important;
+    font-size: 1.4em !important;
+    padding-left: 1.2em !important;
+    width: 120px;
+    padding-top: 5px !important;
+    padding-bottom: 8px !important;
+}
+
+.other-amount input[type=tel] {
     border : 2px solid #006699 !important;
     border-radius : 10px !important;
     font-size: 1.4em !important;
@@ -453,7 +469,7 @@ button:hover .next-icons {
 /* SmartPhones (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
 .other-amount {
-    bottom: 15px;
+    /*bottom: 15px;*/
 }
 .other-amount input[type=text] {
     padding-top: 7px !important;
@@ -474,7 +490,7 @@ ul.priceSet li{
 /* iPads (portrait and landscape) ----------- */
 @media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
 .other-amount {
-    bottom: 16px;
+    /*bottom: 16px;*/
 }
 .other-amount input[type=text] {
     padding-top: 8px !important;

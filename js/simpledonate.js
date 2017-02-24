@@ -17,6 +17,7 @@
 
   simpleDonation.factory('formFactory', function ($q) {
     var savedData = {};
+    var payLaterReceipt = {};
     return {
       postData: function (param, isTest, creditInfo, amount) {
         var deferred = $q.defer();
@@ -38,6 +39,25 @@
           }
         });
         return deferred.promise;
+      },
+      setPayLaterReceipt: function (data) {
+        payLaterReceipt = data;
+      },
+      getPayLaterReceipt: function (data) {
+        if(angular.isObject(payLaterReceipt) === true) {
+          if (Object.keys(payLaterReceipt).length) {
+            return payLaterReceipt;
+          }
+          else {
+            return null;
+          }
+        }
+        else if (payLaterReceipt.length) {
+          return payLaterReceipt;
+        }
+        else {
+          return null;
+        }
       },
       setEmail: function (data) {
         savedData = data;
@@ -78,7 +98,24 @@
     $scope.isTest = CRM.simpledonate.isTest;
     $scope.section = 1;
     $scope.values = CRM.simpledonateVal;
+    $scope.payLaterReceipt = formFactory.getPayLaterReceipt();
 
+    console.log(navigator.userAgent);
+
+    // Make touch interfaces show numeric keypad. 
+    if (navigator.userAgent.match(/Android/i)) {
+      $scope.isMobile = true;
+      $scope.inputType = 'tel'; 
+    } else {
+      $scope.inputType = 'text'; 
+    }
+
+    // Fix bug for Firebox on Android Bug 737658.
+    if (navigator.userAgent.match(/Android.*Firefox/i)) {
+      $('#zip').change(function(ev) {
+        $('#zip').trigger('keyup');
+      });
+    }
     //manually binds Parsley--Validation Library to this form.
     $('#simpleDonationForm').parsley({
       excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], input:hidden"
@@ -87,6 +124,12 @@
 
     $scope.formInfo.email = formFactory.getEmail();
     $scope.formInfo.donateAmount = 0;
+
+    //Trigger ziptastic if Name is auto filled.
+    $('#user').blur(function(ev) {
+      $('#zip').trigger('keyup');
+    });
+
 
     //get session
     if (CRM.simpledonate.sessionContact) {
@@ -143,11 +186,21 @@
     $scope.hidePriceVal = true;
     $scope.amountSelected = function (price) {
       $scope.hidePriceVal = false;
-      $scope.amount = price;
+      $scope.formInfo.donateAmount = $scope.amount = price;
     };
 
     $scope.amountActive = function (price) {
       return $scope.amount === price;
+    };
+
+    $scope.amountLeave = function (price) {
+      $scope.formInfo.donateAmount = $scope.amount;
+      $scope.hidePriceVal = false;
+      return $scope.message;
+    };
+
+    $scope.amountChange = function () {
+      $scope.amount = $scope.formInfo.otherAmount;
     };
 
     $scope.amountDefault = function (price, isDefault) {
@@ -163,6 +216,7 @@
     $scope.subtleAmount = 0; //Temporary calculated amount
     $scope.formInfo.selectDonateAmount = 0;
     $scope.formInfo.textDonateAmount = 0;
+    $scope.formInfo.radioDonateAmount = 0;
     $scope.formInfo.CheckBoxAmount = 0;
     //Calculate amount on amount selected
     $scope.calcAmount = function (amnt) {
@@ -188,6 +242,11 @@
     $scope.hamountClick = function (price, type, name) {
       if (price && type == 'radio') {
         $scope.formInfo.radioDonateAmount = price;
+        $scope.formInfo.textDonateAmount = 0;
+      }
+      if (type == 'other') {
+        $scope.formInfo.radioDonateAmount = 0;
+        $('fieldset.priceset-group').find('label').removeClass('active');
       }
       $scope.subtleAmount = $scope.formInfo.donateAmount = $scope.amount = parseInt($scope.formInfo.CheckBoxAmount) + parseInt($scope.formInfo.selectDonateAmount) + parseInt($scope.formInfo.radioDonateAmount) + parseInt($scope.formInfo.textDonateAmount);
       $scope.hidePriceVal = false;
@@ -345,6 +404,10 @@
           else {
             if (resultParams) {
               formFactory.setEmail($scope.formInfo.email);
+              if ($scope.formInfo.is_pay_later) {
+                formFactory.setPayLaterReceipt($scope.donationConfig.pay_later_receipt);
+              }
+
               $location.path('/donation/thanks');
               $window.scrollTo(0, 0);
             }
@@ -378,12 +441,12 @@
           }, 220);
         };
         $(elm).inputmask({
-          mask: "m/q",
-          placeholder: " ",
+          mask: "m/y",
+          placeholder: "mm/yyyy",
           clearIncomplete: true,
           oncomplete: expirationComplete,
           showMaskOnHover: false,
-          overrideFocus: true
+          overrideFocus: true,
         });
       }
     };
@@ -713,4 +776,29 @@
     };
     return directive;
   });
+
+  simpleDonation.directive('selectOnFocus', function ($timeout) {
+    var directive =  {
+      restrict: 'A',
+      link: function (scope, element, attrs) {
+        var focusedElement = null;
+
+        element.on('focus', function () {
+          var self = this;
+          if (focusedElement != self) {
+            focusedElement = self;
+            $timeout(function () {
+              self.select();
+            }, 10);
+          }
+        });
+
+        element.on('blur', function () {
+          focusedElement = null;
+        });
+      }
+    };
+    return directive;
+  });
+
 })(angular, CRM.$, CRM._);
