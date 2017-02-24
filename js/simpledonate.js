@@ -4,11 +4,11 @@
   simpleDonation.config([
     '$routeProvider',
     function ($routeProvider) {
-      $routeProvider.when('/donation', {
+      $routeProvider.when('/donation/:id/', {
         templateUrl: resourceUrl + '/partials/simpledonate.html',
-        controller: 'SimpleDonationCtrl'
+        controller: 'SimpleDonationCtrl',
       });
-      $routeProvider.when('/donation/:thanks', {
+      $routeProvider.when('/donation/:id/:thanks', {
         templateUrl: resourceUrl + '/partials/thankYou.html',
         controller: 'SimpleDonationCtrl'
       });
@@ -96,18 +96,17 @@
     $scope.quickConfig = CRM.simpledonate.isQuickConfig;
     $scope.otherAmount = CRM.simpledonate.otherAmount;
     $scope.isTest = CRM.simpledonate.isTest;
+    $scope.donatePageId = CRM.simpledonate.donatePageId;
     $scope.section = 1;
     $scope.values = CRM.simpledonateVal;
     $scope.payLaterReceipt = formFactory.getPayLaterReceipt();
 
-    console.log(navigator.userAgent);
-
-    // Make touch interfaces show numeric keypad. 
+    // Make touch interfaces show numeric keypad.
     if (navigator.userAgent.match(/Android/i)) {
       $scope.isMobile = true;
-      $scope.inputType = 'tel'; 
+      $scope.inputType = 'tel';
     } else {
-      $scope.inputType = 'text'; 
+      $scope.inputType = 'text';
     }
 
     // Fix bug for Firebox on Android Bug 737658.
@@ -373,7 +372,8 @@
       $scope.param = {
         "state": $scope.state,
         "country": $scope.country,
-        "amount": $scope.amount
+        "amount": $scope.amount,
+        "donatePageId": $scope.donatePageId
       };
       $formParams = {};
       $.extend($formParams, $scope.formInfo);
@@ -408,7 +408,7 @@
                 formFactory.setPayLaterReceipt($scope.donationConfig.pay_later_receipt);
               }
 
-              $location.path('/donation/thanks');
+              $location.path('/donation/' + $scope.donatePageId + '/thanks');
               $window.scrollTo(0, 0);
             }
           }

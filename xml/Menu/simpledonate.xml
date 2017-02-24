@@ -7,6 +7,18 @@
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/simple/donation/pages</path>
+    <page_callback>CRM_SimpleDonate_Page_SimpleDonationPage</page_callback>
+    <title>Simple Donation Configuration</title>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/simple/donation/redirect</path>
+    <page_callback>CRM_SimpleDonate_Controller_SimpleDonate</page_callback>
+    <title>Simple Donation Redirection</title>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
     <path>civicrm/simple</path>
     <page_callback>\Civi\Angular\Page\Main</page_callback>
     <title>Simple Donation Page</title>
