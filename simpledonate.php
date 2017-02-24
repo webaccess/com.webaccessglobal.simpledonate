@@ -167,11 +167,11 @@ function simpledonate_civicrm_pageRun(&$page) {
       //check for anonymous user.
       $validUser = CRM_Contact_BAO_Contact_Utils::validChecksum($tempID, $userChecksum);
       if ($validUser) {
-				$contactID = $tempID;
+        $contactID = $tempID;
       }
-		} else {
+    } else {
     $contactID = $session->get('userID');
-		}
+    }
     if ($settingVal['donatePageID']) {
       $extends = CRM_Core_Component::getComponentID('CiviContribute');
       $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $settingVal['donatePageID'], $extends);
@@ -210,7 +210,7 @@ function simpledonate_civicrm_pageRun(&$page) {
 
       $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
 
-      $paymentProcessors = simpledonate_civicrm_get_payment_processors($donatePage['payment_processor'], $test);
+      $paymentProcessors = simpledonate_civicrm_get_payment_processors($donatePage['payment_processor'], $test, $donateConfig);
       //set Country and State value
       $config = CRM_Core_Config::singleton();
       $defaultContactCountry = $config->defaultContactCountry;
@@ -302,15 +302,17 @@ function simpledonate_civicrm_angularModules(&$angularModule) {
  * Get live and/or test payment processor based on live paymentProcessorId.
  * Fixes bugs in civicrm getPayment function.
  *
- * Passing test to getPayment will always return NULL to CiviCRM bug.  
+ * Passing test to getPayment will always return NULL to CiviCRM bug.
  *
  * PaymentProcessor Ids via the Donate Page Config are always live.
  *
  * Deal with getting the test processor during transaction processing.
  *
  * @param $paymentProcessorIds
+ * @param $mode
+ * @param $donateConfig
  */
-function simpledonate_civicrm_get_payment_processors($paymentProcessorIDs, $mode) {
+function simpledonate_civicrm_get_payment_processors($paymentProcessorIDs, $mode, $donateConfig) {
   //Get payment processor details
   if (!$paymentProcessorIDs) {
     CRM_Core_Error::fatal(ts('Invalid value passed to getPayment function'));
