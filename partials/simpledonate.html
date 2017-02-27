@@ -153,8 +153,8 @@ Controller: SimpleDonationCtrl
       </div>
 
       <div class="col-sm-12">
-        <div class="payment-block credit-card-fields-block" ng-if="creditType">
-          <div class="crm-section credit_card_type-section">
+        <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
+          <div class="crm-section credit_card_type-section col-sm-1">
             <div class="crm-credit_card_type-icons">
               <a class="crm-credit_card_type-icon-no" ng-hide="selectedRow" title="Undefined"><span></span></a>
               <a class="crm-credit_card_type-icon-visa" title="Visa" ng-show='"Visa"==selectedRow'><span>Visa</span></a>
@@ -165,7 +165,7 @@ Controller: SimpleDonationCtrl
               <a class="crm-credit_card_type-icon-cvv2-icon cvv2-icon" title="CVV" ng-show='"cvv2"==selectedRow'><span>CVV</span></a>
             </div>
           </div>
-          <div class="form-group"
+          <div class="form-group single-input-block col-sm-5"
                ng-class="{ 'has-error' : simpleDonationForm.cardNumber.$invalid && !simpleDonationForm.cardNumber.$pristine && ccType}">
             <label>Card Number</label>
             <input id="card-number" data-parsley-errors-messages-disabled type="{{inputType}}" pattern="[0-9]*" inputmode="numeric" name="cardNumber" class="form-control cardNumber"
@@ -177,7 +177,7 @@ Controller: SimpleDonationCtrl
       </div>
       <div class="col-sm-12">
         <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
-          <div class="form-group"
+          <div class="form-group single-input-block col-sm-2"
                ng-class="{ 'has-error' : simpleDonationForm.cardExpiry.$invalid && !simpleDonationForm.cardExpiry.$pristine }">
             <label>Expiration Date </label>
             <input data-parsley-errors-messages-disabled valid-credit-block data-ng-minlength="4" placeholder="MM/YYYY"
@@ -189,10 +189,10 @@ Controller: SimpleDonationCtrl
       </div>
       <div class="col-sm-12">
         <div class="payment-block credit-card-fields-block payment-processor-group" ng-if="creditType">
-          <div class="form-group"
-               ng-class="{'has-error':simpleDonationForm.securityCode.$invalid && !simpleDonationForm.securityCode.$pristine}"
+          <div class="form-group single-input-block col-sm-2"
+               ng-class="{'has-error':simpleDonationForm.securityCode.$invalid && !simpleDonationForm.securityCode.$pristine}">
             <label>Security Code </label>
-            <input data-parsley-errors-messages-disabled valid-credit-block type="{{inputType}}" pattern="[0-9]*" inputmode="numeric" name="securityCode"
+            <input data-parsley-errors-messages-disabled valid-credit-block type="text" pattern="[0-9]*" inputmode="numeric" name="securityCode"
                    id="securityCode" class="form-control" ng-model="formInfo.securityCode" required
                    data-ng-pattern="/^[0-9]+$/" data-ng-minlength="3" maxlength="3" autocomplete="off"
                    ng-focus="selectedCardType('cvv2')" data-parsley-errors-container=".errorBlock" placeholder="CVV"
