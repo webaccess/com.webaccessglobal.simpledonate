@@ -102,12 +102,12 @@
 
     console.log(navigator.userAgent);
 
-    // Make touch interfaces show numeric keypad. 
+    // Make touch interfaces show numeric keypad.
     if (navigator.userAgent.match(/Android/i)) {
       $scope.isMobile = true;
-      $scope.inputType = 'tel'; 
+      $scope.inputType = 'tel';
     } else {
-      $scope.inputType = 'text'; 
+      $scope.inputType = 'text';
     }
 
     // Fix bug for Firebox on Android Bug 737658.
