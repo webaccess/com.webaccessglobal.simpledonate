@@ -219,7 +219,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     $locationTypes = CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
     $bltID = array_search('Billing', $locationTypes);
 
-    $donatePageID = $_POST['params']['donatePageId'];
+    $donatePageID = $params['donatePageId'];
     $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
       'id' => $donatePageID,
     ));
