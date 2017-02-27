@@ -32,6 +32,7 @@
         <tr>
           <th>{ts}ID{/ts}</th>
           <th>{ts}Title{/ts}</th>
+          <th></th>
         </tr>
       </thead>
       {foreach from=$rows item=row}
