@@ -21,12 +21,10 @@ function simpledonate_civicrm_xmlMenu(&$files) {
 function simpledonate_civicrm_navigationMenu(&$navMenu) {
   $pages = array(
     'admin_page' => array(
-    'label'     => 'Simple Donate',
-    'name'      => 'Simple Donate',
-    'url'       => NULL,
-      //'url'        => 'civicrm/admin/contribute/simpledonate',
-    'permission'=> 'access CiviContribute',
-      //'parent_id' => $contributionsParentId,
+      'label'     => 'Simple Donation Pages',
+      'name'      => 'Simple Donation Pages',
+      'url'       => 'civicrm/simple/donation/pages?reset=1',
+      'permission'=> 'access CiviContribute',
       'parent' => array('Contributions'),
       'operator'   => 'AND',
       'separator'  => NULL,
@@ -43,22 +41,6 @@ function simpledonate_civicrm_navigationMenu(&$navMenu) {
       'operator'   => 'AND',
       'separator'  => NULL,
       'active'     => 1
-    ),
-    'test_page' => array(
-      'label' => ts('Test mode'),
-      'name' => 'Test Donation',
-      'url'  => 'civicrm/simple/test/#/donation',
-      'permission' => 'access CiviContribute',
-      'active'     => 1,
-      'parent' => array('Contributions', 'Simple Donate'),
-    ),
-    'live_page' => array(
-      'label' => ts('Live mode'),
-      'name' => 'Live Donation',
-      'url'  => 'civicrm/simple/#/donation',
-      'permission' => 'access CiviContribute',
-      'active'     => 1,
-      'parent' => array('Contributions', 'Simple Donate'),
     ),
   );
   foreach($pages as $item) {
@@ -155,10 +137,13 @@ function simpledonate_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 }
 
 function simpledonate_civicrm_pageRun(&$page) {
+  $session = CRM_Core_Session::singleton();
   $pageName = $page->getVar('_name');
+
   if ($pageName == 'Civi\Angular\Page\Main' && $page->urlPath[1] == 'simple') {
     //Get all contribution page detils and session details to be used in js
-    $settingVal = simpledonate_getSimpleDonateSetting();
+    $settingVal = CRM_SimpleDonate_Page_SimpleDonationPage::getSimpleDonateSetting();
+    $settingVal['donatePageID'] = $session->get('pageId');
     $session = CRM_Core_Session::singleton();
     $tempID = CRM_Utils_Request::retrieve('cid', 'Positive');
     //check if this is a checksum authentication
@@ -193,6 +178,14 @@ function simpledonate_civicrm_pageRun(&$page) {
           $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
         }
       }
+
+      //Get donation page details
+      $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
+        'id' => $settingVal['donatePageID'],
+      ));
+      CRM_Utils_System::setTitle($donateConfig['title']); // Set the page title
+
+      $currencySymbol = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_Currency', $donatePage['currency'], 'symbol', 'name');
 
       // Check for test or live donation
       if (!empty($page->urlPath[2]) && $page->urlPath[2] === 'test') {
@@ -238,6 +231,7 @@ function simpledonate_civicrm_pageRun(&$page) {
           'isTest' => ($test == 'test') ? 1 : 0,
           'htmlPriceList' => empty($priceList) ? NULL :$htmlPriceList,
           'isQuickConfig' => $isQuickConfig,
+          'donatePageId' => $settingVal['donatePageID'],
         ),
       ));
       //Include bootstrap and custom css files to affect this angular page only
@@ -254,30 +248,6 @@ function simpledonate_civicrm_pageRun(&$page) {
       ));
     }
   }
-}
-
-/**
- * get tab options from DB using setting-get api
- */
-function simpledonate_getSimpleDonateSetting() {
-  $settingVal = array();
-  $donateId = CRM_Core_BAO_Setting::getItem('Simple Donation', 'simple_donation_page');
-  if (empty($donateId)) {
-    //Redirect to configuration page if user has permission
-    if (CRM_Core_Permission::check('administer CiviCRM')) {
-      CRM_Core_Session::setStatus('Simple donation configuration is incomplete!', ts('Incomplete configuration'), 'warning');
-      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/simple/donation/configuration','reset=1'));
-    }
-    else {
-      //CRM_Core_Error::debug_var('setting-get result for simple_donation_page', $settings);
-      CRM_Core_Error::fatal(ts('Donation page is not configured. Please contact site administrator.'));
-    }
-  }
-  else {
-    $settingVal['donatePageID'] = $donateId;
-    $settingVal['ziptasticEnable'] = CRM_Core_BAO_Setting::getItem('Simple Donation', 'ziptastic_enable');
-  }
-  return $settingVal;
 }
 
 /**

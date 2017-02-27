@@ -66,6 +66,7 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
     CRM_Utils_System::setTitle(ts('Settings - Simple donate form'));
     $attributes = array(
       'entity' => 'Contribution',
+      'multiple' => 'multiple',
       'field' => 'contribution_page_id',
       'option_url' => NULL,
     );
@@ -91,9 +92,11 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
   public static function formRule($fields, $files, $self) {
     $errors = array();
     $extends = CRM_Core_Component::getComponentID('CiviContribute');
-    $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $fields['simpleDonation'], $extends);
-    if (empty($priceSetID)) {
-      $errors['simpleDonation'] = ts('Simple Donation is currently not supported for Memberships. Please select pages with Contribution priceset.');
+    foreach ($fields['simpleDonation'] as $id) {
+      $priceSetID = CRM_Price_BAO_PriceSet::getFor('civicrm_contribution_page', $id, $extends);
+      if (empty($priceSetID)) {
+        $errors['simpleDonation'] = ts('Simple Donation is currently not supported for Memberships. Please select pages with Contribution priceset.');
+      }
     }
     return $errors;
   }
@@ -215,12 +218,8 @@ class CRM_SimpleDonate_Form_SimpleDonationSetting extends CRM_Admin_Form_Setting
   static public function createSimpleContribution($contactID, $params, $isTest, $creditInfo) {
     $locationTypes = CRM_Core_PseudoConstant::get('CRM_Core_DAO_Address', 'location_type_id', array(), 'validate');
     $bltID = array_search('Billing', $locationTypes);
-    $domainID = CRM_Core_Config::domainID();
-    $settings = civicrm_api3('Setting', 'get', array(
-      'domain_id' => $domainID,
-      'return' => "simple_donation_page",
-    ));
-    $donatePageID = $settings['values'][$domainID]['simple_donation_page'];
+
+    $donatePageID = $params['donatePageId'];
     $donateConfig = $donatePage = civicrm_api3('ContributionPage', 'getsingle', array(
       'id' => $donatePageID,
     ));
