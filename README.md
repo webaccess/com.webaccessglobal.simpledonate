@@ -2,7 +2,7 @@
 
 A responsive, sleek and user friendly donation page for CiviCRM.
 
-This extension demonstrates an AngularJS approach to providing a simplified CiviCRM donate interface.
+This extension allows admin to configure alternate interface for the contribution pages in CiviCRM
 
 More information:
 
@@ -17,11 +17,11 @@ More information:
 
 ## Configuration
 
-Once the extension is installed, visit *Administer » CiviContribute » Simple Donate Configuration* in the menu and select which contribution page you wish to use Simple Donate with.
+Once the extension is installed, visit *Administer » CiviContribute » Simple Donate Configuration* in the menu and select which contribution pages you wish to use Simple Donate with.
 
 ## Using Simple Donate
 
-To find your Simple Donate contribution page, visit *Administer » Contributions » Simple Donate* in the menu and select Test mode or Live mode.
+Navigate to "Contributions » Simple Donation Pages" or navigate to <your site url>civicrm/simple/donation/pages?reset=1 to access you simple donation pages.
 
 ## Troubleshooting
 
