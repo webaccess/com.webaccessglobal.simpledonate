@@ -21,7 +21,7 @@ Once the extension is installed, visit *Administer » CiviContribute » Simple D
 
 ## Using Simple Donate
 
-Navigate to "Contributions » Simple Donation Pages" or navigate to <your site url>civicrm/simple/donation/pages?reset=1 to access your simple donation pages.
+Navigate to "Contributions » Simple Donation Pages" or navigate to < your site url >/civicrm/simple/donation/pages?reset=1 to access your simple donation pages.
 
 ## Troubleshooting
 
