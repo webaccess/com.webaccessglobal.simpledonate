@@ -174,6 +174,11 @@ function simpledonate_civicrm_pageRun(&$page) {
         }
         else {
           $priceFieldVal = civicrm_api3('PriceFieldValue', 'get', array('return' => "amount, title, name, is_default","price_field_id"=> $value['id'], 'is_active' => 1));
+          // Format the amount.
+          foreach ($priceFieldVal['values'] as $k => $dontCare) {
+            $amount = $priceFieldVal['values'][$k]['amount'];
+            $priceFieldVal['values'][$k]['amount'] = CRM_Utils_Money::format($amount, NULL, NULL, TRUE);
+          }
           $priceList = $priceFieldVal['values'];
           $htmlPriceList[$value['html_type']] = $priceFieldVal['values'];
         }
